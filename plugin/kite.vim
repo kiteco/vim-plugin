@@ -2,7 +2,7 @@ let s:supported_languages = ['javascript', 'python']
 
 
 if !(has('nvim') || has('job'))
-  call kite#utils#warn('disabled - requires a vim with job support')
+  call kite#utils#warn('disabled - requires nvim or vim with job support')
   finish
 endif
 
