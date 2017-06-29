@@ -44,9 +44,9 @@ endfunction
 " param type (String) - 'c' for character indices, 'b' for byte indices
 function! s:selected_region(type)
   if a:type == 'c'
-    let Offset = function('s:character_offset')
+    let Offset = function('kite#utils#character_offset')
   else
-    let Offset = function('s:byte_offset')
+    let Offset = function('kite#utils#byte_offset')
   endif
 
   if mode() ==# 'n' || mode() ==# 'i'
@@ -89,18 +89,26 @@ endfunction
 " Returns -1 when the buffer is empty.
 "
 " Does not work in visual mode.
-function! s:character_offset()
+function! kite#utils#character_offset()
   return (wordcount().cursor_chars) - 1
 endfunction
 
 
 " Returns the 0-based index into the buffer of the cursor position.
 " Returns -2 for a new, empty buffer or 0 for an existing, empty buffer.
-function! s:byte_offset()
+function! kite#utils#byte_offset()
   " We could use `return (wordcount().cursor_bytes) - 1` but with a multibyte
   " character it reports the character's last byte rather than its first.  So
   " we would have to step one character left, get the byte offset, and add 1.
   " Overall, the following is easier.
   return line2byte(line('.')) - 1 + col('.') - 1
+endfunction
+
+
+function! kite#utils#buffer_contents()
+  let [unnamed, zero] = [@", @0]
+  silent %y
+  let [contents, @", @0] = [@0, unnamed, zero]
+  return contents
 endfunction
 

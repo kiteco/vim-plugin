@@ -1,10 +1,8 @@
 function! kite#events#event(action)
   let filename = resolve(expand('%:p'))
 
-  let text = s:buffer_contents()
-  if strlen(text) > kite#max_file_size()
-    return
-  endif
+  let text = kite#utils#buffer_contents()
+  if strlen(text) > kite#max_file_size() | return | endif
 
   let [sel_start, sel_end] = kite#utils#selected_region_characters()
   if [sel_start, sel_end] == [-1, -1]
@@ -20,14 +18,13 @@ function! kite#events#event(action)
         \ 'selections': selections
         \ })
 
-  call kite#client#post_event(json)
+  call kite#client#post_event(json, function('kite#events#handler'))
 endfunction
 
 
-function! s:buffer_contents()
-  let [unnamed, zero] = [@", @0]
-  silent %y
-  let [contents, @", @0] = [@0, unnamed, zero]
-  return contents
+function! kite#events#handler(response)
+  if a:response.status == 500
+    call kite#utils#warn('events: JSON error')
+  endif
 endfunction
 

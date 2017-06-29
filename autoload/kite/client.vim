@@ -1,91 +1,45 @@
-function! kite#client#post_event(json)
-  let cmd = 'curl -sSi '.
-        \ shellescape('http://127.0.0.1:46624/clientapi/editor/event').
+let s:base_url = 'http://127.0.0.1:46624/clientapi/editor'
+
+
+function! kite#client#completions(json, handler)
+  return a:handler(kite#client#parse_response(system(s:curl_cmd('/completions', a:json))))
+endfunction
+
+
+function! kite#client#post_event(json, handler)
+  call kite#async#execute(s:curl_cmd('/event', a:json), a:handler)
+endfunction
+
+
+function! s:curl_cmd(endpoint, json)
+  return 'curl -sSi '.
+        \ shellescape(s:base_url.a:endpoint).
         \ ' -X POST'.
         \ ' -d '.shellescape(a:json)
-  call s:execute(cmd)
 endfunction
 
 
-function! s:execute(cmd)
-  let options = {
-        \ 'stdoutbuffer': []
-        \ }
-  let command = s:build_command(a:cmd)
+" Returns the integer HTTP response code and the string body in a dictionary.
+"
+" lines - either a list (from async commands) or a string (from sync)
+function! kite#client#parse_response(lines)
+  if empty(a:lines)
+    return {'status': 0, 'body': ''}
+  endif
 
-  if has('nvim')
-    call jobstart(command, extend(options, {
-          \ 'on_stdout': function('s:on_stdout_nvim'),
-          \ 'on_exit':   function('s:on_exit_nvim')
-          \ }))
+  if type(a:lines) == v:t_string
+    let lines = split(a:lines, "\r\n")
   else
-    call job_start(command, {
-          \ 'out_cb':       function('s:on_stdout_vim', options),
-          \ 'close_cb':     function('s:on_close_vim', options)
-          \ })
-  endif
-endfunction
-
-
-function! s:build_command(cmd)
-  if has('nvim')
-    if has('unix')
-      return ['sh', '-c', a:cmd]
-    elseif has('win32')
-      return ['cmd.exe', '/c', a:cmd]
-    else
-      throw 'unknown os'
-    endif
-  else
-    if has('unix')
-      return ['sh', '-c', a:cmd]
-    elseif has('win32')
-      return 'cmd.exe /c '.a:cmd
-    else
-      throw 'unknown os'
-    endif
-  endif
-endfunction
-
-
-function! s:on_stdout_vim(_channel, data) dict
-  " a:data - an output line
-  call add(self.stdoutbuffer, a:data)
-endfunction
-
-
-function! s:on_close_vim(channel) dict
-  if empty(self.stdoutbuffer)
-    return
+    let lines = a:lines
   endif
 
-  let status = split(self.stdoutbuffer[0], ' ')[1]
+  " Ignore occasional 100 Continue.
+  let i = match(lines, '^HTTP/1.[01] [2345]\d\d ')
+  let status = split(lines[i], ' ')[1]
 
-  if status == 500
-    call kite#utils#warn('events: JSON error')
-  endif
-endfunction
+  let sep = match(lines, '^$', i)
+  let body = join(lines[sep+1:], "\n")
 
-
-" TODO: handle incomplete last line - this happens
-" when line exceeds 8192 bytes (neovim/neovim#4266).
-function! s:on_stdout_nvim(_job_id, data, event) dict
-  if a:event ==# 'stdout'
-    " a:data - array of output lines
-    call extend(self.stdoutbuffer, a:data)
-  endif
-endfunction
-
-
-function! s:on_exit_nvim(_job_id, _data, _event) dict
-  if empty(self.stdoutbuffer)
-    return
-  endif
-
-  let status = split(self.stdoutbuffer[0], ' ')[1]
-
-  if status == 500
-    call kite#utils#warn('events: JSON error')
-  endif
+  return {'status': status, 'body': body}
 endfunction
 

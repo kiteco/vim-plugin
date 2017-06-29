@@ -1,3 +1,6 @@
+let g:kite_auto_complete = 1
+
+
 let s:supported_languages = ['javascript', 'python']
 
 
@@ -43,14 +46,21 @@ function! s:enable()
     autocmd CursorMoved              * call kite#events#event('selection')
     autocmd TextChanged,TextChangedI * call kite#events#event('edit')
     autocmd BufEnter,FocusGained     * call kite#events#event('focus')
+    autocmd InsertCharPre            * call kite#completion#insertcharpre()
+    autocmd TextChangedI             * call kite#completion#autocomplete()
   augroup END
+
+  setlocal completefunc=kite#completion#complete
+  setlocal completeopt-=menu
+  setlocal completeopt+=menuone
 endfunction
 
 
 function! s:disable()
-  augroup KiteFiles
-    autocmd!
-  augroup END
+  if exists('#KiteFiles')
+    autocmd! KiteFiles
+    augroup! KiteFiles
+  endif
 endfunction
 
 
@@ -58,4 +68,33 @@ augroup Kite
   autocmd!
   autocmd BufEnter * call <SID>toggle()
 augroup END
+
+
+" When the pop-up menu is closed with <C-e>, <C-y>, or <CR>,
+" the TextChangedI event is fired again, which re-opens the
+" pop-up menu.  To avoid this, we set a flag when one of those
+" keys is pressed.
+"
+" Note the <CR> mapping can conflict with vim-endwise because vim-endwise
+" also maps <CR>.  There are two ways around the conflict:
+"
+" - Either:
+"
+"     let g:kite_deconflict_cr = 1
+"
+"   This works but you will see the mapping echoed in the status line
+"   because vim-endwise ignores the <silent> when it re-maps the map.
+"
+" - Or use vim-endwise's experimental abbreviations instead:
+"
+"     let g:endwise_abbreviations = 1
+"     let g:endwise_no_mappings = 1
+"
+inoremap <expr> <C-e> kite#completion#popup_exit("\<C-e>")
+inoremap <expr> <C-y> kite#completion#popup_exit("\<C-y>")
+if !exists('g:kite_deconflict_cr')
+  inoremap <expr> <CR> kite#completion#popup_exit("\<CR>")
+else
+  inoremap <silent> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
+endif
 
