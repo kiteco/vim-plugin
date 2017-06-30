@@ -61,8 +61,8 @@ You can manually invoke the completions in insert mode with `<C-X><C-U>`.  See `
 You can configure how the completions behave with `&completeopt`.  We recommend:
 
 ```viml
-set completeopt+=noinsert  " don't insert
-set completeopt-=noselect  " do    select
+set completeopt+=noinsert  " don't insert any text until user chooses a match
+set completeopt-=noselect  " do    select first match
 ```
 
 If you want to see documentation in the preview window for each completion option, use:
@@ -71,7 +71,7 @@ If you want to see documentation in the preview window for each completion optio
 set completeopt+=preview
 ```
 
-To close the preview window once a completion has been inserted:
+To have the preview window automatically closed once a completion has been inserted:
 
 ```viml
 autocmd CompleteDone * if !pumvisible() | pclose | endif
