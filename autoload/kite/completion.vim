@@ -1,16 +1,15 @@
-" Whether the pop-up menu is being closed via <C-y>, <C-e>, or <CR>.
-let s:cancel_completion = 0
-" Whether the character about to be inserted is printable and not whitespace.
-let s:insertcharpre = 0
+let s:should_trigger_completion = 0
 
 
 function! kite#completion#insertcharpre()
-  let s:insertcharpre = (v:char =~# '\m\S')
+  let s:should_trigger_completion = (v:char =~# '\m\S')
 endfunction
 
 
 function! kite#completion#popup_exit(key)
-  let s:cancel_completion = pumvisible()
+  if pumvisible()
+    let s:should_trigger_completion = 0
+  endif
   return a:key
 endfunction
 
@@ -18,14 +17,8 @@ endfunction
 function! kite#completion#autocomplete()
   if !g:kite_auto_complete | return | endif
 
-  if s:cancel_completion
-    let s:cancel_completion = 0
-    let s:insertcharpre = 0
-    return
-  endif
-
-  if s:insertcharpre
-    let s:insertcharpre = 0
+  if s:should_trigger_completion
+    let s:should_trigger_completion = 0
     call feedkeys("\<C-X>\<C-U>")
   endif
 endfunction
