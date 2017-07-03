@@ -81,6 +81,9 @@ function! s:enable()
   else
     inoremap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
   endif
+  if exists('g:kite_tab_complete')
+    inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
+  endif
 endfunction
 
 
@@ -93,6 +96,7 @@ function! s:disable()
   inoremap <buffer> <C-e> <C-e>
   inoremap <buffer> <C-y> <C-y>
   inoremap <buffer> <CR> <CR>
+  inoremap <buffer> <Tab> <Tab>
 endfunction
 
 
