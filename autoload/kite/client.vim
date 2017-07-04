@@ -1,6 +1,11 @@
 let s:base_url = 'http://127.0.0.1:46624/clientapi/editor'
 
 
+function! kite#client#signatures(json, handler)
+  return a:handler(kite#client#parse_response(system(s:curl_cmd('/signatures', a:json))))
+endfunction
+
+
 function! kite#client#completions(json, handler)
   return a:handler(kite#client#parse_response(system(s:curl_cmd('/completions', a:json))))
 endfunction

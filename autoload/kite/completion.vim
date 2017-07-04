@@ -1,4 +1,5 @@
 let s:should_trigger_completion = 0
+let s:signature = 0
 
 
 function! kite#completion#insertcharpre()
@@ -35,6 +36,12 @@ function! kite#completion#complete(findstart, base)
 
     let line = getline('.')
     let start = col('.') - 1
+
+    let s:signature = (line[start - 1] == '(')
+    if s:signature
+      return start
+    endif
+
     while start > 0 && line[start - 1] =~ '\w'
       let start -= 1
     endwhile
@@ -45,13 +52,23 @@ function! kite#completion#complete(findstart, base)
     let [text, cursor] = [s:text, s:cursor]
     unlet s:text s:cursor
 
-    let json = json_encode({
+    let params = {
           \   'filename':     filename,
           \   'text':         text,
           \   'cursor_runes': cursor
-          \ })
+          \ }
 
-    return kite#client#completions(json, function('kite#completion#handler'))
+    if s:signature
+      let params.editor = 'vim'
+    endif
+
+    let json = json_encode(params)
+
+    if s:signature
+      return kite#client#signatures(json, function('kite#signature#handler'))
+    else
+      return kite#client#completions(json, function('kite#completion#handler'))
+    endif
   endif
 endfunction
 
