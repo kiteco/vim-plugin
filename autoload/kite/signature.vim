@@ -7,13 +7,15 @@ function! kite#signature#handler(response) abort
   let call = json.calls[0]
   let [callee, signatures] = [call.callee, call.signatures]
   let function_name = split(callee.repr, '\.')[-1]
+  let spacer = {'word': '', 'empty': 1, 'dup': 1}
+  let indent = '  '
   let completions = []
 
 
   "
   " Signature
   "
-  call add(completions, {'abbr': 'Signature:', 'word': '', 'empty': 1, 'dup': 1})
+  call add(completions, s:heading('Signature'))
 
   let detail = callee.details.function  " callee.detail is deprecated
   let arguments = []
@@ -42,29 +44,32 @@ function! kite#signature#handler(response) abort
     endif
   endif
 
-  let completion = {}
-  let completion.word = join(arguments, ', ')
-  let completion.abbr = '  '.function_name.'('.completion.word.')'
-  let completion.empty = 1
-  let completion.dup = 1
+  let args_string = join(arguments, ', ')
+  let completion = {
+        \   'word':  args_string,
+        \   'abbr':  indent.function_name.'('.args_string.')',
+        \   'empty': 1,
+        \   'dup':   1
+        \ }
   call add(completions, completion)
 
   "
   " kwarg details
   "
-  if has_key(detail, 'kwarg_parameters') && type(detail.kwarg_parameters) == v:t_list
-    call add(completions, {'word': '', 'empty': 1, 'dup': 1})
-    call add(completions, {'abbr': 'kwargs:', 'word': '', 'empty': 1, 'dup': 1})
+  if type(detail) != v:t_none && has_key(detail, 'kwarg_parameters') && type(detail.kwarg_parameters) == v:t_list
+    call add(completions, spacer)
+    call add(completions, s:heading('kwargs'))
+
     for kwarg in detail.kwarg_parameters
       let name = kwarg.name
       let types = map(kwarg.inferred_value, {_,t -> t.repr})
       " TODO: do we want to right-align the types?
       call add(completions, {
-            \   'word': name.'=',
-            \   'abbr': '  '.name,
-            \   'menu': join(types, ' | '),
+            \   'word':  name.'=',
+            \   'abbr':  indent.name,
+            \   'menu':  join(types, ' | '),
             \   'empty': 1,
-            \   'dup': 1
+            \   'dup':   1
             \ })
     endfor
   endif
@@ -74,8 +79,8 @@ function! kite#signature#handler(response) abort
   " Popular patterns
   "
   if len(signatures) > 0
-    call add(completions, {'word': '', 'empty': 1, 'dup': 1})
-    call add(completions, {'abbr': 'Popular Patterns:', 'word': '', 'empty': 1, 'dup': 1})
+    call add(completions, spacer)
+    call add(completions, s:heading('Popular Patterns'))
   endif
 
   for signature in signatures
@@ -98,15 +103,21 @@ function! kite#signature#handler(response) abort
       call add(arguments, '')
     endif
 
-    let completion = {}
-    let completion.word = join(arguments, ', ')
-    let completion.abbr = '  '.function_name.'('.completion.word.')'
-    let completion.empty = 1
-    let completion.dup = 1
-
+    let args_string = join(arguments, ', ')
+    let completion = {
+          \   'word':  args_string,
+          \   'abbr':  indent.function_name.'('.args_string.')',
+          \   'empty': 1,
+          \   'dup':   1
+          \ }
     call add(completions, completion)
   endfor
 
   return completions
+endfunction
+
+
+function s:heading(text)
+  return {'abbr': a:text.':', 'word': '', 'empty': 1, 'dup': 1}
 endfunction
 
