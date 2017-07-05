@@ -63,7 +63,6 @@ function! kite#signature#handler(response) abort
     for kwarg in detail.kwarg_parameters
       let name = kwarg.name
       let types = map(kwarg.inferred_value, {_,t -> t.repr})
-      " TODO: do we want to right-align the types?
       call add(completions, {
             \   'word':  name.'=',
             \   'abbr':  indent.name,
