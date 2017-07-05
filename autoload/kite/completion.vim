@@ -3,7 +3,18 @@ let s:signature = 0
 
 
 function! kite#completion#insertcharpre()
-  let s:should_trigger_completion = (v:char =~# '\m\S')
+  let s:should_trigger_completion = 0
+
+  if v:char =~# '\S'
+    let s:should_trigger_completion = 1
+  else
+    " Also trigger completion after a space inside fn call.
+    let line = getline('.').v:char
+    let start = col('.') - 1
+    if s:before_function_call_argument(line[:start-1])
+      let s:should_trigger_completion = 1
+    endif
+  endif
 endfunction
 
 
