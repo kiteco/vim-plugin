@@ -46,7 +46,7 @@ function! kite#signature#handler(response) abort
 
   let args_string = join(arguments, ', ')
   let completion = {
-        \   'word':  args_string,
+        \   'word':  '',
         \   'abbr':  indent.function_name.'('.args_string.')',
         \   'empty': 1,
         \   'dup':   1
@@ -105,7 +105,7 @@ function! kite#signature#handler(response) abort
 
     let args_string = join(arguments, ', ')
     let completion = {
-          \   'word':  args_string,
+          \   'word':  '',
           \   'abbr':  indent.function_name.'('.args_string.')',
           \   'empty': 1,
           \   'dup':   1
