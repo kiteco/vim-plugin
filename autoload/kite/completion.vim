@@ -37,7 +37,8 @@ function! kite#completion#complete(findstart, base)
     let line = getline('.')
     let start = col('.') - 1
 
-    let s:signature = (line[start - 1] == '(')
+    let s:signature = s:before_function_call_argument(line[:start-1])
+
     if s:signature
       return start
     endif
@@ -95,5 +96,13 @@ function! kite#completion#handler(response) abort
   else
     return []
   endif
+endfunction
+
+
+" Returns truthy if the cursor is just before a function call argument.
+"
+" line - the line up to the cursor position
+function! s:before_function_call_argument(line)
+  return a:line =~ '\v[(]([^)]+,)?\s*$'
 endfunction
 
