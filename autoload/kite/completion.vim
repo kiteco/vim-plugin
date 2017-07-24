@@ -60,7 +60,7 @@ function! kite#completion#complete(findstart, base)
     return start
 
   else
-    let filename = resolve(expand('%:p'))
+    let filename = kite#utils#filepath(0)
     let [text, cursor] = [s:text, s:cursor]
     unlet s:text s:cursor
 

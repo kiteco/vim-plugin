@@ -84,6 +84,10 @@ function! s:enable()
   if exists('g:kite_tab_complete')
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif
+
+  if empty(maparg('K', 'n')) && !hasmapto('(kite-hover)', 'n')
+    nmap <silent> <buffer> K <Plug>(kite-hover)
+  endif
 endfunction
 
 
@@ -104,4 +108,7 @@ augroup Kite
   autocmd!
   autocmd BufEnter * call <SID>toggle()
 augroup END
+
+
+nnoremap <silent> <Plug>(kite-hover) :call kite#hover#hover()<CR>
 

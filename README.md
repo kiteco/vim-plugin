@@ -5,6 +5,7 @@
 
 - [Integrates with Kite Sidebar (macOS)](#kite-sidebar)
 - [Completions](#completions)
+- [Documentation](#documentation)
 - ...
 
 
@@ -88,5 +89,16 @@ We also recommend:
 ```viml
 set shortmess+=c    " turn off completion messages
 set belloff+=ctrlg  " if vim beeps during completion
+```
+
+
+### Documentation
+
+Press `K` when the cursor is on a keyword to see documentation in the status line.  If you have mapped `K` already, the plugin won't overwrite your mapping.
+
+You can set an alternative mapping, e.g. to `gK`, like this:
+
+```viml
+nmap <silent> gK <Plug>(kite-hover)
 ```
 

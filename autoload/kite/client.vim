@@ -1,26 +1,39 @@
-let s:base_url = 'http://127.0.0.1:46624/clientapi/editor'
+let s:base_url   = 'http://127.0.0.1:46624'
+let s:editor_url = s:base_url.'/clientapi/editor'
+let s:hover_url  = s:base_url.'/api/buffer/vim'
+
+
+function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
+  let url = s:hover_url.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+endfunction
 
 
 function! kite#client#signatures(json, handler)
-  return a:handler(kite#client#parse_response(system(s:curl_cmd('/signatures', a:json))))
+  let url = s:editor_url.'/signatures'
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(url, a:json))))
 endfunction
 
 
 function! kite#client#completions(json, handler)
-  return a:handler(kite#client#parse_response(system(s:curl_cmd('/completions', a:json))))
+  let url = s:editor_url.'/completions'
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(url, a:json))))
 endfunction
 
 
 function! kite#client#post_event(json, handler)
-  call kite#async#execute(s:curl_cmd('/event', a:json), a:handler)
+  let url = s:editor_url.'/event'
+  call kite#async#execute(s:curl_cmd(url, a:json), a:handler)
 endfunction
 
 
-function! s:curl_cmd(endpoint, json)
-  return 'curl -sSi '.
-        \ shellescape(s:base_url.a:endpoint).
-        \ ' -X POST'.
-        \ ' -d '.shellescape(a:json)
+" Optional argument is json to be posted
+function! s:curl_cmd(endpoint, ...)
+  let cmd = 'curl -sSi '.shellescape(a:endpoint)
+  if a:0
+    let cmd .= ' -X POST -d '.shellescape(a:1)
+  endif
+  return cmd
 endfunction
 
 

@@ -1,8 +1,9 @@
 function! kite#events#event(action)
-  let filename = resolve(expand('%:p'))
+  if wordcount().bytes > kite#max_file_size() | return | endif
+
+  let filename = kite#utils#filepath(0)
 
   let text = kite#utils#buffer_contents()
-  if strlen(text) > kite#max_file_size() | return | endif
 
   let [sel_start, sel_end] = kite#utils#selected_region_characters()
   if [sel_start, sel_end] == [-1, -1]
