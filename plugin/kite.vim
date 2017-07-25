@@ -76,10 +76,10 @@ function! s:enable()
   "
   inoremap <buffer> <expr> <C-e> kite#completion#popup_exit("\<C-e>")
   inoremap <buffer> <expr> <C-y> kite#completion#popup_exit("\<C-y>")
-  if !exists('g:kite_deconflict_cr')
-    inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
-  else
+  if exists('g:kite_deconflict_cr') && g:kite_deconflict_cr
     inoremap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
+  else
+    inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
   endif
   if exists('g:kite_tab_complete')
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
@@ -96,11 +96,6 @@ function! s:disable()
     autocmd! KiteFiles
     augroup! KiteFiles
   endif
-
-  inoremap <buffer> <C-e> <C-e>
-  inoremap <buffer> <C-y> <C-y>
-  inoremap <buffer> <CR> <CR>
-  inoremap <buffer> <Tab> <Tab>
 endfunction
 
 
