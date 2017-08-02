@@ -87,7 +87,6 @@ endfunction
 
 function! kite#completion#handler(response) abort
   if a:response.status != 200
-    " echo a:response.status
     return []
   endif
 
