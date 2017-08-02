@@ -40,6 +40,26 @@ function! s:file_size_ok()
 endfunction
 
 
+" Configure &completeopt if and only if it has not been set already.
+function! s:configure_completeopt()
+  " Display the option's value.  If it has been set somewhere, there
+  " will be a second line showing the location.
+  redir => output
+    silent verbose set completeopt
+  redir END
+  if len(split(output, '\n')) > 1 | return | endif
+
+  " completeopt is not global-local.
+
+  set completeopt-=menu
+  set completeopt+=menuone
+  set completeopt-=longest
+  set completeopt-=preview
+  set completeopt+=noinsert
+  set completeopt-=noselect
+endfunction
+
+
 function! s:enable()
   augroup KiteFiles
     autocmd!
@@ -51,8 +71,7 @@ function! s:enable()
   augroup END
 
   setlocal completefunc=kite#completion#complete
-  setlocal completeopt-=menu
-  setlocal completeopt+=menuone
+  call s:configure_completeopt()
 
   " When the pop-up menu is closed with <C-e>, <C-y>, or <CR>,
   " the TextChangedI event is fired again, which re-opens the

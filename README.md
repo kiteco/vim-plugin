@@ -59,20 +59,24 @@ let g:kite_auto_complete=0
 
 You can manually invoke the completions in insert mode with `<C-X><C-U>`.  See `:h i_CTRL-X_CTRL-U` for details.
 
-You can configure how the completions behave with `&completeopt`.  We recommend:
-
-```viml
-set completeopt+=noinsert  " don't insert any text until user chooses a match
-set completeopt-=noselect  " do    select first match
-```
-
 Normally you insert the currently selected completion option with `<C-y>`.  If you'd like to use `<Tab>` instead / as well, add this to your vimrc:
 
 ```viml
 let g:kite_tab_complete = 1
 ```
 
-If you want to see documentation in the preview window for each completion option, use:
+You can configure how the completions behave with `&completeopt`.  The plugin configures `&completeopt` as follows if and only if you haven't configured it yourself:
+
+```viml
+set completeopt-=menu
+set completeopt+=menuone   " show the popup menu even when there is only 1 match
+set completeopt-=longest   " don't insert the longest common text
+set completeopt-=preview   " don't show preview window
+set completeopt+=noinsert  " don't insert any text until user chooses a match
+set completeopt-=noselect  " select first match
+```
+
+To see documentation in the preview window for each completion option, copy all the lines above into your vimrc and change the preview line to:
 
 ```viml
 set completeopt+=preview
