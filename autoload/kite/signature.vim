@@ -62,11 +62,15 @@ function! kite#signature#handler(response) abort
 
     for kwarg in detail.kwarg_parameters
       let name = kwarg.name
-      let types = map(kwarg.inferred_value, {_,t -> t.repr})
+      if type(kwarg.inferred_value) == v:t_list
+        let types = join(map(kwarg.inferred_value, {_,t -> t.repr}), ' | ')
+      else
+        let types = ''
+      endif
       call add(completions, {
             \   'word':  name.'=',
             \   'abbr':  indent.name,
-            \   'menu':  join(types, ' | '),
+            \   'menu':  types,
             \   'empty': 1,
             \   'dup':   1
             \ })
