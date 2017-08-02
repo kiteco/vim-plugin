@@ -167,7 +167,7 @@ function! s:token(type)
   if character_under_cursor =~ '\k'
     let pos = getpos('.')
 
-    normal! b
+    normal! lb
     let offset1 = Offset()
     normal! e
     " end position is exclusive
