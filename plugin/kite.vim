@@ -68,6 +68,10 @@ function! s:enable()
     autocmd BufEnter,FocusGained     * call kite#events#event('focus')
     autocmd InsertCharPre            * call kite#completion#insertcharpre()
     autocmd TextChangedI             * call kite#completion#autocomplete()
+
+    if exists('g:kite_documentation_continual') && g:kite_documentation_continual
+      autocmd CursorMoved * call kite#hover#hover()
+    endif
   augroup END
 
   setlocal completefunc=kite#completion#complete

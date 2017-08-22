@@ -20,10 +20,20 @@ function! kite#utils#filepath(url_format)
     if s:windows_os
       let path = ':windows:'.path
     endif
-    let path = s:url_encode(path)
+    let path = kite#utils#url_encode(path)
   endif
 
   return path
+endfunction
+
+
+" Opens `url` in the user's browser.
+"
+" TODO:
+" - windows, linux (check kite.com for which OSs are supported)
+" - configurable command
+function! kite#utils#browse(url)
+  call system('open '.a:url)
 endfunction
 
 
@@ -200,7 +210,7 @@ endfunction
 
 
 " https://github.com/tpope/vim-unimpaired/blob/3a7759075cca5b0dc29ce81f2747489b6c8e36a7/plugin/unimpaired.vim#L327-L329
-function! s:url_encode(str)
+function! kite#utils#url_encode(str)
   return substitute(a:str,'[^A-Za-z0-9_.~-]','\="%".printf("%02X",char2nr(submatch(0)))','g')
 endfunction
 

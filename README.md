@@ -106,3 +106,17 @@ You can set an alternative mapping, e.g. to `gK`, like this:
 nmap <silent> gK <Plug>(kite-hover)
 ```
 
+In addition to documentation Kite can also show code snippets, links to relevant StackOverflow answers, all the places you've use the keyword in your code, and links to fuller online documentation.  To see all this, set:
+
+```viml
+let g:kite_documentation='window'
+```
+
+This will make the plugin open a split window with all the relevant information.
+
+By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hover)`) each time you want to see documentation for the keyword under the cursor.  To have the documentation continually update itself as you move from keyword to keyword:
+
+```viml
+let g:kite_documentation_continual=1
+```
+

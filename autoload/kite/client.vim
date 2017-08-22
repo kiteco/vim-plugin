@@ -1,6 +1,20 @@
-let s:base_url   = 'http://127.0.0.1:46624'
-let s:editor_url = s:base_url.'/clientapi/editor'
-let s:hover_url  = s:base_url.'/api/buffer/vim'
+let s:base_url    = 'http://127.0.0.1:46624'
+let s:editor_url  = s:base_url.'/clientapi/editor'
+let s:hover_url   = s:base_url.'/api/buffer/vim'
+let s:example_url = s:base_url.'/api/python/curation'
+let s:webapp_url  = s:base_url.'/clientapi/desktoplogin?d='
+
+
+function! kite#client#webapp_link(id)
+  let url = s:webapp_url.kite#utils#url_encode('/docs/python/'.a:id)
+  call kite#utils#browse(url)
+endfunction
+
+
+function! kite#client#example(id, handler)
+  let url = s:example_url.'/'.a:id
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+endfunction
 
 
 function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
