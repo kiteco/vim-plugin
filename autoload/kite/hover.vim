@@ -179,12 +179,35 @@ endfunction
 
 " Optional argument is zero-based byte offset into file.
 function! s:show_code(file, line, ...)
-  execute 'keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
-  if a:0
-    execute 'edit' a:file
-    execute (a:1 + 1).'go'
+  if g:kite_preview_code
+    silent! wincmd P
+    if !&previewwindow
+      noautocmd execute 'botright' &previewheight 'new'
+      set previewwindow
+      setlocal buftype=nofile bufhidden=wipe noswapfile
+      set ft=python
+    endif
+    normal! gg"_dG
+
+    let lines_of_context = 3
+
+    let first = a:line - 1 - lines_of_context
+    if first < 0 | let first = 0 | endif
+
+    let last = a:line - 1 + lines_of_context
+
+    0put =readfile(a:file)[first : last]
+
+    wincmd p
+
   else
-    execute 'edit +'.a:line a:file
+    execute 'keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
+    if a:0
+      execute 'edit' a:file
+      execute (a:1 + 1).'go'
+    else
+      execute 'edit +'.a:line a:file
+    endif
   endif
 endfunction
 

@@ -1,4 +1,10 @@
-let g:kite_auto_complete = 1
+if !exists('g:kite_auto_complete')
+  let g:kite_auto_complete = 1
+endif
+
+if !exists('g:kite_preview_code')
+  let g:kite_preview_code = 0
+endif
 
 
 let s:supported_languages = ['javascript', 'python']

@@ -112,7 +112,13 @@ In addition to documentation Kite can also show code snippets, links to relevant
 let g:kite_documentation='window'
 ```
 
-This will make the plugin open a split window with all the relevant information.
+This will make the plugin open a split window with all the relevant information.  Press `<CR>` on any item to see more information.
+
+The default behaviour for usages and definitions is to show them in the code window you came from.  To see them in the preview window instead:
+
+```viml
+let g:kite_preview_code=1
+```
 
 By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hover)`) each time you want to see documentation for the keyword under the cursor.  To have the documentation continually update itself as you move from keyword to keyword:
 
