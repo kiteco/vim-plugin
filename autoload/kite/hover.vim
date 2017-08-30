@@ -66,7 +66,6 @@ function! kite#hover#handler(response)
     if !empty(report.definition)
       call s:section('DEFINITION')
       " TODO syntax highlight
-      " TODO offer option to open in preview window
       call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
       let s:clickables[line('$')] = {
             \   'type': 'jump',
@@ -80,7 +79,6 @@ function! kite#hover#handler(response)
       call s:section('USAGES')
       for usage in report.usages
         " TODO syntax highlight
-        " TODO offer option to open in preview window
         let location = fnamemodify(usage.filename, ':t').':'.usage.line
         let code = substitute(usage.code, '\v^\s+', '', 'g')
         call s:content('['.location.'] '.code)
