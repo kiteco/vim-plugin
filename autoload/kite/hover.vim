@@ -29,7 +29,7 @@ function! kite#hover#handler(response)
   if exists('g:kite_documentation') && g:kite_documentation ==? 'window'
     call s:openKiteWindow()
 
-    normal! ggdG
+    normal! gg"_dG
 
     " NOTE: use empty() whereever I test for type()
 
@@ -215,9 +215,7 @@ endfunction
 function! s:show_example(id)
   let code = kite#client#example(a:id, function('kite#example#handler'))
   call s:openKiteExamplesWindow()
-
-  normal! ggdG
-
+  normal! gg"_dG
   call append(0, code)
 endfunction
 
