@@ -191,8 +191,6 @@ endfunction
 
 function! s:show_example(id)
   let code = kite#client#example(a:id, function('kite#example#handler'))
-  " TODO split below
-  " TODO reuse window if another example is clicked
   call s:openKiteExamplesWindow()
 
   normal! ggdG
