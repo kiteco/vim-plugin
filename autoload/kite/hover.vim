@@ -79,7 +79,6 @@ function! kite#hover#handler(response)
     if !empty(report.usages)
       call s:section('USAGES')
       for usage in report.usages
-        " code, filename, line, begin_bytes, begin_runes
         " TODO syntax highlight
         " TODO offer option to open in preview window
         let location = fnamemodify(usage.filename, ':t').':'.usage.line
@@ -88,9 +87,9 @@ function! kite#hover#handler(response)
         let s:clickables[line('$')] = {
               \   'type': 'jump',
               \   'file': usage.filename,
-              \   'line': usage.line
+              \   'line': usage.line,
+              \   'byte': usage.begin_runes
               \ }
-              " TODO move cursor to begin_bytes/runes
       endfor
     endif
 
@@ -117,6 +116,7 @@ endfunction
 
 
 function! s:openKiteWindow()
+  let t:source_buffer = bufnr('%')
   let win = bufwinnr(s:kite_window)
   if win != -1
     execute 'keepjumps keepalt '.win.'wincmd w'
@@ -167,16 +167,25 @@ function! s:handle_click()
     elseif clickable.type == 'doc'
       call kite#client#webapp_link(clickable.id)
     elseif clickable.type == 'jump'
-      call s:show_code(clickable.file, clickable.line)
+      if has_key(clickable, 'byte')
+        call s:show_code(clickable.file, clickable.line, clickable.byte)
+      else
+        call s:show_code(clickable.file, clickable.line)
+      endif
     endif
   endif
 endfunction
 
 
-function! s:show_code(file, line)
-  execute 'edit' a:file
-  execute a:line
-  " TODO use vim's syntax for file+line
+" Optional argument is zero-based byte offset into file.
+function! s:show_code(file, line, ...)
+  execute 'keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
+  if a:0
+    execute 'edit' a:file
+    execute (a:1 + 1).'go'
+  else
+    execute 'edit +'.a:line a:file
+  endif
 endfunction
 
 
