@@ -119,7 +119,7 @@ endfunction
 function! s:openKiteWindow()
   let win = bufwinnr(s:kite_window)
   if win != -1
-    execute win.'wincmd w'
+    execute 'keepjumps keepalt '.win.'wincmd w'
   else
     call s:setupKiteWindow()
   endif
@@ -128,15 +128,12 @@ endfunction
 
 function! s:setupKiteWindow()
   if bufwinnr(s:kite_examples_window) == -1
-    execute 'vertical botright split '.s:kite_window
+    execute 'keepjumps keepalt vertical botright split '.s:kite_window
   else
     call s:openKiteExamplesWindow()
-    execute 'above split '.s:kite_window
+    execute 'keepjumps keepalt above split '.s:kite_window
   endif
-  setlocal buftype=nofile
-  setlocal bufhidden=wipe
-  setlocal noswapfile
-  setlocal nobuflisted
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
 
   nmap <buffer> <silent> <CR> :call <SID>handle_click()<CR>
 endfunction
@@ -145,7 +142,7 @@ endfunction
 function! s:openKiteExamplesWindow()
   let win = bufwinnr(s:kite_examples_window)
   if win != -1
-    execute win.'wincmd w'
+    execute 'keepjumps keepalt '.win.'wincmd w'
   else
     call s:setupKiteExamplesWindow()
   endif
@@ -153,11 +150,8 @@ endfunction
 
 
 function! s:setupKiteExamplesWindow()
-  execute 'below new '.s:kite_examples_window
-  setlocal buftype=nofile
-  setlocal bufhidden=wipe
-  setlocal noswapfile
-  setlocal nobuflisted
+  execute 'keepjumps keepalt below new '.s:kite_examples_window
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   set ft=python
 endfunction
 
