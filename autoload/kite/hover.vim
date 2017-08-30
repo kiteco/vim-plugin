@@ -128,10 +128,10 @@ endfunction
 
 function! s:setupKiteWindow()
   if bufwinnr(s:kite_examples_window) == -1
-    execute 'keepjumps keepalt vertical botright split '.s:kite_window
+    silent execute 'keepjumps keepalt vertical botright split '.s:kite_window
   else
     call s:openKiteExamplesWindow()
-    execute 'keepjumps keepalt above split '.s:kite_window
+    silent execute 'keepjumps keepalt above split '.s:kite_window
   endif
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
 
@@ -150,7 +150,7 @@ endfunction
 
 
 function! s:setupKiteExamplesWindow()
-  execute 'keepjumps keepalt below new '.s:kite_examples_window
+  silent execute 'keepjumps keepalt below new '.s:kite_examples_window
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   set ft=python
 endfunction
