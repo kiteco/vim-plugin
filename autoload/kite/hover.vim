@@ -1,4 +1,7 @@
-let s:kite_window = '__Kite__'
+" These names are pretend filenames and must not contain whitespace.
+" Assumes one name is not a substring of the other.
+let s:kite_window = '\[Kite\]'
+let s:kite_examples_window = '\[Kite__Example\]'
 
 
 function! kite#hover#hover()
@@ -24,18 +27,11 @@ function! kite#hover#handler(response)
   " which would send back plain text in the response
 
   if exists('g:kite_documentation') && g:kite_documentation ==? 'window'
-    let win = bufwinnr(s:kite_window)
-    if win != -1
-      execute win.'wincmd w'
-    else
-      call s:setupKiteWindow()
-    endif
+    call s:openKiteWindow()
 
     normal! ggdG
 
     " NOTE: use empty() whereever I test for type()
-
-    " SEE ATOM'S IMPLEMENTATION
 
     " TODO: highlighting for titles, link domains, etc
 
@@ -120,14 +116,49 @@ function! kite#hover#handler(response)
 endfunction
 
 
+function! s:openKiteWindow()
+  let win = bufwinnr(s:kite_window)
+  if win != -1
+    execute win.'wincmd w'
+  else
+    call s:setupKiteWindow()
+  endif
+endfunction
+
+
 function! s:setupKiteWindow()
-  execute 'vertical botright split '.s:kite_window
+  if bufwinnr(s:kite_examples_window) == -1
+    execute 'vertical botright split '.s:kite_window
+  else
+    call s:openKiteExamplesWindow()
+    execute 'above split '.s:kite_window
+  endif
   setlocal buftype=nofile
-  setlocal bufhidden=delete
+  setlocal bufhidden=wipe
   setlocal noswapfile
   setlocal nobuflisted
 
   nmap <buffer> <silent> <CR> :call <SID>handle_click()<CR>
+endfunction
+
+
+function! s:openKiteExamplesWindow()
+  let win = bufwinnr(s:kite_examples_window)
+  if win != -1
+    execute win.'wincmd w'
+  else
+    call s:setupKiteExamplesWindow()
+  endif
+endfunction
+
+
+function! s:setupKiteExamplesWindow()
+  execute 'below new '.s:kite_examples_window
+  setlocal buftype=nofile
+  setlocal bufhidden=wipe
+  setlocal noswapfile
+  setlocal nobuflisted
+  set ft=python
 endfunction
 
 
@@ -159,12 +190,7 @@ function! s:show_example(id)
   let code = kite#client#example(a:id, function('kite#example#handler'))
   " TODO split below
   " TODO reuse window if another example is clicked
-  new
-  setlocal buftype=nofile
-  setlocal bufhidden=delete
-  setlocal noswapfile
-  setlocal nobuflisted
-  set ft=python
+  call s:openKiteExamplesWindow()
 
   normal! ggdG
 
