@@ -28,12 +28,15 @@ endfunction
 
 
 " Opens `url` in the user's browser.
-"
-" TODO:
-" - windows, linux (check kite.com for which OSs are supported)
-" - configurable command
 function! kite#utils#browse(url)
-  call system('open '.a:url)
+  if !exists('g:loaded_netrw')
+    runtime! autoload/netrw.vim
+  endif
+  if exists('*netrw#BrowseX')
+    call netrw#BrowseX(a:url, 0)
+  else
+    call netrw#NetrwBrowseX(a:url, 0)
+  endif
 endfunction
 
 
