@@ -33,8 +33,6 @@ function! kite#hover#handler(response)
 
     " NOTE: use empty() whereever I test for type()
 
-    " TODO: highlighting for titles, link domains, etc
-
     let s:clickables = {}
 
     call s:section('DESCRIPTION', 1)
@@ -65,7 +63,6 @@ function! kite#hover#handler(response)
 
     if !empty(report.definition)
       call s:section('DEFINITION')
-      " TODO syntax highlight
       call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
       let s:clickables[line('$')] = {
             \   'type': 'jump',
@@ -78,7 +75,6 @@ function! kite#hover#handler(response)
     if !empty(report.usages)
       call s:section('USAGES')
       for usage in report.usages
-        " TODO syntax highlight
         let location = fnamemodify(usage.filename, ':t').':'.usage.line
         let code = substitute(usage.code, '\v^\s+', '', 'g')
         call s:content('['.location.'] '.code)
@@ -132,6 +128,7 @@ function! s:setupKiteWindow()
     silent execute 'keepjumps keepalt above split '.s:kite_window
   endif
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  set filetype=kite
 
   nmap <buffer> <silent> <CR> :call <SID>handle_click()<CR>
 endfunction
