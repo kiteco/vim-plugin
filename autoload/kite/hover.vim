@@ -38,8 +38,8 @@ function! kite#hover#handler(response)
     let s:clickables = {}
 
     call s:section('DESCRIPTION', 1)
-    " FIXME embedded line breaks, e.g. split( txt, "\n" )
-    call s:content(report.description_text)
+    " Handle embedded line breaks.
+    call s:content(split(report.description_text, "\n"))
 
     if !empty(json.symbol)
       call s:content('')
