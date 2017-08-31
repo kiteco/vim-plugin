@@ -41,7 +41,7 @@ function! kite#hover#handler(response)
 
     if !empty(json.symbol)
       call s:content('')
-      call s:content('[Online documentation]')
+      call s:content('-> Online documentation')
       let s:clickables[line('$')] = {
             \   'type': 'doc',
             \   'id': json.symbol[0].value[0].id
@@ -52,7 +52,7 @@ function! kite#hover#handler(response)
     if !empty(report.examples)
       call s:section('EXAMPLES')
       for example in report.examples
-        call s:content(example.title)
+        call s:content('-> '.example.title)
         let s:clickables[line('$')] = {
               \   'type': 'example',
               \   'id': example.id
@@ -92,7 +92,7 @@ function! kite#hover#handler(response)
       call s:section('LINKS')
       for link in report.links
         let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
-        call s:content(link.title .' ('.domain.')')
+        call s:content('-> '.link.title .' ('.domain.')')
         let s:clickables[line('$')] = {
               \   'type': 'link',
               \   'url': link.url
