@@ -20,7 +20,7 @@ function! kite#signature#handler(response) abort
   let detail = callee.details.function  " callee.detail is deprecated
   let arguments = []
 
-  if type(detail) == v:t_none
+  if empty(detail)
     call add(arguments, '')
 
   else
@@ -56,7 +56,7 @@ function! kite#signature#handler(response) abort
   "
   " kwarg details
   "
-  if type(detail) != v:t_none && has_key(detail, 'kwarg_parameters') && type(detail.kwarg_parameters) == v:t_list
+  if !empty(detail) && has_key(detail, 'kwarg_parameters') && type(detail.kwarg_parameters) == v:t_list
     call add(completions, spacer)
     call add(completions, s:heading('kwargs'))
 
@@ -102,7 +102,7 @@ function! kite#signature#handler(response) abort
     endif
 
     " E.g. math.sin()
-    if type(signature.args) == v:t_none && type(signature.kwargs) == v:t_none
+    if empty(signature.args) && empty(signature.kwargs)
       call add(arguments, '')
     endif
 

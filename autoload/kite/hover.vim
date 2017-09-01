@@ -31,8 +31,6 @@ function! kite#hover#handler(response)
 
     normal! gg"_dG
 
-    " NOTE: use empty() whereever I test for type()
-
     let s:clickables = {}
 
     call s:section('DESCRIPTION', 1)
