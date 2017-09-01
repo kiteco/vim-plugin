@@ -17,14 +17,10 @@ endfunction
 
 
 function! kite#hover#handler(response)
-  " if a:response.status != 200 | echom a:response.status | endif
   if a:response.status != 200 | return | endif
 
   let json = json_decode(a:response.body)
   let report = json.report
-
-  " 01.08.2017: Juan said he would add a query parameter to the URL
-  " which would send back plain text in the response
 
   if exists('g:kite_documentation') && g:kite_documentation ==? 'window'
     call s:openKiteWindow()
