@@ -62,7 +62,7 @@ You can manually invoke the completions in insert mode with `<C-X><C-U>`.  See `
 Normally you insert the currently selected completion option with `<C-y>`.  If you'd like to use `<Tab>` instead / as well, add this to your vimrc:
 
 ```viml
-let g:kite_tab_complete = 1
+let g:kite_tab_complete=1
 ```
 
 You can configure how the completions behave with `&completeopt`.  The plugin configures `&completeopt` as follows if and only if you haven't configured it yourself:
