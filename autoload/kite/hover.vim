@@ -25,7 +25,7 @@ function! kite#hover#handler(response)
   if exists('g:kite_documentation') && g:kite_documentation ==? 'window'
     call s:openKiteWindow()
 
-    normal! gg"_dG
+    silent %d _
 
     let s:clickables = {}
 
@@ -176,7 +176,7 @@ function! s:show_code(file, line, ...)
       setlocal buftype=nofile bufhidden=wipe noswapfile
       set ft=python
     endif
-    normal! gg"_dG
+    silent %d _
 
     let lines_of_context = 3
 
@@ -204,7 +204,7 @@ endfunction
 function! s:show_example(id)
   let code = kite#client#example(a:id, function('kite#example#handler'))
   call s:openKiteExamplesWindow()
-  normal! gg"_dG
+  silent %d _
   call append(0, code)
 endfunction
 
