@@ -192,10 +192,16 @@ function! s:show_code(file, line, ...)
   else
     execute 'keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
     if a:0
-      execute 'edit' a:file
+      if a:file !=# expand('%:p')
+        execute 'edit' a:file
+      endif
       execute (a:1 + 1).'go'
     else
-      execute 'edit +'.a:line a:file
+      if a:file !=# expand('%:p')
+        execute 'edit +'.a:line a:file
+      else
+        execute a:line
+      endif
     endif
   endif
 endfunction
