@@ -55,7 +55,7 @@ function! kite#hover#handler(response)
     endif
 
 
-    if !empty(report.definition)
+    if !empty(report.definition) && !empty(report.definition.filename)
       call s:section('DEFINITION')
       call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
       let s:clickables[line('$')] = {
