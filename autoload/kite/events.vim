@@ -24,8 +24,6 @@ endfunction
 
 
 function! kite#events#handler(response)
-  if a:response.status == 500
-    call kite#utils#warn('events: JSON error')
-  endif
+  " Noop
 endfunction
 
