@@ -57,7 +57,7 @@ function! s:configure_completeopt()
   " Display the option's value.  If it has been set somewhere, there
   " will be a second line showing the location.
   redir => output
-    verbose set completeopt
+    silent verbose set completeopt
   redir END
   let lines = len(split(output, '\n'))
   " Don't (re-)configure option if:
