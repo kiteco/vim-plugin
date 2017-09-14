@@ -76,6 +76,8 @@ endfunction
 " Returns [-1, -1] when not in normal, insert, or visual mode.
 "
 " param type (String) - 'c' for character indices, 'b' for byte indices
+"
+" NOTE: the cursor is moved during the function (but finishes where it started).
 function! s:selected_region(type)
   if a:type == 'c'
     let Offset = function('kite#utils#character_offset')
@@ -169,6 +171,8 @@ endfunction
 " Returns [-1, -1] when no token is under the cursor.
 "
 " param type (String) - 'c' for character indices, 'b' for byte indices
+"
+" NOTE: the cursor is moved during the function (but finishes where it started).
 function! s:token(type)
   if a:type == 'c'
     let Offset = function('kite#utils#character_offset')
