@@ -19,7 +19,7 @@ endfunction
 
 function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
   let url = s:hover_url.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+  call kite#async#execute(s:curl_cmd(url), a:handler)
 endfunction
 
 
