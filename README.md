@@ -124,5 +124,8 @@ By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hov
 
 ```viml
 let g:kite_documentation_continual=1
+
+" Optionally:
+set updatetime=100  " milliseconds
 ```
 

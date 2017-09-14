@@ -81,14 +81,14 @@ function! s:enable()
 
   augroup KiteFiles
     autocmd! * <buffer>
-    autocmd CursorMoved              <buffer> call kite#events#event('selection')
+    autocmd CursorHold               <buffer> call kite#events#event('selection')
     autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
     autocmd BufEnter,FocusGained     <buffer> call kite#events#event('focus')
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
-      autocmd CursorMoved <buffer> call kite#hover#hover()
+      autocmd CursorHold <buffer> call kite#hover#hover()
     endif
   augroup END
 
