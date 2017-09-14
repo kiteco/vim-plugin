@@ -95,7 +95,8 @@ function! kite#hover#handler(response)
     endif
 
 
-    wincmd p
+    " The noautocmd doesn't appear to have any effect (vim/vim#2084).
+    noautocmd wincmd p
   else
     echo report.description_text
   endif
@@ -169,7 +170,7 @@ endfunction
 " Optional argument is zero-based byte offset into file.
 function! s:show_code(file, line, ...)
   if g:kite_preview_code
-    silent! wincmd P
+    silent! noautocmd wincmd P
     if !&previewwindow
       noautocmd execute 'botright' &previewheight 'new'
       set previewwindow
@@ -187,10 +188,11 @@ function! s:show_code(file, line, ...)
 
     0put =readfile(a:file)[first : last]
 
-    wincmd p
+    " The noautocmd doesn't appear to have any effect (vim/vim#2084).
+    noautocmd wincmd p
 
   else
-    execute 'keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
+    execute 'noautocmd keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
     if a:0
       if a:file !=# expand('%:p')
         execute 'edit' a:file
