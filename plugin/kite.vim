@@ -77,16 +77,18 @@ endfunction
 
 
 function! s:enable()
+  if getbufvar('', 'kite_enabled') | return | endif
+
   augroup KiteFiles
-    autocmd!
-    autocmd CursorMoved              * call kite#events#event('selection')
-    autocmd TextChanged,TextChangedI * call kite#events#event('edit')
-    autocmd BufEnter,FocusGained     * call kite#events#event('focus')
-    autocmd InsertCharPre            * call kite#completion#insertcharpre()
-    autocmd TextChangedI             * call kite#completion#autocomplete()
+    autocmd! * <buffer>
+    autocmd CursorMoved              <buffer> call kite#events#event('selection')
+    autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
+    autocmd BufEnter,FocusGained     <buffer> call kite#events#event('focus')
+    autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
+    autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
-      autocmd CursorMoved * call kite#hover#hover()
+      autocmd CursorMoved <buffer> call kite#hover#hover()
     endif
   augroup END
 
@@ -127,13 +129,14 @@ function! s:enable()
   if empty(maparg('K', 'n')) && !hasmapto('(kite-hover)', 'n')
     nmap <silent> <buffer> K <Plug>(kite-hover)
   endif
+
+  call setbufvar('', 'kite_enabled', 1)
 endfunction
 
 
 function! s:disable()
   if exists('#KiteFiles')
-    autocmd! KiteFiles
-    augroup! KiteFiles
+    autocmd! KiteFiles * <buffer>
   endif
 endfunction
 
