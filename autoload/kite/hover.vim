@@ -187,6 +187,9 @@ function! s:show_code(file, line, ...)
     let last = a:line - 1 + lines_of_context
 
     0put =readfile(a:file)[first : last]
+    "
+    " See :help CursorHold-example for how to highlight the
+    " matching line in the preview window.
 
     " The noautocmd doesn't appear to have any effect (vim/vim#2084).
     noautocmd wincmd p
