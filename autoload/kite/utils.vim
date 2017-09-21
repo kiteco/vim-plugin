@@ -187,11 +187,17 @@ function! s:token(type)
     let Offset = function('kite#utils#byte_offset')
   endif
 
-  let character_under_cursor = matchstr(getline('.'), '\%'.col('.').'c.')
+  " In insert mode, current column is the one we're about to insert into.
+  let col = (mode() == 'i') ? col('.') - 1 : col('.')
+  let character_under_cursor = matchstr(getline('.'), '\%'.col.'c.')
   if character_under_cursor =~ '\k'
     let pos = getpos('.')
 
-    normal! lb
+    if mode() == 'i'
+      normal! b
+    else
+      normal! lb
+    endif
     let offset1 = Offset()
     normal! e
     " end position is exclusive

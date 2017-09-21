@@ -92,7 +92,7 @@ function! s:enable()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
-      autocmd CursorHold <buffer> call kite#hover#hover()
+      autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
     endif
   augroup END
 
