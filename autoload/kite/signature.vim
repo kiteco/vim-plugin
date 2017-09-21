@@ -29,8 +29,16 @@ function! kite#signature#handler(response) abort
 
     " formal parameters / positional arguments
     if has_key(detail, 'parameters') && type(detail.parameters) == v:t_list
+      let [arg_index, in_kwargs] = [call.arg_index, call.language_details.python.in_kwargs]
+      let i = 0
       for parameter in detail.parameters
-        call add(arguments, parameter.name)
+        if !in_kwargs && i == arg_index
+          let name = '*'.parameter.name.'*'
+        else
+          let name = parameter.name
+        end
+        call add(arguments, name)
+        let i += 1
       endfor
     endif
 
