@@ -1,4 +1,5 @@
 function! kite#signature#handler(response) abort
+  call kite#utils#log('signature: '.a:response.status)
   if a:response.status != 200
     return []
   endif
