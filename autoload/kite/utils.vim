@@ -1,6 +1,13 @@
 let s:windows_os = has('win64') || has('win32') || has('win32unix')
 
 
+function! kite#utils#log(msg)
+  if g:kite_log
+    call writefile([a:msg], 'kite-vim.log', 'a')
+  endif
+endfunction
+
+
 function! kite#utils#warn(msg)
   echohl WarningMsg
   echo 'kite: '.a:msg

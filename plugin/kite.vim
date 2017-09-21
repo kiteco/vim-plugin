@@ -6,6 +6,10 @@ if !exists('g:kite_preview_code')
   let g:kite_preview_code = 0
 endif
 
+if !exists('g:kite_log')
+  let g:kite_log = 0
+endif
+
 
 let s:supported_languages = ['javascript', 'python']
 
