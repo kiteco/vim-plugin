@@ -122,6 +122,13 @@ function! s:enable()
   else
     inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
   endif
+
+  " InsertCharPre is not fired for non-printable characters such as backspace.
+  " TextChangedI is not fired when the pop-up menu is open.  Therefore use
+  " an insert-mode mapping to force completion to re-occur when backspace is
+  " pressed while the pop-up menu is open.
+  inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
+
   if exists('g:kite_tab_complete')
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif

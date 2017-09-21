@@ -36,6 +36,12 @@ function! kite#completion#autocomplete()
 endfunction
 
 
+function! kite#completion#backspace()
+  let s:should_trigger_completion = 1
+  return "\<BS>"
+endfunction
+
+
 function! kite#completion#complete(findstart, base)
   if a:findstart
     " Store the buffer contents and cursor position here because when Vim
