@@ -129,3 +129,5 @@ let g:kite_documentation_continual=1
 set updatetime=100  " milliseconds
 ```
 
+Please note there's a delay between moving the cursor and seeing the update.  Vim's default is 4sec but we recommend decreasing that to, say, 100ms (see code snippet above).
+
