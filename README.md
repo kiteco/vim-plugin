@@ -98,26 +98,14 @@ set belloff+=ctrlg  " if vim beeps during completion
 
 ### Documentation
 
-Press `K` when the cursor is on a keyword to see documentation in the status line.  If you have mapped `K` already, the plugin won't overwrite your mapping.
+Press `K` when the cursor is on a keyword to open a split window with code snippets, links to relevant StackOverflow answers, all the places you've use the keyword in your code, and links to fuller online documentation.  Press `<CR>` on any item to see more information.
+
+If you have mapped `K` already, the plugin won't overwrite your mapping.
 
 You can set an alternative mapping, e.g. to `gK`, like this:
 
 ```viml
 nmap <silent> gK <Plug>(kite-hover)
-```
-
-In addition to documentation Kite can also show code snippets, links to relevant StackOverflow answers, all the places you've use the keyword in your code, and links to fuller online documentation.  To see all this, set:
-
-```viml
-let g:kite_documentation='window'
-```
-
-This will make the plugin open a split window with all the relevant information.  Press `<CR>` on any item to see more information.
-
-The default behaviour for usages and definitions is to show them in the code window you came from.  To see them in the preview window instead:
-
-```viml
-let g:kite_preview_code=1
 ```
 
 By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hover)`) each time you want to see documentation for the keyword under the cursor.  To have the documentation continually update itself as you move from keyword to keyword:
@@ -126,8 +114,14 @@ By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hov
 let g:kite_documentation_continual=1
 
 " Optionally:
-set updatetime=100  " milliseconds
+set updatetime=100  " milliseconds (default is 4000)
 ```
 
 Please note there's a delay between moving the cursor and seeing the update.  Vim's default is 4sec but we recommend decreasing that to, say, 100ms (see code snippet above).
+
+When you press `<CR>` on a usage or definition, it will be shown in the code window you came from.  To see it in the preview window instead:
+
+```viml
+let g:kite_preview_code=1
+```
 

@@ -22,85 +22,80 @@ function! kite#hover#handler(response)
   let json = json_decode(a:response.body)
   let report = json.report
 
-  if exists('g:kite_documentation') && g:kite_documentation ==? 'window'
-    call s:openKiteWindow()
+  call s:openKiteWindow()
 
-    silent %d _
+  silent %d _
 
-    let s:clickables = {}
+  let s:clickables = {}
 
-    call s:section('DESCRIPTION', 1)
-    " Handle embedded line breaks.
-    call s:content(split(report.description_text, "\n"))
+  call s:section('DESCRIPTION', 1)
+  " Handle embedded line breaks.
+  call s:content(split(report.description_text, "\n"))
 
-    if !empty(json.symbol)
-      call s:content('')
-      call s:content('-> Online documentation')
-      let s:clickables[line('$')] = {
-            \   'type': 'doc',
-            \   'id': json.symbol[0].value[0].id
-            \ }
-    endif
-
-
-    if !empty(report.examples)
-      call s:section('EXAMPLES')
-      for example in report.examples
-        call s:content('-> '.example.title)
-        let s:clickables[line('$')] = {
-              \   'type': 'example',
-              \   'id': example.id
-              \ }
-      endfor
-    endif
-
-
-    if !empty(report.definition) && !empty(report.definition.filename)
-      call s:section('DEFINITION')
-      call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
-      let s:clickables[line('$')] = {
-            \   'type': 'jump',
-            \   'file': report.definition.filename,
-            \   'line': report.definition.line
-            \ }
-    endif
-
-
-    if !empty(report.usages)
-      call s:section('USAGES')
-      for usage in report.usages
-        let location = fnamemodify(usage.filename, ':t').':'.usage.line
-        let code = substitute(usage.code, '\v^\s+', '', 'g')
-        call s:content('['.location.'] '.code)
-        let s:clickables[line('$')] = {
-              \   'type': 'jump',
-              \   'file': usage.filename,
-              \   'line': usage.line,
-              \   'byte': usage.begin_runes
-              \ }
-      endfor
-    endif
-
-
-    if !empty(report.links)
-      call s:section('LINKS')
-      for link in report.links
-        let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
-        call s:content('-> '.link.title .' ('.domain.')')
-        let s:clickables[line('$')] = {
-              \   'type': 'link',
-              \   'url': link.url
-              \ }
-      endfor
-    endif
-
-
-    " The noautocmd doesn't appear to have any effect (vim/vim#2084).
-    noautocmd wincmd p
-  else
-    echo report.description_text
+  if !empty(json.symbol)
+    call s:content('')
+    call s:content('-> Online documentation')
+    let s:clickables[line('$')] = {
+          \   'type': 'doc',
+          \   'id': json.symbol[0].value[0].id
+          \ }
   endif
 
+
+  if !empty(report.examples)
+    call s:section('EXAMPLES')
+    for example in report.examples
+      call s:content('-> '.example.title)
+      let s:clickables[line('$')] = {
+            \   'type': 'example',
+            \   'id': example.id
+            \ }
+    endfor
+  endif
+
+
+  if !empty(report.definition) && !empty(report.definition.filename)
+    call s:section('DEFINITION')
+    call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
+    let s:clickables[line('$')] = {
+          \   'type': 'jump',
+          \   'file': report.definition.filename,
+          \   'line': report.definition.line
+          \ }
+  endif
+
+
+  if !empty(report.usages)
+    call s:section('USAGES')
+    for usage in report.usages
+      let location = fnamemodify(usage.filename, ':t').':'.usage.line
+      let code = substitute(usage.code, '\v^\s+', '', 'g')
+      call s:content('['.location.'] '.code)
+      let s:clickables[line('$')] = {
+            \   'type': 'jump',
+            \   'file': usage.filename,
+            \   'line': usage.line,
+            \   'byte': usage.begin_runes
+            \ }
+    endfor
+  endif
+
+
+  if !empty(report.links)
+    call s:section('LINKS')
+    for link in report.links
+      let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
+      call s:content('-> '.link.title .' ('.domain.')')
+      let s:clickables[line('$')] = {
+            \   'type': 'link',
+            \   'url': link.url
+            \ }
+    endfor
+  endif
+
+
+  " The noautocmd doesn't appear to have any effect (vim/vim#2084).
+  noautocmd wincmd p
 endfunction
 
 
