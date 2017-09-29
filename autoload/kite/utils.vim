@@ -216,9 +216,9 @@ endfunction
 
 
 function! kite#utils#buffer_contents()
-  let [unnamed, zero] = [@", @0]
-  silent %y
-  let [contents, @", @0] = [@0, unnamed, zero]
+  let k = @k
+  silent %y k
+  let [contents, @k] = [@k, k]
   return contents
 endfunction
 
