@@ -54,6 +54,7 @@ function! s:curl_cmd(endpoint, ...)
   if a:0
     let cmd .= ' -X POST -d '.shellescape(a:1)
   endif
+  call kite#utils#log(cmd)
   return cmd
 endfunction
 
