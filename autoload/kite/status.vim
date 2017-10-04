@@ -1,8 +1,20 @@
+" Updates the status of the current buffer.
 function! kite#status#status(...)
   let buf = bufnr('')
+  let msg = ''
 
-  if !getbufvar('', 'kite_enabled')
-    call setbufvar(buf, 'kite_status', 'ready')
+  if !kite#utils#kite_installed()
+    let msg = 'not installed'
+  elseif !kite#utils#kite_running()
+    let msg = 'not running'
+  elseif !kite#utils#logged_in()
+    let msg = 'not logged in'
+  elseif !getbufvar('', 'kite_enabled')
+    let msg = 'ready'
+  endif
+
+  if !empty(msg)
+    call setbufvar(buf, 'kite_status', msg)
     return
   endif
 

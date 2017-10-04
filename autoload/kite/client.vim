@@ -4,6 +4,12 @@ let s:hover_url   = s:base_url.'/api/buffer/vim'
 let s:example_url = s:base_url.'/api/python/curation'
 let s:webapp_url  = s:base_url.'/clientapi/desktoplogin?d='
 let s:status_url  = s:base_url.'/clientapi/status?filename='
+let s:user_url    = s:base_url.'/clientapi/user'
+
+
+function! kite#client#logged_in(handler)
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(s:user_url))))
+endfunction
 
 
 function! kite#client#status(filename, handler)

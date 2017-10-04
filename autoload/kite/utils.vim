@@ -1,6 +1,39 @@
 let s:windows_os = has('win64') || has('win32') || has('win32unix')
 
 
+function! kite#utils#kite_installed()
+  if s:windows_os
+    let output = system('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath')
+    " Assume Kite is installed if the output contains 'InstallPath'
+    return match(split(output, '\n'), 'InstallPath') > -1
+  else  " osx
+    return  !empty(system('mdfind kMDItemCFBundleIdentifier = "com.kite.Kite"')) ||
+          \ !empty(system('mdfind kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'))
+  endif
+endfunction
+
+
+function! kite#utils#kite_running()
+  if s:windows_os
+    let cmd = 'tasklist /FI "IMAGENAME eq kited.exe"'
+  else  " osx
+    let cmd = 'ps -axco command'
+  endif
+
+  return match(split(system(cmd), '\n'), '\ckite') > -1
+endfunction
+
+
+" Optional argument is response dictionary (from kite#client#parse_response).
+function! kite#utils#logged_in(...)
+  if a:0
+    return a:1.status == 200
+  else
+    return kite#client#logged_in(function('kite#utils#logged_in'))
+  endif
+endfunction
+
+
 function! kite#utils#log(msg)
   if g:kite_log
     call writefile([a:msg], 'kite-vim.log', 'a')
