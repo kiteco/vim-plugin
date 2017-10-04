@@ -241,13 +241,18 @@ function! kite#utils#capitalize(str)
 endfunction
 
 
+function! s:chomp(str)
+  return substitute(a:str, '\n$', '', '')
+endfunction
+
+
 function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\'
 endfunction
 
 
 function! s:md5(text)
-  return substitute(system('md5', a:text), '\n$', '', '')
+  return s:chomp(system('md5', a:text))
 endfunction
 
 function! s:md5sum(text)
@@ -255,7 +260,7 @@ function! s:md5sum(text)
 endfunction
 
 function! s:md5bin(text)
-  return substitute(system(s:md5_binary, a:text), '\n$', '', '')
+  return s:chomp(system(s:md5_binary, a:text))
 endfunction
 
 
