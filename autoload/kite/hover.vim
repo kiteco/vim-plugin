@@ -17,6 +17,7 @@ endfunction
 
 
 function! kite#hover#handler(response)
+  call kite#utils#log('hover: '.a:response.status)
   if a:response.status != 200 | return | endif
 
   let json = json_decode(a:response.body)
