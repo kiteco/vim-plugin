@@ -46,6 +46,7 @@ function! s:enable()
     endif
   augroup END
 
+  set shortmess+=c
   setlocal completefunc=kite#completion#complete
   call s:configure_completeopt()
 
