@@ -3,6 +3,13 @@ let s:editor_url  = s:base_url.'/clientapi/editor'
 let s:hover_url   = s:base_url.'/api/buffer/vim'
 let s:example_url = s:base_url.'/api/python/curation'
 let s:webapp_url  = s:base_url.'/clientapi/desktoplogin?d='
+let s:status_url  = s:base_url.'/clientapi/status?filename='
+
+
+function! kite#client#status(filename, handler)
+  let url = s:status_url.a:filename
+  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+endfunction
 
 
 function! kite#client#webapp_link(id)

@@ -6,7 +6,7 @@
 - [Integrates with Kite Sidebar (macOS)](#kite-sidebar)
 - [Completions](#completions)
 - [Documentation](#documentation)
-- ...
+- [Statusline](#statusline)
 
 
 ### Installation
@@ -123,5 +123,14 @@ When you press `<CR>` on a usage or definition, it will be shown in the code win
 
 ```viml
 let g:kite_preview_code=1
+```
+
+
+### Statusline
+
+Add `%{kite#statusline()}` to your statusline to get an indicator of what Kite is doing.  If you don't have a status line, this one matches the default when `&ruler` is set:
+
+```viml
+set statusline=%<%f\ %h%m%r%{kite#statusline()}%=%-14.(%l,%c%V%)\ %P
 ```
 

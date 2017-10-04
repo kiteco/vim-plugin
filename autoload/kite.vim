@@ -1,4 +1,14 @@
 let s:supported_languages = ['javascript', 'python']
+let s:status_poll_interval = 5000  " milliseconds
+
+
+function kite#statusline()
+  if exists('b:kite_status') && !empty(b:kite_status)
+    return 'Kite: '.kite#utils#capitalize(b:kite_status)
+  else
+    return ''
+  endif
+endfunction
 
 
 function! kite#toggle()
@@ -17,6 +27,11 @@ endfunction
 
 function! s:enable()
   if getbufvar('', 'kite_enabled') | return | endif
+
+  call timer_start(s:status_poll_interval,
+        \   function('kite#status#status'),
+        \   {'repeat': -1}
+        \ )
 
   augroup KiteFiles
     autocmd! * <buffer>

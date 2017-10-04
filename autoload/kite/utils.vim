@@ -235,6 +235,12 @@ function! kite#utils#url_encode(str)
 endfunction
 
 
+" Capitalises the first letter of str.
+function! kite#utils#capitalize(str)
+  return substitute(a:str, '^.', '\u\0', '')
+endfunction
+
+
 function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\'
 endfunction
