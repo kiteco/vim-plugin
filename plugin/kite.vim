@@ -11,12 +11,12 @@ if !exists('g:kite_log')
 endif
 
 if !(has('nvim') || has('job'))
-  call kite#utils#warn('disabled - requires nvim or vim with job support')
+  call kite#utils#warn('disabled - requires nvim or vim with the +job feature')
   finish
 endif
 
 if !(has('nvim') || has('timers'))
-  call kite#utils#warn('disabled - requires nvim or vim with timers support')
+  call kite#utils#warn('disabled - requires nvim or vim with the +timers feature')
   finish
 endif
 
