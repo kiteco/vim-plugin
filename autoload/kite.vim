@@ -28,11 +28,6 @@ endfunction
 function! s:enable()
   if getbufvar('', 'kite_enabled') | return | endif
 
-  call timer_start(s:status_poll_interval,
-        \   function('kite#status#status'),
-        \   {'repeat': -1}
-        \ )
-
   augroup KiteFiles
     autocmd! * <buffer>
     autocmd CursorHold               <buffer> call kite#events#event('selection')
@@ -93,6 +88,11 @@ function! s:enable()
   endif
 
   call kite#status#status()
+  call timer_start(s:status_poll_interval,
+        \   function('kite#status#status'),
+        \   {'repeat': -1}
+        \ )
+
   call setbufvar('', 'kite_enabled', 1)
 endfunction
 
