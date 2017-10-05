@@ -92,6 +92,7 @@ function! s:enable()
     nmap <silent> <buffer> K <Plug>(kite-hover)
   endif
 
+  call kite#status#status()
   call setbufvar('', 'kite_enabled', 1)
 endfunction
 
