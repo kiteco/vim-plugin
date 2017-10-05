@@ -24,7 +24,7 @@ endfunction
 
 
 function! kite#status#handler(buffer, response)
-  call kite#utils#log('status: '.a:response.status)
+  call kite#utils#log('kite status status: '.a:response.status.', body: '.a:response.body)
   if a:response.status != 200 | return | endif
 
   let json = json_decode(a:response.body)
