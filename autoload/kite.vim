@@ -1,4 +1,4 @@
-let s:supported_languages = ['javascript', 'python']
+let s:supported_languages = ['python']
 let s:status_poll_interval = 5000  " milliseconds
 
 
