@@ -3,7 +3,7 @@
 " Optional argument is a timer id (when called by a timer).
 function! kite#status#status(...)
   let buf = bufnr('')
-  let msg = ''
+  let msg = 'NOT SET'
 
   if !kite#utils#kite_installed()
     let msg = 'not installed'
@@ -12,10 +12,10 @@ function! kite#status#status(...)
   elseif !kite#utils#logged_in()
     let msg = 'not logged in'
   elseif !getbufvar('', 'kite_enabled')
-    let msg = 'ready'
+    let msg = ''
   endif
 
-  if !empty(msg)
+  if msg !=# 'NOT SET'
     call setbufvar(buf, 'kite_status', msg)
     return
   endif
