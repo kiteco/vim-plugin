@@ -50,6 +50,13 @@ function! kite#utils#warn(msg)
 endfunction
 
 
+function! kite#utils#info(msg)
+  echohl Question
+  echo a:msg
+  echohl None
+endfunction
+
+
 " Returns the absolute path to the current file after resolving symlinks.
 "
 " url_format - when truthy, return the path in a URL-compatible format.

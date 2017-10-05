@@ -27,6 +27,7 @@ endfunction
 
 function! s:on_bufenter()
   call kite#events#event('focus')
+  call kite#status#status()
 endfunction
 
 
