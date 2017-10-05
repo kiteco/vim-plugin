@@ -25,6 +25,11 @@ function! kite#max_file_size()
 endfunction
 
 
+function! s:on_bufenter()
+  call kite#events#event('focus')
+endfunction
+
+
 function! s:enable()
   if getbufvar('', 'kite_enabled') | return | endif
 
@@ -32,7 +37,8 @@ function! s:enable()
     autocmd! * <buffer>
     autocmd CursorHold               <buffer> call kite#events#event('selection')
     autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
-    autocmd BufEnter,FocusGained     <buffer> call kite#events#event('focus')
+    autocmd FocusGained              <buffer> call kite#events#event('focus')
+    autocmd BufEnter                 <buffer> call s:on_bufenter()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
@@ -40,6 +46,8 @@ function! s:enable()
       autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
     endif
   augroup END
+
+  call s:on_bufenter()
 
   set shortmess+=c
   setlocal completefunc=kite#completion#complete
