@@ -1,4 +1,6 @@
 " Updates the status of the current buffer.
+"
+" Optional argument is a timer id (when called by a timer).
 function! kite#status#status(...)
   let buf = bufnr('')
   let msg = ''
