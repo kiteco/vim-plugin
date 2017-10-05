@@ -96,7 +96,6 @@ function! s:enable()
     nmap <silent> <buffer> K <Plug>(kite-hover)
   endif
 
-  call kite#status#status()
   call timer_start(s:status_poll_interval,
         \   function('kite#status#status'),
         \   {'repeat': -1}
