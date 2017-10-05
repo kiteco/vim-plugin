@@ -1,5 +1,6 @@
 let s:supported_languages = ['python']
 let s:status_poll_interval = 5000  " milliseconds
+let s:timer = -1
 
 
 function kite#statusline()
@@ -32,6 +33,15 @@ endfunction
 
 
 function! s:enable()
+  if s:timer == -1
+    let s:timer = timer_start(s:status_poll_interval,
+          \   function('kite#status#status'),
+          \   {'repeat': -1}
+          \ )
+  else
+    call timer_pause(s:timer, 0)  " unpause
+  endif
+
   if getbufvar('', 'kite_enabled') | return | endif
 
   augroup KiteFiles
@@ -96,11 +106,6 @@ function! s:enable()
     nmap <silent> <buffer> K <Plug>(kite-hover)
   endif
 
-  call timer_start(s:status_poll_interval,
-        \   function('kite#status#status'),
-        \   {'repeat': -1}
-        \ )
-
   call setbufvar('', 'kite_enabled', 1)
 endfunction
 
@@ -109,6 +114,7 @@ function! s:disable()
   if exists('#KiteFiles')
     autocmd! KiteFiles * <buffer>
   endif
+  call timer_pause(s:timer, 1)
 endfunction
 
 
