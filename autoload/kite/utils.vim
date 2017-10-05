@@ -44,7 +44,7 @@ endfunction
 
 function! kite#utils#warn(msg)
   echohl WarningMsg
-  echo 'kite: '.a:msg
+  echo 'Kite: '.a:msg
   echohl None
   let v:warningmsg = a:msg
 endfunction
