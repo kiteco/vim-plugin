@@ -11,6 +11,8 @@
 
 ### Installation
 
+Requires Vim 8 or NeoVim.
+
 Download Kite from https://kite.com.  During Kite's installation process, select Vim and/or Neovim in the list of editors and Kite will install this plugin for you.
 
 Kite will also keep the plugin up to date automatically.
