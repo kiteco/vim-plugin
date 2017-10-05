@@ -15,6 +15,11 @@ if !(has('nvim') || has('job'))
   finish
 endif
 
+if !(has('nvim') || has('timers'))
+  call kite#utils#warn('disabled - requires nvim or vim with timers support')
+  finish
+endif
+
 if !executable('curl')
   call kite#utils#warn('disabled - requires curl')
   finish
