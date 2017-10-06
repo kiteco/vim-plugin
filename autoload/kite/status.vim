@@ -5,14 +5,14 @@ function! kite#status#status(...)
   let buf = bufnr('')
   let msg = 'NOT SET'
 
-  if !getbufvar('', 'kite_enabled')
-    let msg = ''
-  elseif !kite#utils#kite_installed()
+  if !kite#utils#kite_installed()
     let msg = 'not installed'
   elseif !kite#utils#kite_running()
     let msg = 'not running'
   elseif !kite#utils#logged_in()
     let msg = 'not logged in'
+  elseif !getbufvar('', 'kite_enabled')
+    let msg = 'ready'
   endif
 
   if msg !=# 'NOT SET'
