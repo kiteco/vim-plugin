@@ -72,5 +72,6 @@ endfunction
 
 
 function! s:on_exit_nvim(_job_id, _data, _event) dict
+  call map(self.stdoutbuffer, 'substitute(v:val, "\r$", "", "")')
   call self.handler(kite#client#parse_response(self.stdoutbuffer))
 endfunction
