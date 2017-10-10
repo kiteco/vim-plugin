@@ -52,21 +52,19 @@ endfunction
 
 
 function! s:on_stdout_nvim(_job_id, data, event) dict
-  if a:event ==# 'stdout'
-    " a:data is a list of lines.  However Neovim splits lines at
-    " 8192 bytes so any incomplete lines must be joined back together.
-    "
-    " See:
-    " - https://github.com/neovim/neovim/issues/3555
-    " - https://github.com/mhinz/vim-grepper/issues/71
-    " - https://github.com/neovim/neovim/issues/4266
-    if empty(self.stdoutbuffer) || empty(self.stdoutbuffer[-1])
-      call extend(self.stdoutbuffer, a:data)
-    else
-      let self.stdoutbuffer = self.stdoutbuffer[:-2] +
-            \ [self.stdoutbuffer[-1] . get(a:data, 0, '')] +
-            \ a:data[1:]
-    endif
+  " a:data is a list of lines.  However Neovim splits lines at
+  " 8192 bytes so any incomplete lines must be joined back together.
+  "
+  " See:
+  " - https://github.com/neovim/neovim/issues/3555
+  " - https://github.com/mhinz/vim-grepper/issues/71
+  " - https://github.com/neovim/neovim/issues/4266
+  if empty(self.stdoutbuffer) || empty(self.stdoutbuffer[-1])
+    call extend(self.stdoutbuffer, a:data)
+  else
+    let self.stdoutbuffer = self.stdoutbuffer[:-2] +
+          \ [self.stdoutbuffer[-1] . get(a:data, 0, '')] +
+          \ a:data[1:]
   endif
 endfunction
 
