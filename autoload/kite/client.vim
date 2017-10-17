@@ -56,12 +56,23 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:curl_cmd(endpoint, ...)
-  let cmd = 'curl -sSi '.shellescape(a:endpoint)
-  if a:0
-    let cmd .= ' -X POST -d '.shellescape(a:1)
+  if !executable('curl')
+    let cmd = 'curl -sSi '.shellescape(a:endpoint)
+    if a:0
+      let cmd .= ' -X POST -d '.shellescape(a:1)
+    endif
+    call kite#utils#log(cmd)
+    return cmd
+
+  else
+    let cmd = s:http_binary
+    if a:0
+      let cmd .= ' --post --data '.shellescape(a:1)
+    endif
+    let cmd .= ' '.shellescape(a:endpoint)
+    call kite#utils#log(cmd)
+    return cmd
   endif
-  call kite#utils#log(cmd)
-  return cmd
 endfunction
 
 
@@ -88,4 +99,7 @@ function! kite#client#parse_response(lines)
 
   return {'status': status, 'body': body}
 endfunction
+
+
+let s:http_binary = kite#utils#lib('kite-http')
 

@@ -20,11 +20,6 @@ if !(has('nvim') || has('timers'))
   finish
 endif
 
-if !executable('curl')
-  call kite#utils#warn('disabled - requires curl')
-  finish
-endif
-
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#toggle()

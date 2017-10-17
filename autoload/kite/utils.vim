@@ -1,4 +1,11 @@
 let s:windows_os = has('win64') || has('win32') || has('win32unix')
+let s:separator = !exists('+shellslash') || &shellslash ? '/' : '\'
+let s:lib_dir = expand('<sfile>:p:h:h:h').s:separator.'lib'.s:separator
+
+
+function! kite#utils#lib(filename)
+  return s:lib_dir.a:filename
+endfunction
 
 
 function! kite#utils#kite_installed()
@@ -287,11 +294,6 @@ function! s:chomp(str)
 endfunction
 
 
-function! s:separator()
-  return !exists('+shellslash') || &shellslash ? '/' : '\'
-endfunction
-
-
 function! s:md5(text)
   return s:chomp(system('md5', a:text))
 endfunction
@@ -310,7 +312,7 @@ if executable('md5')
 elseif executable('md5sum')
   let s:MD5 = function('s:md5sum')
 else
-  let s:md5_binary = expand('<sfile>:p:h:h').s:separator().'lib'.s:separator().'md5Sum.exe'
+  let s:md5_binary = kite#utils#lib('md5Sum.exe')
   let s:MD5 = function('s:md5bin')
 endif
 
