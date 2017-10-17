@@ -114,12 +114,7 @@ By default you need to type `K` (or whatever you have mapped to `<Plug>(kite-hov
 
 ```viml
 let g:kite_documentation_continual=1
-
-" Optionally:
-set updatetime=100  " milliseconds (default is 4000)
 ```
-
-Please note there's a delay between moving the cursor and seeing the update.  Vim's default is 4sec but we recommend decreasing that to, say, 100ms (see code snippet above).
 
 When you press `<CR>` on a usage or definition, it will be shown in the code window you came from.  To see it in the preview window instead:
 

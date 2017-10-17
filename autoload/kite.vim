@@ -60,6 +60,14 @@ function! s:enable()
 
   call s:on_bufenter()
 
+  if &pumheight == 0
+    set pumheight=10
+  endif
+
+  if &updatetime == 4000
+    set updatetime=100
+  endif
+
   set shortmess+=c
   setlocal completefunc=kite#completion#complete
   call s:configure_completeopt()
