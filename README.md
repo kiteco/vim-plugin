@@ -93,7 +93,6 @@ autocmd CompleteDone * if !pumvisible() | pclose | endif
 We also recommend:
 
 ```viml
-set shortmess+=c    " turn off completion messages
 set belloff+=ctrlg  " if vim beeps during completion
 ```
 
