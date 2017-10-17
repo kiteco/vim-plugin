@@ -130,3 +130,8 @@ Add `%{kite#statusline()}` to your statusline to get an indicator of what Kite i
 set statusline=%<%f\ %h%m%r%{kite#statusline()}%=%-14.(%l,%c%V%)\ %P
 ```
 
+
+### Debugging
+
+Use `let g:kite_log=1` to switch on logging.  Logs are written to `kite-vim.log` in Vim's current working directory.
+
