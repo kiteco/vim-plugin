@@ -47,9 +47,13 @@ function! kite#utils#logged_in(...)
 endfunction
 
 
+" msg - a list or a string
 function! kite#utils#log(msg)
   if g:kite_log
-    call writefile([a:msg], 'kite-vim.log', 'a')
+    if type(a:msg) == v:t_string
+      let a:msg = [a:msg]
+    endif
+    call writefile(a:msg, 'kite-vim.log', 'a')
   endif
 endfunction
 
