@@ -88,8 +88,6 @@ function! kite#client#parse_response(lines)
     return {'status': 0, 'body': ''}
   endif
 
-  " call kite#utils#log(a:lines)
-
   if type(a:lines) == v:t_string
     let lines = split(a:lines, "\r\n")
   else
@@ -108,7 +106,7 @@ endfunction
 
 
 function! s:quote(str)
-  return '"'.escape(escape(a:str, '"'), '\').'"'
+  return '"'.escape(a:str, '"').'"'
 endfunction
 
 
