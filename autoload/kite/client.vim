@@ -106,7 +106,7 @@ endfunction
 
 
 function! s:quote(str)
-  return "'".escape(a:str, "'")."'"
+  return '"'.escape(a:str, '"').'"'
 endfunction
 
 
