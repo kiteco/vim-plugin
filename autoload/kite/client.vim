@@ -67,7 +67,7 @@ function! s:curl_cmd(endpoint, ...)
   elseif kite#utils#windows()
     let cmd = s:http_binary
     if a:0
-      let cmd .= ' --post --data '.shellescape(a:1)
+      let cmd .= ' --post --data '.s:quote(a:1)
     endif
     let cmd .= ' '.shellescape(a:endpoint)
     call kite#utils#log(cmd)
@@ -102,6 +102,11 @@ function! kite#client#parse_response(lines)
   let body = join(lines[sep+1:], "\n")
 
   return {'status': status, 'body': body}
+endfunction
+
+
+function! s:quote(str)
+  return "'".escape(a:str, "'")."'"
 endfunction
 
 
