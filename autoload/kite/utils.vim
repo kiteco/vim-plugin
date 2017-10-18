@@ -51,9 +51,11 @@ endfunction
 function! kite#utils#log(msg)
   if g:kite_log
     if type(a:msg) == v:t_string
-      let a:msg = [a:msg]
+      let msg = [a:msg]
+    else
+      let msg = a:msg
     endif
-    call writefile(a:msg, 'kite-vim.log', 'a')
+    call writefile(msg, 'kite-vim.log', 'a')
   endif
 endfunction
 
