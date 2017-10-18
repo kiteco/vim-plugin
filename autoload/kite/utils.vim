@@ -3,6 +3,11 @@ let s:separator = !exists('+shellslash') || &shellslash ? '/' : '\'
 let s:lib_dir = expand('<sfile>:p:h:h:h').s:separator.'lib'.s:separator
 
 
+function! kite#utils#windows()
+  return s:windows_os
+endfunction
+
+
 function! kite#utils#lib(filename)
   return s:lib_dir.a:filename
 endfunction

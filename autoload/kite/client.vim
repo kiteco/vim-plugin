@@ -64,7 +64,7 @@ function! s:curl_cmd(endpoint, ...)
     call kite#utils#log(cmd)
     return cmd
 
-  else
+  elseif kite#utils#windows()
     let cmd = s:http_binary
     if a:0
       let cmd .= ' --post --data '.shellescape(a:1)
@@ -72,6 +72,10 @@ function! s:curl_cmd(endpoint, ...)
     let cmd .= ' '.shellescape(a:endpoint)
     call kite#utils#log(cmd)
     return cmd
+
+  else
+    " Should not get here due to check in plugin/kite.vim
+    throw 'requires curl or windows'
   endif
 endfunction
 
