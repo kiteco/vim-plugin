@@ -56,7 +56,7 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:curl_cmd(endpoint, ...)
-  if !executable('curl')
+  if executable('curl')
     let cmd = 'curl -sSi '.shellescape(a:endpoint)
     if a:0
       let cmd .= ' -X POST -d '.shellescape(a:1)
