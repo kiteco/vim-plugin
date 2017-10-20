@@ -59,7 +59,12 @@ function! s:curl_cmd(endpoint, ...)
   if executable('curl')
     let cmd = 'curl -sSi '.shellescape(a:endpoint)
     if a:0
-      let cmd .= ' -X POST -d '.shellescape(a:1)
+      let cmd .= ' -X POST -d '
+      if kite#utils#windows()
+        let cmd .= s:win_escape_json(a:1)
+      else
+        let cmd .= shellescape(a:1)
+      endif
     endif
     call kite#utils#log(cmd)
     return cmd
@@ -67,7 +72,7 @@ function! s:curl_cmd(endpoint, ...)
   elseif kite#utils#windows()
     let cmd = s:http_binary
     if a:0
-      let cmd .= ' --post --data '.s:quote(a:1)
+      let cmd .= ' --post --data '.s:win_escape_json(a:1)
     endif
     let cmd .= ' '.shellescape(a:endpoint)
     call kite#utils#log(cmd)
@@ -105,8 +110,12 @@ function! kite#client#parse_response(lines)
 endfunction
 
 
-function! s:quote(str)
-  return '"'.escape(a:str, '"').'"'
+function! s:win_escape_json(str)
+  " Literal " -> \"
+  let a = escape(a:str, '"')
+  " Literal \\" -> \\\"  (for double quotes escaped inside json property values)
+  let b = substitute(a, '\\\\"', '\\\\\\"', 'g')
+  return '"'.c.'"'
 endfunction
 
 
