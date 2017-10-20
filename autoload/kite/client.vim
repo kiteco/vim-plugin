@@ -89,6 +89,9 @@ endfunction
 "
 " lines - either a list (from async commands) or a string (from sync)
 function! kite#client#parse_response(lines)
+  call kite#utils#log('http response: ')
+  call kite#utils#log(a:lines)
+
   if empty(a:lines)
     return {'status': 0, 'body': ''}
   endif
@@ -115,7 +118,7 @@ function! s:win_escape_json(str)
   let a = escape(a:str, '"')
   " Literal \\" -> \\\"  (for double quotes escaped inside json property values)
   let b = substitute(a, '\\\\"', '\\\\\\"', 'g')
-  return '"'.c.'"'
+  return '"'.b.'"'
 endfunction
 
 
