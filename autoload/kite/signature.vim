@@ -18,20 +18,20 @@ function! kite#signature#handler(response) abort
   "
   call add(completions, s:heading('Signature'))
 
-  let detail = callee.details.function  " callee.detail is deprecated
+  let fn = callee.details.function
   let arguments = []
 
-  if empty(detail)
+  if empty(fn)
     call add(arguments, '')
 
   else
     " https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions
 
     " formal parameters / positional arguments
-    if has_key(detail, 'parameters') && type(detail.parameters) == v:t_list
+    if has_key(fn, 'parameters') && type(fn.parameters) == v:t_list
       let [arg_index, in_kwargs] = [call.arg_index, call.language_details.python.in_kwargs]
       let i = 0
-      for parameter in detail.parameters
+      for parameter in fn.parameters
         if !in_kwargs && i == arg_index
           let name = '*'.parameter.name.'*'
         else
@@ -43,13 +43,13 @@ function! kite#signature#handler(response) abort
     endif
 
     " *args (optional positional arguments)
-    if has_key(detail, 'vararg') && type(detail.vararg) == v:t_dict
-      call add(arguments, '*args')
+    if has_key(fn.language_details.python, 'vararg') && type(fn.language_details.python.vararg) == v:t_dict
+      call add(arguments, '*'.fn.language_details.python.vargarg.name)
     endif
 
     " **kwargs (optional keyword arguments)
-    if has_key(detail, 'kwarg') && type(detail.kwarg) == v:t_dict
-      call add(arguments, '**kwargs')
+    if has_key(fn.language_details.python, 'kwarg') && type(fn.language_details.python.kwarg) == v:t_dict
+      call add(arguments, '**'.fn.language_details.python.kwarg.name)
     endif
   endif
 
@@ -116,11 +116,11 @@ function! kite#signature#handler(response) abort
   "
   " kwarg details
   "
-  if !empty(detail) && has_key(detail, 'kwarg_parameters') && type(detail.kwarg_parameters) == v:t_list
+  if !empty(fn) && has_key(fn, 'kwarg_parameters') && type(fn.kwarg_parameters) == v:t_list
     call add(completions, spacer)
     call add(completions, s:heading('kwargs'))
 
-    for kwarg in detail.kwarg_parameters
+    for kwarg in fn.kwarg_parameters
       let name = kwarg.name
       if type(kwarg.inferred_value) == v:t_list
         let types = join(map(kwarg.inferred_value, {_,t -> t.repr}), ' | ')
@@ -155,8 +155,8 @@ function! kite#signature#handler(response) abort
       endfor
     endif
 
-    if type(signature.kwargs) == v:t_list
-      for kwarg in signature.kwargs
+    if !empty(signature.language_details.python.kwargs) && type(signature.language_details.python.kwargs) == v:t_list
+      for kwarg in signature.language_details.python.kwargs
         call add(arguments, kwarg.name.'='.join(map(kwarg.types, {_,t -> t.name}), '|'))
       endfor
     endif
