@@ -84,6 +84,7 @@ function! kite#utils#filepath(url_format)
   if a:url_format
     let path = substitute(path, '[\/]', ':', 'g')
     if s:windows_os
+      let path = substitute(path, '^\(\a\)::', '\1:', '')
       let path = ':windows:'.path
     endif
     let path = kite#utils#url_encode(path)
