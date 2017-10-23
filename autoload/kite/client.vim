@@ -104,6 +104,7 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:internal_http(path, ...)
+  call kite#utils#log('> channel: '.a:path)
   let channel = ch_open(s:channel_base, {'mode': 'raw'})
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
   if a:0
@@ -117,6 +118,7 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:external_http(url, ...)
+  call kite#utils#log('> external: '.a:url)
   if a:0
     let cmd = s:curl_cmd(a:url, a:1)
   else
@@ -139,7 +141,7 @@ function! s:curl_cmd(endpoint, ...)
         let cmd .= shellescape(a:1)
       endif
     endif
-    call kite#utils#log(cmd)
+    call kite#utils#log('> '.cmd)
     return cmd
 
   elseif kite#utils#windows()
@@ -148,7 +150,7 @@ function! s:curl_cmd(endpoint, ...)
       let cmd .= ' --post --data '.s:win_escape_json(a:1)
     endif
     let cmd .= ' '.shellescape(a:endpoint)
-    call kite#utils#log(cmd)
+    call kite#utils#log('> '.cmd)
     return cmd
 
   else
@@ -162,8 +164,12 @@ endfunction
 "
 " lines - either a list (from async commands) or a string (from sync)
 function! kite#client#parse_response(lines)
-  call kite#utils#log('http response: ')
-  call kite#utils#log(a:lines)
+  if type(a:lines) == v:t_string
+    let lines = split(a:lines, "\r\n")
+  else
+    let lines = a:lines
+  endif
+  call kite#utils#log(map(lines, '"< ".v:val'))
 
   if empty(a:lines)
     return {'status': 0, 'body': ''}
