@@ -1,56 +1,129 @@
-let s:base_url    = 'http://127.0.0.1:46624'
-let s:editor_url  = s:base_url.'/clientapi/editor'
-let s:hover_url   = s:base_url.'/api/buffer/vim'
-let s:example_url = s:base_url.'/api/python/curation'
-let s:webapp_url  = s:base_url.'/clientapi/desktoplogin?d='
-let s:status_url  = s:base_url.'/clientapi/status?filename='
-let s:user_url    = s:base_url.'/clientapi/user'
+let s:port         = 46624
+let s:channel_base = 'localhost:'.s:port
+let s:base_url     = 'http://127.0.0.1:'.s:port
+let s:editor_path  = '/clientapi/editor'
+let s:hover_path   = '/api/buffer/vim'
+let s:example_path = '/api/python/curation'
+let s:webapp_path  = '/clientapi/desktoplogin?d='
+let s:status_path  = '/clientapi/status?filename='
+let s:user_path    = '/clientapi/user'
 
 
 function! kite#client#logged_in(handler)
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(s:user_url))))
+  let path = s:user_path
+  if has('channel')
+    let response = s:internal_http(path)
+  else
+    let response = s:external_http(s:base_url.path)
+  endif
+  return a:handler(kite#client#parse_response(response))
 endfunction
 
 
 function! kite#client#status(filename, handler)
-  let url = s:status_url.a:filename
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+  let path = s:status_path.a:filename
+  if has('channel')
+    let response = s:internal_http(path)
+  else
+    let response = s:external_http(s:base_url.path)
+  endif
+  return a:handler(kite#client#parse_response(response))
 endfunction
 
 
 function! kite#client#webapp_link(id)
-  let url = s:webapp_url.kite#utils#url_encode('/docs/python/'.a:id)
-  call kite#utils#browse(url)
+  call kite#utils#browse(s:base_url.s:webapp_path.kite#utils#url_encode('/docs/python/'.a:id))
 endfunction
 
 
 function! kite#client#example(id, handler)
-  let url = s:example_url.'/'.a:id
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(url))))
+  let path = s:example_path.'/'.a:id
+  if has('channel')
+    let response = s:internal_http(path)
+  else
+    let response = s:external_http(s:base_url.path)
+  endif
+  return a:handler(kite#client#parse_response(response))
 endfunction
 
 
 function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
-  let url = s:hover_url.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
-  call kite#async#execute(s:curl_cmd(url), a:handler)
+  let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
+  if has('channel')
+    call s:async(function('s:timer_hover', [path, a:handler]))
+  else
+    call kite#async#execute(s:curl_cmd(s:base_url.path), a:handler)
+  endif
+endfunction
+
+function! s:timer_hover(path, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path)))
 endfunction
 
 
 function! kite#client#signatures(json, handler)
-  let url = s:editor_url.'/signatures'
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(url, a:json))))
+  let path = s:editor_path.'/signatures'
+  if has('channel')
+    let response = s:internal_http(path, a:json)
+  else
+    let response = s:external_http(s:base_url.path, a:json)
+  endif
+  return a:handler(kite#client#parse_response(response))
 endfunction
 
 
 function! kite#client#completions(json, handler)
-  let url = s:editor_url.'/completions'
-  return a:handler(kite#client#parse_response(system(s:curl_cmd(url, a:json))))
+  let path = s:editor_path.'/completions'
+  if has('channel')
+    let response = s:internal_http(path, a:json)
+  else
+    let response = s:external_http(s:base_url.path, a:json)
+  endif
+  return a:handler(kite#client#parse_response(response))
 endfunction
 
 
 function! kite#client#post_event(json, handler)
-  let url = s:editor_url.'/event'
-  call kite#async#execute(s:curl_cmd(url, a:json), a:handler)
+  let path = s:editor_path.'/event'
+  if has('channel')
+    call s:async(function('s:timer_post_event', [path, a:json, a:handler]))
+  else
+    call kite#async#execute(s:curl_cmd(s:base_url.path, a:json), a:handler)
+  endif
+endfunction
+
+function! s:timer_post_event(path, json, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:json)))
+endfunction
+
+
+function! s:async(callback)
+  call timer_start(0, a:callback)
+endfunction
+
+
+" Optional argument is json to be posted
+function! s:internal_http(path, ...)
+  let channel = ch_open(s:channel_base, {'mode': 'raw'})
+  " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
+  if a:0
+    let str = 'POST '.a:path." HTTP/1.0\nHost: localhost\nContent-Type: application/x-www-form-urlencoded\nContent-Length: ".len(a:1)."\n\n".a:1
+  else
+    let str = 'GET '.a:path." HTTP/1.0\nHost: localhost\n\n"
+  endif
+  return ch_evalraw(channel, str)
+endfunction
+
+
+" Optional argument is json to be posted
+function! s:external_http(url, ...)
+  if a:0
+    let cmd = s:curl_cmd(a:url, a:1)
+  else
+    let cmd = s:curl_cmd(a:url)
+  endif
+  return system(cmd)
+endif
 endfunction
 
 
