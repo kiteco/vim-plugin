@@ -32,7 +32,7 @@ endfunction
 
 
 function! kite#client#webapp_link(id)
-  call kite#utils#browse(s:base_url.s:webapp_path.kite#utils#url_encode('/docs/python/'.a:id))
+  call kite#utils#browse(s:base_url.s:webapp_path.kite#utils#url_encode('/docs/'.a:id))
 endfunction
 
 
