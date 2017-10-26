@@ -15,7 +15,7 @@ endfunction
 
 function! kite#utils#kite_installed()
   if s:windows_os
-    let output = system('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath')
+    let output = system('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
     " Assume Kite is installed if the output contains 'InstallPath'
     return match(split(output, '\n'), 'InstallPath') > -1
   else  " osx
