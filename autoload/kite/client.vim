@@ -104,15 +104,31 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:internal_http(path, ...)
-  call kite#utils#log('> channel: '.a:path)
-  let channel = ch_open(s:channel_base, {'mode': 'raw'})
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
   if a:0
     let str = 'POST '.a:path." HTTP/1.0\nHost: localhost\nContent-Type: application/x-www-form-urlencoded\nContent-Length: ".len(a:1)."\n\n".a:1
   else
     let str = 'GET '.a:path." HTTP/1.0\nHost: localhost\n\n"
   endif
-  return ch_evalraw(channel, str)
+  call kite#utils#log('> '.str)
+
+  let channel = ch_open(s:channel_base, {'mode': 'raw'})
+  call ch_sendraw(channel, str)
+  let response = ''
+  while v:true
+    try
+      let msg = ch_read(channel, {'timeout': 50})
+    catch /E906/
+      " channel no longer available
+      let msg = ''
+    endtry
+    if msg == ''
+      break
+    else
+      let response .= msg
+    endif
+  endwhile
+  return response
 endfunction
 
 
