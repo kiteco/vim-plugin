@@ -27,7 +27,7 @@ endfunction
 
 function! kite#utils#kite_running()
   if s:windows_os
-    let [cmd, process] = ['tasklist /FI "IMAGENAME eq kited.exe"', '^kited.exe$']
+    let [cmd, process] = ['tasklist /FI "IMAGENAME eq kited.exe"', '^kited.exe']
   else  " osx
     let [cmd, process] = ['ps -axco command', '^Kite$']
   endif
