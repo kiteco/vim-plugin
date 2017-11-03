@@ -1,20 +1,26 @@
-let s:windows_os = has('win64') || has('win32') || has('win32unix')
-let s:separator = !exists('+shellslash') || &shellslash ? '/' : '\'
-let s:lib_dir = expand('<sfile>:p:h:h:h').s:separator.'lib'.s:separator
+if has('win64') || has('win32') || has('win32unix')
+  let s:os = 'Windows'
+else
+  let s:os = substitute(system('uname'), '\n', '', '')  " Darwin or Linux
+endif
+
+let s:separator  = !exists('+shellslash') || &shellslash ? '/' : '\'
+let s:lib_dir    = expand('<sfile>:p:h:h:h').s:separator.'lib'
+let s:lib_subdir = s:lib_dir.s:separator.(s:os ==# 'Windows' ? 'windows' : s:os ==# 'Darwin' ? 'macos' : 'linux')
 
 
 function! kite#utils#windows()
-  return s:windows_os
+  return s:os ==# 'Windows'
 endfunction
 
 
 function! kite#utils#lib(filename)
-  return s:lib_dir.a:filename
+  return s:lib_subdir.s:separator.a:filename
 endfunction
 
 
 function! kite#utils#kite_installed()
-  if s:windows_os
+  if kite#utils#windows()
     let output = system('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
     " Assume Kite is installed if the output contains 'InstallPath'
     return match(split(output, '\n'), 'InstallPath') > -1
@@ -26,7 +32,7 @@ endfunction
 
 
 function! kite#utils#kite_running()
-  if s:windows_os
+  if kite#utils#windows()
     let [cmd, process] = ['tasklist /FI "IMAGENAME eq kited.exe"', '^kited.exe']
   else  " osx
     let [cmd, process] = ['ps -axco command', '^Kite$']
@@ -82,7 +88,7 @@ function! kite#utils#filepath(url_format)
 
   if a:url_format
     let path = substitute(path, '[\/]', ':', 'g')
-    if s:windows_os
+    if kite#utils#windows()
       let path = substitute(path, '^\(\a\)::', '\1:', '')
       let path = ':windows:'.path
     endif
