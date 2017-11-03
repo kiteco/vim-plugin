@@ -4,7 +4,7 @@ endif
 
 
 " Section headings
-syntax match kiteHeading /\v^\u+$/
+syntax match kiteHeading /\v^[A-Z ]+$/
 highlight link kiteHeading String
 
 

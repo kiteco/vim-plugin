@@ -21,15 +21,107 @@ function! kite#hover#handler(response)
   if a:response.status != 200 | return | endif
 
   let json = json_decode(a:response.body)
+
+  let symbol = json.symbol[0]
   let report = json.report
 
   call s:openKiteWindow()
-
   silent %d _
 
   let s:clickables = {}
 
-  call s:section('DESCRIPTION', 1)
+  let kind = symbol.value[0].kind
+
+  " FUNCTION (assumed)
+  if kind ==# 'function'
+
+    " 1. Name of function with parameters.  Label: "Function"
+
+    " a. Name
+    let name = symbol.value[0].repr
+    " b. Parameters
+    let parameters = []
+    for parameter in s:coerce(symbol.value[0].details.function, 'parameters', [])
+      " i. name
+      call add(parameters, parameter.name)
+    endfor
+    " ii. vararg indicator
+    if has_key(symbol.value[0].details.function.language_details.python, 'vararg')
+      call add(parameters, '*'.symbol.value[0].details.function.language_details.python.vararg.name)
+    endif
+    " iii. keyword arguments indicator
+    if has_key(symbol.value[0].details.function.language_details.python, 'kwarg')
+      call add(parameters, '**'.symbol.value[0].details.function.language_details.python.kwarg.name)
+    endif
+    " c. Label 'function'
+    let label = symbol.value[0].kind
+
+    let title = name.'('.join(parameters, ', ').') // '.label
+    call s:section(title, 1)
+
+
+    " 2. Function's popular patterns
+
+    let patterns = []
+    for signature in s:coerce(symbol.value[0].details.function, 'signatures', [])
+      " i. name of function
+      let name = symbol.name
+      " ii. arguments
+      let arguments = []
+      for arg in s:coerce(signature, 'args', [])
+        call add(arguments, arg.name)
+      endfor
+      " iii. keyword arguments
+      for kwarg in s:coerce(signature.language_details.python, 'kwarg', [])
+        call add arguments(kwarg.name.'='.join(map(kwarg.types, {_,t -> t.name}), '|'))
+      endfor
+      call add(patterns, name.'('.join(arguments, ', ').')')
+    endfor
+    if !empty(patterns)
+      call s:section('POPULAR PATTERNS')
+      call s:content(patterns)
+    endif
+
+
+    " 3. Parameters and their types.
+
+    let parameters = []
+    for parameter in s:coerce(symbol.value[0].details.function, 'parameters', [])
+      " i. name; ii. types
+      call add(parameters, parameter.name.' '.join(map(s:coerce(parameter, 'inferred_value', []), {_,t -> t.repr}), '|'))
+    endfor
+    if !empty(parameters)
+      call s:section('PARAMETERS')
+      call s:content(parameters)
+    endif
+
+
+    " 4. Keyword arguments
+    " TODO align in two columns
+
+    let kwargs = []
+    for kwarg in s:coerce(symbol.value[0].details.function.language_details.python, 'kwarg_parameters', [])
+      " i. name; ii. types
+      call add(kwargs, kwarg.name.' '.join(map(s:coerce(kwarg, 'inferred_value', []), {_,t -> t.repr}), '|'))
+    endfor
+    if !empty(kwargs)
+      call s:section('KEYWORD ARGUMENTS')
+      call s:content(kwargs)
+    endif
+
+
+    " 5. Returns
+    let returns = join(map(s:coerce(symbol.value[0].details.function, 'return_value', []), {_,t -> t.repr}), '|')
+    if !empty(returns)
+      call s:section('RETURNS')
+      call s:content(returns)
+    endif
+
+  endif
+
+
+
+  call s:section('DOCUMENTATION')
   " Handle embedded line breaks.
   call s:content(split(report.description_text, "\n"))
 
@@ -40,6 +132,22 @@ function! kite#hover#handler(response)
           \   'type': 'doc',
           \   'id': json.symbol[0].value[0].id
           \ }
+  endif
+
+
+  if !empty(report.usages)
+    call s:section('USAGES')
+    for usage in report.usages
+      let location = fnamemodify(usage.filename, ':t').':'.usage.line
+      let code = substitute(usage.code, '\v^\s+', '', 'g')
+      call s:content('['.location.'] '.code)
+      let s:clickables[line('$')] = {
+            \   'type': 'jump',
+            \   'file': usage.filename,
+            \   'line': usage.line,
+            \   'byte': usage.begin_runes
+            \ }
+    endfor
   endif
 
 
@@ -63,22 +171,6 @@ function! kite#hover#handler(response)
           \   'file': report.definition.filename,
           \   'line': report.definition.line
           \ }
-  endif
-
-
-  if !empty(report.usages)
-    call s:section('USAGES')
-    for usage in report.usages
-      let location = fnamemodify(usage.filename, ':t').':'.usage.line
-      let code = substitute(usage.code, '\v^\s+', '', 'g')
-      call s:content('['.location.'] '.code)
-      let s:clickables[line('$')] = {
-            \   'type': 'jump',
-            \   'file': usage.filename,
-            \   'line': usage.line,
-            \   'byte': usage.begin_runes
-            \ }
-    endfor
   endif
 
 
@@ -216,6 +308,7 @@ function! s:show_example(id)
 endfunction
 
 
+" Optional arg: truthy to indicate first section.
 function! s:section(title, ...)
   if a:0
     call append(0, a:title)
@@ -227,3 +320,15 @@ endfunction
 function! s:content(text)
   call append(line('$'), a:text)
 endfunction
+
+
+function! s:coerce(dict, key, default)
+  if has_key(a:dict, a:key)
+    let v = a:dict[a:key]
+    if type(v) == type(a:default)  " check type in case of null
+      return v
+    endif
+  endif
+  return a:default
+endfunction
+
