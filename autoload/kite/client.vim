@@ -185,7 +185,7 @@ function! kite#client#parse_response(lines)
   else
     let lines = a:lines
   endif
-  call kite#utils#log(map(lines, '"< ".v:val'))
+  call kite#utils#log(map(copy(lines), '"< ".v:val'))
 
   if empty(a:lines)
     return {'status': 0, 'body': ''}
