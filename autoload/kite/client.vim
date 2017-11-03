@@ -134,7 +134,6 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:external_http(url, ...)
-  call kite#utils#log('> external: '.a:url)
   if a:0
     let cmd = s:curl_cmd(a:url, a:1)
   else
