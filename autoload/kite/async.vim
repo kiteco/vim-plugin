@@ -23,7 +23,7 @@ function! s:build_command(cmd)
   if has('nvim')
     if has('unix')
       return ['sh', '-c', a:cmd]
-    elseif has('win32')
+    elseif has('win64') || has('win32')
       return ['cmd.exe', '/c', a:cmd]
     else
       throw 'unknown os'
@@ -31,7 +31,7 @@ function! s:build_command(cmd)
   else
     if has('unix')
       return ['sh', '-c', a:cmd]
-    elseif has('win32')
+    elseif has('win64') || has('win32')
       return 'cmd.exe /c '.a:cmd
     else
       throw 'unknown os'
