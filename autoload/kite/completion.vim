@@ -107,7 +107,7 @@ function! kite#completion#handler(response) abort
           \     'word': c.insert,
           \     'abbr': c.display,
           \     'info': c.documentation_text,
-          \     'menu': c.hint
+          \     'menu': c.symbol.value[0].kind
           \   }
           \ })
   else
