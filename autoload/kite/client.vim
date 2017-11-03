@@ -52,7 +52,7 @@ function! kite#client#hover(filename, hash, characters_start, characters_end, ha
   if has('channel')
     call s:async(function('s:timer_hover', [path, a:handler]))
   else
-    call kite#async#execute(s:curl_cmd(s:base_url.path), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path), a:handler)
   endif
 endfunction
 
@@ -88,7 +88,7 @@ function! kite#client#post_event(json, handler)
   if has('channel')
     call s:async(function('s:timer_post_event', [path, a:json, a:handler]))
   else
-    call kite#async#execute(s:curl_cmd(s:base_url.path, a:json), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, a:json), a:handler)
   endif
 endfunction
 
@@ -135,9 +135,9 @@ endfunction
 " Optional argument is json to be posted
 function! s:external_http(url, ...)
   if a:0
-    let cmd = s:curl_cmd(a:url, a:1)
+    let cmd = s:external_http_cmd(a:url, a:1)
   else
-    let cmd = s:curl_cmd(a:url)
+    let cmd = s:external_http_cmd(a:url)
   endif
   return system(cmd)
 endif
@@ -145,33 +145,19 @@ endfunction
 
 
 " Optional argument is json to be posted
-function! s:curl_cmd(endpoint, ...)
-  if executable('curl')
-    let cmd = 'curl -sSi '.shellescape(a:endpoint)
-    if a:0
-      let cmd .= ' -X POST -d '
-      if kite#utils#windows()
-        let cmd .= s:win_escape_json(a:1)
-      else
-        let cmd .= shellescape(a:1)
-      endif
+function! s:external_http_cmd(endpoint, ...)
+  let cmd = s:http_binary
+  if a:0
+    let cmd .= ' --post --data '
+    if kite#utils#windows()
+      let cmd .= s:win_escape_json(a:1)
+    else
+      let cmd .= shellescape(a:1)
     endif
-    call kite#utils#log('> '.cmd)
-    return cmd
-
-  elseif kite#utils#windows()
-    let cmd = s:http_binary
-    if a:0
-      let cmd .= ' --post --data '.s:win_escape_json(a:1)
-    endif
-    let cmd .= ' '.shellescape(a:endpoint)
-    call kite#utils#log('> '.cmd)
-    return cmd
-
-  else
-    " Should not get here due to check in plugin/kite.vim
-    throw 'requires curl or windows'
   endif
+  let cmd .= ' '.shellescape(a:endpoint)
+  call kite#utils#log('> '.cmd)
+  return cmd
 endfunction
 
 
@@ -198,6 +184,9 @@ function! kite#client#parse_response(lines)
 
   " Ignore occasional 100 Continue.
   let i = match(lines, '^HTTP/1.[01] [2345]\d\d ')
+  if i == -1
+    return {'status': 0, 'body': ''}
+  endif
   let status = split(lines[i], ' ')[1]
 
   let sep = match(lines, '^$', i)
