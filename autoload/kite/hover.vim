@@ -32,10 +32,15 @@ function! kite#hover#handler(response)
 
   let kind = symbol.value[0].kind
 
+  "
+  " TODO syntax highlight title and label
+  "
+
+
   " FUNCTION
   if kind ==# 'function'
 
-    " 1. Name of function with parameters.  Label: "Function"
+    " 1. Name of function with parameters.  Label: "function"
 
     " a. Name
     let name = symbol.value[0].repr
@@ -115,11 +120,126 @@ function! kite#hover#handler(response)
     endif
 
   elseif kind ==# 'module'
-    " TODO
+    " 1. Name of module.  Label: "module"
+
+    " a. Name
+    let name = symbol.value[0].repr
+    " b. Label
+    let label = symbol.value[0].kind
+    call s:section(name.' // '.label, 1)
+
+    " 2. Top members
+
+    " a.i, a.ii
+    " TODO spec is unclear
+    let members = map(symbol.value[0].details.module.members, {_,v -> [v.name, v.id]})
+    if !empty(members)
+      call s:section('TOP MEMBERS')
+      call s:content(kite#utils#columnise(members, '    '))
+    endif
+
   elseif kind ==# 'type'
-    " TODO
+    " 1. Name of type.  Label: type
+
+    " a. Name
+    let name = symbol.value[0].repr
+    " b. Label
+    let label = symbol.value[0].kind
+    " c. Constructor
+    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+      let constructor = symbol.value[0].details.type.language_details.python.constructor
+      " i. Parameters
+      let parameters = map(copy(s:coerce(constructor, 'parameters', [])), {_,v -> v.name})
+      " ii. Vararg indicator
+      if has_key(constructor.language_details.python, 'vararg')
+        call add(parameters, '*'.constructor.language_details.python.vararg.name)
+      endif
+      " iii. Keyword arguments indicator
+      if has_key(constructor.language_details.python, 'kwarg')
+        call add(parameters, '**'.constructor.language_details.python.kwarg.name)
+      endif
+    endif
+
+    let title = name.'('.join(parameters, ', ').')'. ' // '.label
+    call s:section(title, 1)
+
+
+    " 2. Popular constructor patterns
+
+    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+      let constructor = symbol.value[0].details.type.language_details.python.constructor
+
+      " a. Popular pattern
+      " TODO spec is confusing
+      for signature in constructor.signatures
+        " i. Name of function
+        let name = symbol.name
+        " ii. Arguments
+        signature.args
+        " iii. Keyword arguments
+        " TODO spec is confusing
+      endfor
+    endif
+
+    " 3. Constructor parameters
+
+    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+      let constructor = symbol.value[0].details.type.language_details.python.constructor
+      " a. Parameters
+      let parameters = []
+      for parameter in s:dig(constructor, 'language_details.parameters', [])
+        " i. Name, ii. Type
+        call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+      endfor
+      if !empty(parameters)
+        call s:section('CONSTRUCTOR PARAMETERS')
+        call s:content(kite#utils#columnise(parameters, '    '))
+      endif
+    endif
+
+    " 4. Constructor **kwargs
+
+    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+      let constructor = symbol.value[0].details.type.language_details.python.constructor
+      " a. Kwarg
+      let parameters = []
+      for parameter in s:dig(constructor, 'language_details.python.kwarg_parameters', [])
+        " i. Name, ii. Type
+        call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+      endfor
+      if !empty(parameters)
+        " TODO fix syntax highlighting
+        call s:section('CONSTRUCTOR **KWARGS')
+        call s:content(kite#utils#columnise(parameters, '    '))
+      endif
+    endif
+
+    " 5. Top attributes
+
+    " TODO spec is unclear
+    " a. Member
+    " i. Name, ii. Id
+    let members = map(symbol.value[0].details.type.members, {_,v -> [v.name, v.id]})
+    if !empty(members)
+      call s:section('TOP ATTRIBUTES')
+      call s:content(kite#utils#columnise(members, '    '))
+    endif
+
+
   elseif kind ==# 'instance'
-    " TODO
+    " 1. Name of instance.  Label: {type of instance}
+
+    " a. Name
+    let name = symbol.value[0].repr
+    " b. Type
+    let type = symbol.value[0].type
+    " TODO use signature line wrapping code and columnise.
+    let title = name.' // '.type
+    call s:section(title, 1)
+
+    " 2. Top members of type
+    " TBD in spec
+
   endif
 
 
@@ -128,12 +248,12 @@ function! kite#hover#handler(response)
   " Handle embedded line breaks.
   call s:content(split(report.description_text, "\n"))
 
-  if !empty(json.symbol)
+  if !empty(symbol)
     call s:content('')
     call s:content('-> Online documentation')
     let s:clickables[line('$')] = {
           \   'type': 'doc',
-          \   'id': json.symbol[0].value[0].id
+          \   'id': symbol.value[0].id
           \ }
   endif
 
@@ -320,6 +440,7 @@ function! s:section(title, ...)
   endif
 endfunction
 
+
 function! s:content(text)
   call append(line('$'), a:text)
 endfunction
@@ -333,5 +454,27 @@ function! s:coerce(dict, key, default)
     endif
   endif
   return a:default
+endfunction
+
+
+function! s:dig(dict, key, default)
+  let dict = a:dict
+  for k in split(a:key, '\.')
+    if has_key(dict, k)
+      let dict = dict[k]
+    else
+      return a:default
+    endif
+  endfor
+  if type(dict) == type(a:default)  " in case of null
+    return dict
+  else
+    return a:default
+  endif
+endfunction
+
+
+function! s:present(dict, key)
+  return has_key(a:dict, a:key) && !empty(a:dict[a:key])
 endfunction
 
