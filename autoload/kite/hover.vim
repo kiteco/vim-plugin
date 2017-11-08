@@ -32,7 +32,7 @@ function! kite#hover#handler(response)
 
   let kind = symbol.value[0].kind
 
-  " FUNCTION (assumed)
+  " FUNCTION
   if kind ==# 'function'
 
     " 1. Name of function with parameters.  Label: "Function"
@@ -56,6 +56,7 @@ function! kite#hover#handler(response)
     " c. Label 'function'
     let label = symbol.value[0].kind
 
+    " TODO use signature line wrapping code and columnise.
     let title = name.'('.join(parameters, ', ').') // '.label
     call s:section(title, 1)
 
@@ -67,13 +68,10 @@ function! kite#hover#handler(response)
       " i. name of function
       let name = symbol.name
       " ii. arguments
-      let arguments = []
-      for arg in s:coerce(signature, 'args', [])
-        call add(arguments, arg.name)
-      endfor
+      let arguments = map(s:coerce(signature, 'args', []), {_,v -> v.name})
       " iii. keyword arguments
-      for kwarg in s:coerce(signature.language_details.python, 'kwarg', [])
-        call add arguments(kwarg.name.'='.join(map(kwarg.types, {_,t -> t.name}), '|'))
+      for kwarg in s:coerce(signature.language_details.python, 'kwargs', [])
+        call add(arguments, kwarg.name.'='.join(map(copy(kwarg.types), {_,v -> v.examples[0]}), '|'))
       endfor
       call add(patterns, name.'('.join(arguments, ', ').')')
     endfor
@@ -88,35 +86,40 @@ function! kite#hover#handler(response)
     let parameters = []
     for parameter in s:coerce(symbol.value[0].details.function, 'parameters', [])
       " i. name; ii. types
-      call add(parameters, parameter.name.' '.join(map(s:coerce(parameter, 'inferred_value', []), {_,t -> t.repr}), '|'))
+      call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
     endfor
     if !empty(parameters)
       call s:section('PARAMETERS')
-      call s:content(parameters)
+      call s:content(kite#utils#columnise(parameters, '    '))
     endif
 
 
     " 4. Keyword arguments
-    " TODO align in two columns
 
     let kwargs = []
     for kwarg in s:coerce(symbol.value[0].details.function.language_details.python, 'kwarg_parameters', [])
       " i. name; ii. types
-      call add(kwargs, kwarg.name.' '.join(map(s:coerce(kwarg, 'inferred_value', []), {_,t -> t.repr}), '|'))
+      call add(kwargs, [kwarg.name, kite#utils#map_join(s:coerce(kwarg, 'inferred_value', []),'repr', ' | ')])
     endfor
     if !empty(kwargs)
       call s:section('KEYWORD ARGUMENTS')
-      call s:content(kwargs)
+      call s:content(kite#utils#columnise(kwargs, '    '))
     endif
 
 
     " 5. Returns
-    let returns = join(map(s:coerce(symbol.value[0].details.function, 'return_value', []), {_,t -> t.repr}), '|')
+    let returns = kite#utils#map_join(s:coerce(symbol.value[0].details.function, 'return_value', []), 'repr', ' | ')
     if !empty(returns)
       call s:section('RETURNS')
       call s:content(returns)
     endif
 
+  elseif kind ==# 'module'
+    " TODO
+  elseif kind ==# 'type'
+    " TODO
+  elseif kind ==# 'instance'
+    " TODO
   endif
 
 

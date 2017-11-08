@@ -52,3 +52,22 @@ function Test_selected_region_example2()
   call assert_equal([6, 12], kite#utils#selected_region_bytes())
 endfunction
 
+
+function Test_columnise()
+  let data = [
+        \ [ 'a',   'bb', 'ccc'   ],
+        \ [ 'aaa', 'b',  'ccccc' ]
+        \ ]
+  let expected = [
+        \ 'a   - bb - ccc  ',
+        \ 'aaa - b  - ccccc'
+        \ ]
+  call assert_equal(expected, kite#utils#columnise(data, ' - '))
+endfunction
+
+
+function Test_map_join()
+  let list = [ {'x':42}, {'x': 153} ]
+  let expected = '42 - 153'
+  call assert_equal(expected, kite#utils#map_join(list, 'x', ' - '))
+endfunction

@@ -306,6 +306,35 @@ function! kite#utils#capitalize(str)
 endfunction
 
 
+" Converts a list of lists (rows) and returns a list of strings.
+" This left-aligns the columns and joins them with the separator.
+function! kite#utils#columnise(data, separator)
+  let maxWidths = map(copy(a:data[0]), 0)
+  for row in a:data
+    let i = 0
+    for cell in row
+      if strwidth(cell) > maxWidths[i]
+        let maxWidths[i] = strwidth(cell)
+      endif
+      let i += 1
+    endfor
+  endfor
+
+  return map(copy(a:data), {_,row ->
+        \   join(
+        \     map(copy(row), {i,v ->
+        \       printf('%-'.maxWidths[i].'s', v)
+        \     }),
+        \     a:separator)
+        \ })
+endfunction
+
+
+function! kite#utils#map_join(list, prop, sep)
+  return join(map(copy(a:list), {_,v -> v[a:prop]}), a:sep)
+endfunction
+
+
 function! s:chomp(str)
   return substitute(a:str, '\n$', '', '')
 endfunction
