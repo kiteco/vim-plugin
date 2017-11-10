@@ -335,6 +335,66 @@ function! kite#utils#map_join(list, prop, sep)
 endfunction
 
 
+function! kite#utils#zip(list1, list2, none)
+  let result = []
+  let [len1, len2] = [len(a:list1), len(a:list2)]
+  for i in range(max([len1, len2]))
+    let e = []
+    call add(e, i < len1 ? a:list1[i] : a:none)
+    call add(e, i < len2 ? a:list2[i] : a:none)
+    call add(result, e)
+  endfor
+  return result
+endfunction
+
+
+" Returns a list of lines, each no longer than length.
+" The last line may be longer than length if it has no spaces.
+" Assumes str is a constructor or function call.
+"
+" Example: json.dumps
+"
+"     dumps(obj, skipkeys, ensure_ascii, check_circular, allow_nan, cls, indent, separators, encoding, default, sort_keys, *args, **kwargs)
+"
+" - becomes when wrapped:
+"
+"     dumps(obj, skipkeys, ensure_ascii, check_circular,
+"           allow_nan, cls, indent, separators, encoding,
+"           default, sort_keys, *args, **kwargs)
+"
+function! kite#utils#wrap(str, length)
+  let lines = []
+
+  let str = a:str
+  let [prefix; str] = split(a:str, '(\zs')
+  let str = join(str)
+
+  while v:true
+    let line = prefix.str
+
+    if len(line) <= a:length
+      call add(lines, line)
+      break
+    endif
+
+    let i = strridx(str[0:a:length-len(prefix)], ' ')
+
+    if i == -1
+      call add(lines, line)
+      break
+    endif
+
+    let line = prefix . str[0:i-1]
+    call add(lines, line)
+    let str = str[i+1:]
+
+    let prefix = repeat(' ', len(prefix))
+  endwhile
+
+  return lines
+endfunction
+
+
 function! s:chomp(str)
   return substitute(a:str, '\n$', '', '')
 endfunction

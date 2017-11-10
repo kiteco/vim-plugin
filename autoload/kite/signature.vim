@@ -68,8 +68,7 @@ function! kite#signature#handler(response) abort
   "                       1 space RH margin
   "     need to wrap    = (popup width > available width)
   "
-  " It is much simpler to wrap when the argument list is longer than, say, 40
-  " characters.
+  " It is much simpler to wrap at a fixed number of characters.
   "
   " Example: completing json.dumps gives --
   "
@@ -83,35 +82,17 @@ function! kite#signature#handler(response) abort
   "           allow_nan, cls, indent, separators, encoding,
   "           default, sort_keys, *args, **kwargs)
   "
-  let break_after = 40
   let args_string = join(arguments, ', ')
-  let first_line = 1
-  while v:true
-    if first_line
-      let prefix = function_name.'('
-      let first_line = 0
-    else
-      let prefix = substitute(function_name, '.', ' ', 'g').' '
-    endif
-
-    let i = match(args_string, ' ', break_after)
-    if i == -1
-      let display = indent . prefix . args_string . ')'
-    else
-      let display = indent . prefix . args_string[0:i]
-      let args_string = args_string[i+1:]
-    endif
-
+  for line in kite#utils#wrap(function_name.'('.args_string.')', 40)
     let completion = {
           \   'word':  '',
-          \   'abbr':  display,
+          \   'abbr':  line,
           \   'empty': 1,
           \   'dup':   1
           \ }
     call add(completions, completion)
+  endfor
 
-    if i == -1 | break | endif
-  endwhile
 
   "
   " kwarg details

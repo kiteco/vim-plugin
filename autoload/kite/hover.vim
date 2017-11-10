@@ -36,6 +36,7 @@ function! kite#hover#handler(response)
   " TODO syntax highlight title and label
   "
 
+  let winwidth = winwidth(0) - 8  " subtract a safe 8 for sign column, line number columns, fold column.
 
   if kind ==# 'function'
 
@@ -57,12 +58,15 @@ function! kite#hover#handler(response)
     if has_key(symbol.value[0].details.function.language_details.python, 'kwarg')
       call add(parameters, '**'.symbol.value[0].details.function.language_details.python.kwarg.name)
     endif
+    let fn_name = name.'('.join(parameters, ', ').')'
     " c. Label 'function'
     let label = symbol.value[0].kind
 
-    " TODO use signature line wrapping code and columnise.
-    let title = name.'('.join(parameters, ', ').') // '.label
-    call s:section(title, 1)
+    let padding = '    '
+    let left_width = winwidth - len(label) - len(padding)
+    let left_lines = kite#utils#wrap(fn_name, left_width)
+    let masthead = kite#utils#zip(left_lines, [label], '')
+    call s:section(kite#utils#columnise(masthead, padding), 1)
 
 
     " 2. Function's popular patterns
@@ -126,7 +130,9 @@ function! kite#hover#handler(response)
     let name = symbol.value[0].repr
     " b. Label
     let label = symbol.value[0].kind
-    call s:section(name.' // '.label, 1)
+
+    let padding = winwidth - len(name) - len(label)
+    call s:section(kite#utils#columnise([[name, label]], repeat(' ', padding)), 1)
 
     " 2. Top members
 
@@ -160,8 +166,12 @@ function! kite#hover#handler(response)
       endif
     endif
 
-    let title = name.'('.join(parameters, ', ').')'. ' // '.label
-    call s:section(title, 1)
+    let fn_name = name.'('.join(parameters, ', ').')'
+    let padding = '    '
+    let left_width = winwidth - len(label) - len(padding)
+    let left_lines = kite#utils#wrap(fn_name, left_width)
+    let masthead = kite#utils#zip(left_lines, [label], '')
+    call s:section(kite#utils#columnise(masthead, padding), 1)
 
     " 2. Popular constructor patterns
 
@@ -238,9 +248,9 @@ function! kite#hover#handler(response)
     let name = symbol.value[0].repr
     " b. Type
     let type = symbol.value[0].type
-    " TODO use signature line wrapping code and columnise.
-    let title = name.' // '.type
-    call s:section(title, 1)
+
+    let padding = winwidth - len(name) - len(type)
+    call s:section(kite#utils#columnise([[name, type]], repeat(' ', padding)), 1)
 
     " 2. Top members of type
     " TBD in spec
