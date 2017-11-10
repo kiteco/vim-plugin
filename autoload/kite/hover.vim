@@ -37,7 +37,6 @@ function! kite#hover#handler(response)
   "
 
 
-  " FUNCTION
   if kind ==# 'function'
 
     " 1. Name of function with parameters.  Label: "function"
@@ -119,6 +118,7 @@ function! kite#hover#handler(response)
       call s:content(returns)
     endif
 
+
   elseif kind ==# 'module'
     " 1. Name of module.  Label: "module"
 
@@ -131,8 +131,8 @@ function! kite#hover#handler(response)
     " 2. Top members
 
     " a.i, a.ii
-    " TODO spec is unclear
-    let members = map(symbol.value[0].details.module.members, {_,v -> [v.name, v.id]})
+    " TODO links
+    let members = map(symbol.value[0].details.module.members, {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
       call s:section('TOP MEMBERS')
       call s:content(kite#utils#columnise(members, '    '))
@@ -163,21 +163,26 @@ function! kite#hover#handler(response)
     let title = name.'('.join(parameters, ', ').')'. ' // '.label
     call s:section(title, 1)
 
-
     " 2. Popular constructor patterns
 
     if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
 
+      if len(constructor.signatures) > 0
+        call s:section('POPULAR CONSTRUCTOR PATTERNS')
+      endif
+
       " a. Popular pattern
-      " TODO spec is confusing
       for signature in constructor.signatures
+        let arguments = []
         " i. Name of function
         let name = symbol.name
         " ii. Arguments
-        signature.args
+        call add(arguments, signature.args)
         " iii. Keyword arguments
-        " TODO spec is confusing
+        call add(arguments, map(copy(signature.language_details.python.kwargs), {_,v -> v.name.'='.v.types[0].examples[0]}))
+
+        call s:content(name.'('.join(arguments, ', ').')')
       endfor
     endif
 
@@ -216,10 +221,10 @@ function! kite#hover#handler(response)
 
     " 5. Top attributes
 
-    " TODO spec is unclear
     " a. Member
     " i. Name, ii. Id
-    let members = map(symbol.value[0].details.type.members, {_,v -> [v.name, v.id]})
+    " TODO links
+    let members = map(symbol.value[0].details.type.members, {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
       call s:section('TOP ATTRIBUTES')
       call s:content(kite#utils#columnise(members, '    '))
