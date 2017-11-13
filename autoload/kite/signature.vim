@@ -6,8 +6,7 @@ function! kite#signature#handler(response) abort
 
   let json = json_decode(a:response.body)
   let call = json.calls[0]
-  let [callee, signatures] = [call.callee, call.signatures]
-  let function_name = split(callee.repr, '\.')[-1]
+  let function_name = split(call.callee.repr, '\.')[-1]
   let spacer = {'word': '', 'empty': 1, 'dup': 1}
   let indent = '  '
   let completions = []
@@ -18,72 +17,44 @@ function! kite#signature#handler(response) abort
   "
   call add(completions, s:heading('Signature'))
 
-  let fn = callee.details.function
-  let arguments = []
+  let fn = call.callee.details.function
+  let parameters = []
 
   if empty(fn)
-    call add(arguments, '')
+    call add(parameters, '')
 
   else
-    " https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions
+    " 1. Name of function with parameters.
+    let parameters = []
+    let [current_arg, in_kwargs] = [call.arg_index, call.language_details.python.in_kwargs]
 
-    " formal parameters / positional arguments
-    if has_key(fn, 'parameters') && type(fn.parameters) == v:t_list
-      let [arg_index, in_kwargs] = [call.arg_index, call.language_details.python.in_kwargs]
-      let i = 0
-      for parameter in fn.parameters
-        if !in_kwargs && i == arg_index
-          let name = '*'.parameter.name.'*'
-        else
-          let name = parameter.name
-        end
-        call add(arguments, name)
-        let i += 1
-      endfor
-    endif
+    " 1.b Parameters
+    for parameter in kite#utils#dig(call.callee.details.function, 'parameters', [])
+      " i. Parameter
+      let name = parameter.name
+      if kite#utils#present(parameter.language_details.python, 'default_value')
+        let name .= '='.parameter.language_details.python.default_value[0].repr
+      endif
+      " 2. Highlight current argument
+      if !in_kwargs && len(parameters) == current_arg
+        let name = '*'.name.'*'
+      endif
+      call add(parameters, name)
 
-    " *args (optional positional arguments)
-    if has_key(fn.language_details.python, 'vararg') && type(fn.language_details.python.vararg) == v:t_dict
-      call add(arguments, '*'.fn.language_details.python.vargarg.name)
-    endif
+      " ii. vararg indicator
+      if kite#utils#present(call.callee.details.function.language_details.python, 'vararg')
+        call add(parameters, '*'.call.callee.details.function.language_details.python.vararg.name)
+      endif
 
-    " **kwargs (optional keyword arguments)
-    if has_key(fn.language_details.python, 'kwarg') && type(fn.language_details.python.kwarg) == v:t_dict
-      call add(arguments, '**'.fn.language_details.python.kwarg.name)
-    endif
+      " iii. keyword arguments indicator
+      if kite#utils#present(call.callee.details.function, 'kwarg')
+        call add(parameters, '**'.call.callee.details.function.kwarg.name)
+      endif
+    endfor
   endif
 
-  " The completion popup does not wrap long lines so we simulate wrapping ourselves.
-  "
-  " When to wrap?
-  "
-  " We could calculate when wrapping is necessary and only fake-wrap then.
-  " However the calculation is fiddly:
-  "
-  "     available width = &columns - screencols()  (more or less)
-  "     popup width     = 1 space LH margin       +
-  "                       width of widest <abbr>  +
-  "                       1 space gutter          +
-  "                       width of widest <menu>  +
-  "                       1 space RH margin
-  "     need to wrap    = (popup width > available width)
-  "
-  " It is much simpler to wrap at a fixed number of characters.
-  "
-  " Example: completing json.dumps gives --
-  "
-  "   default behaviour:
-  "
-  "     dumps(obj, skipkeys, ensure_ascii, check_circular, allow_nan, cls, indent, separators, encoding, default, sort_keys, *args, **kwargs)
-  "
-  "   fake wrapping:
-  "
-  "     dumps(obj, skipkeys, ensure_ascii, check_circular,
-  "           allow_nan, cls, indent, separators, encoding,
-  "           default, sort_keys, *args, **kwargs)
-  "
-  let args_string = join(arguments, ', ')
-  for line in kite#utils#wrap(function_name.'('.args_string.')', 40)
+  " The completion popup does not wrap long lines so we wrap manually.
+  for line in kite#utils#wrap(function_name.'('.join(parameters, ', ').')', 50)
     let completion = {
           \   'word':  '',
           \   'abbr':  line,
@@ -94,20 +65,18 @@ function! kite#signature#handler(response) abort
   endfor
 
 
-  "
-  " kwarg details
-  "
+  " 3. Keyword arguments
   if !empty(fn) && has_key(fn, 'kwarg_parameters') && type(fn.kwarg_parameters) == v:t_list
     call add(completions, spacer)
-    call add(completions, s:heading('kwargs'))
+    call add(completions, s:heading('**kw'))
 
-    for kwarg in fn.kwarg_parameters
+    for kwarg in call.callee.details.function.kwarg_parameters
       let name = kwarg.name
-      if type(kwarg.inferred_value) == v:t_list
-        let types = join(map(kwarg.inferred_value, {_,t -> t.repr}), ' | ')
-      else
+      let types = kite#utils#map_join(kwarg.inferred_value, 'repr', '|')
+      if empty(types)
         let types = ''
       endif
+
       call add(completions, {
             \   'word':  name.'=',
             \   'abbr':  indent.name,
@@ -119,38 +88,34 @@ function! kite#signature#handler(response) abort
   endif
 
 
-  "
-  " Popular patterns
-  "
+  " 4. Popular patterns
+  let signatures = call.signatures
   if len(signatures) > 0
     call add(completions, spacer)
     call add(completions, s:heading('Popular Patterns'))
   endif
 
   for signature in signatures
+
+    " b. Arguments
     let arguments = []
+    for arg in kite#utils#coerce(signature, 'args', [])
+      call add(arguments, arg.name)
+    endfor
 
-    if type(signature.args) == v:t_list
-      for arg in signature.args
-        call add(arguments, arg.name)
-      endfor
-    endif
+    " c. Keyword arguments
+    for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
+      let name = kwarg.name
+      let examples = kite#utils#coerce(kwarg.types[0], 'examples', [])
+      if len(examples) > 0
+        let name .= '='.examples[0]
+      endif
+      call add(arguments, name)
+    endfor
 
-    if !empty(signature.language_details.python.kwargs) && type(signature.language_details.python.kwargs) == v:t_list
-      for kwarg in signature.language_details.python.kwargs
-        call add(arguments, kwarg.name.'='.join(map(kwarg.types, {_,t -> t.name}), '|'))
-      endfor
-    endif
-
-    " E.g. math.sin()
-    if empty(signature.args) && empty(signature.kwargs)
-      call add(arguments, '')
-    endif
-
-    let args_string = join(arguments, ', ')
     let completion = {
           \   'word':  '',
-          \   'abbr':  indent.function_name.'('.args_string.')',
+          \   'abbr':  indent.function_name.'('.join(arguments, ', ').')',
           \   'empty': 1,
           \   'dup':   1
           \ }

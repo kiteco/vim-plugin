@@ -395,6 +395,39 @@ function! kite#utils#wrap(str, length)
 endfunction
 
 
+function! kite#utils#coerce(dict, key, default)
+  if has_key(a:dict, a:key)
+    let v = a:dict[a:key]
+    if type(v) == type(a:default)  " check type in case of null
+      return v
+    endif
+  endif
+  return a:default
+endfunction
+
+
+function! kite#utils#dig(dict, key, default)
+  let dict = a:dict
+  for k in split(a:key, '\.')
+    if has_key(dict, k)
+      let dict = dict[k]
+    else
+      return a:default
+    endif
+  endfor
+  if type(dict) == type(a:default)  " in case of null
+    return dict
+  else
+    return a:default
+  endif
+endfunction
+
+
+function! kite#utils#present(dict, key)
+  return has_key(a:dict, a:key) && !empty(a:dict[a:key])
+endfunction
+
+
 function! s:chomp(str)
   return substitute(a:str, '\n$', '', '')
 endfunction

@@ -46,7 +46,7 @@ function! kite#hover#handler(response)
     let name = symbol.value[0].repr
     " b. Parameters
     let parameters = []
-    for parameter in s:coerce(symbol.value[0].details.function, 'parameters', [])
+    for parameter in kite#utils#coerce(symbol.value[0].details.function, 'parameters', [])
       " i. name
       call add(parameters, parameter.name)
     endfor
@@ -72,13 +72,13 @@ function! kite#hover#handler(response)
     " 2. Function's popular patterns
 
     let patterns = []
-    for signature in s:coerce(symbol.value[0].details.function, 'signatures', [])
+    for signature in kite#utils#coerce(symbol.value[0].details.function, 'signatures', [])
       " i. name of function
       let name = symbol.name
       " ii. arguments
-      let arguments = map(s:coerce(signature, 'args', []), {_,v -> v.name})
+      let arguments = map(kite#utils#coerce(signature, 'args', []), {_,v -> v.name})
       " iii. keyword arguments
-      for kwarg in s:coerce(signature.language_details.python, 'kwargs', [])
+      for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
         call add(arguments, kwarg.name.'='.join(map(copy(kwarg.types), {_,v -> v.examples[0]}), '|'))
       endfor
       call add(patterns, name.'('.join(arguments, ', ').')')
@@ -92,9 +92,9 @@ function! kite#hover#handler(response)
     " 3. Parameters and their types.
 
     let parameters = []
-    for parameter in s:coerce(symbol.value[0].details.function, 'parameters', [])
+    for parameter in kite#utils#coerce(symbol.value[0].details.function, 'parameters', [])
       " i. name; ii. types
-      call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+      call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
     endfor
     if !empty(parameters)
       call s:section('PARAMETERS')
@@ -105,9 +105,9 @@ function! kite#hover#handler(response)
     " 4. Keyword arguments
 
     let kwargs = []
-    for kwarg in s:coerce(symbol.value[0].details.function.language_details.python, 'kwarg_parameters', [])
+    for kwarg in kite#utils#coerce(symbol.value[0].details.function.language_details.python, 'kwarg_parameters', [])
       " i. name; ii. types
-      call add(kwargs, [kwarg.name, kite#utils#map_join(s:coerce(kwarg, 'inferred_value', []),'repr', ' | ')])
+      call add(kwargs, [kwarg.name, kite#utils#map_join(kite#utils#coerce(kwarg, 'inferred_value', []),'repr', ' | ')])
     endfor
     if !empty(kwargs)
       call s:section('KEYWORD ARGUMENTS')
@@ -116,7 +116,7 @@ function! kite#hover#handler(response)
 
 
     " 5. Returns
-    let returns = kite#utils#map_join(s:coerce(symbol.value[0].details.function, 'return_value', []), 'repr', ' | ')
+    let returns = kite#utils#map_join(kite#utils#coerce(symbol.value[0].details.function, 'return_value', []), 'repr', ' | ')
     if !empty(returns)
       call s:section('RETURNS')
       call s:content(returns)
@@ -152,10 +152,10 @@ function! kite#hover#handler(response)
     " b. Label
     let label = symbol.value[0].kind
     " c. Constructor
-    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
       " i. Parameters
-      let parameters = map(copy(s:coerce(constructor, 'parameters', [])), {_,v -> v.name})
+      let parameters = map(copy(kite#utils#coerce(constructor, 'parameters', [])), {_,v -> v.name})
       " ii. Vararg indicator
       if has_key(constructor.language_details.python, 'vararg')
         call add(parameters, '*'.constructor.language_details.python.vararg.name)
@@ -175,7 +175,7 @@ function! kite#hover#handler(response)
 
     " 2. Popular constructor patterns
 
-    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
 
       if len(constructor.signatures) > 0
@@ -198,13 +198,13 @@ function! kite#hover#handler(response)
 
     " 3. Constructor parameters
 
-    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
       " a. Parameters
       let parameters = []
-      for parameter in s:dig(constructor, 'language_details.parameters', [])
+      for parameter in kite#utils#dig(constructor, 'language_details.parameters', [])
         " i. Name, ii. Type
-        call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+        call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
       endfor
       if !empty(parameters)
         call s:section('CONSTRUCTOR PARAMETERS')
@@ -214,13 +214,13 @@ function! kite#hover#handler(response)
 
     " 4. Constructor **kwargs
 
-    if s:present(symbol.value[0].details.type.language_details.python, 'constructor')
+    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
       " a. Kwarg
       let parameters = []
-      for parameter in s:dig(constructor, 'language_details.python.kwarg_parameters', [])
+      for parameter in kite#utils#dig(constructor, 'language_details.python.kwarg_parameters', [])
         " i. Name, ii. Type
-        call add(parameters, [parameter.name, kite#utils#map_join(s:coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+        call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
       endfor
       if !empty(parameters)
         " TODO fix syntax highlighting
@@ -461,35 +461,4 @@ function! s:content(text)
 endfunction
 
 
-function! s:coerce(dict, key, default)
-  if has_key(a:dict, a:key)
-    let v = a:dict[a:key]
-    if type(v) == type(a:default)  " check type in case of null
-      return v
-    endif
-  endif
-  return a:default
-endfunction
-
-
-function! s:dig(dict, key, default)
-  let dict = a:dict
-  for k in split(a:key, '\.')
-    if has_key(dict, k)
-      let dict = dict[k]
-    else
-      return a:default
-    endif
-  endfor
-  if type(dict) == type(a:default)  " in case of null
-    return dict
-  else
-    return a:default
-  endif
-endfunction
-
-
-function! s:present(dict, key)
-  return has_key(a:dict, a:key) && !empty(a:dict[a:key])
-endfunction
 
