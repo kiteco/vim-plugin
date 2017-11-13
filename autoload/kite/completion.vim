@@ -116,10 +116,14 @@ function! kite#completion#handler(response) abort
 endfunction
 
 
-" Returns truthy if the cursor is just before a function call argument.
+" Returns truthy if the cursor is:
+"
+" - just after an open parenthesis; or
+" - just after a comma inside a function call; or
+" - just after an equals sign inside a function call.
 "
 " line - the line up to the cursor position
 function! s:before_function_call_argument(line)
-  return a:line =~ '\v[(]([^)]+,)?\s*$'
+  return a:line =~ '\v[(]([^)]+[=,])?\s*$'
 endfunction
 
