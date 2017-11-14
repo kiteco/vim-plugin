@@ -29,13 +29,7 @@ function! kite#hover#handler(response)
   silent %d _
 
   let s:clickables = {}
-
   let kind = symbol.value[0].kind
-
-  "
-  " TODO syntax highlight title and label
-  "
-
   let winwidth = winwidth(0) - 8  " subtract a safe 8 for sign column, line number columns, fold column.
 
   if kind ==# 'function'
@@ -223,7 +217,6 @@ function! kite#hover#handler(response)
         call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
       endfor
       if !empty(parameters)
-        " TODO fix syntax highlighting
         call s:section('CONSTRUCTOR **KWARGS')
         call s:content(kite#utils#columnise(parameters, '    '))
       endif
