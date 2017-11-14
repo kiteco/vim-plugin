@@ -107,7 +107,7 @@ function! kite#completion#handler(response) abort
           \     'word': c.insert,
           \     'abbr': c.display,
           \     'info': c.documentation_text,
-          \     'menu': c.symbol.value[0].kind
+          \     'menu': (kite#utils#exist(c, 'symbol') && kite#utils#exist(c.symbol, 'value') ? c.symbol.value[0].kind : '')
           \   }
           \ })
   else
