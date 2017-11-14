@@ -17,8 +17,10 @@ highlight link kiteRef Comment
 
 
 " Links
-syntax match kiteDomain /\v\([^. ]+\.\w{2,3}\)/
-highlight link kiteDomain Comment
+syntax region MyLink start=/^-> /hs=e end=/\v(\s\(\a+[.]\a{2,3}\))?$/he=s-1 contains=Domain
+syntax match Domain /\v\(\a+[.]\a{2,3}\)/
+highlight link MyLink Underlined
+highlight link Domain Comment
 
 
 let b:current_syntax = 'kite'
