@@ -112,9 +112,13 @@ function! s:internal_http(path, ...)
   endif
   call kite#utils#log('> '.str)
 
-  let channel = ch_open(s:channel_base, {'mode': 'raw'})
-  call ch_sendraw(channel, str)
   let response = ''
+  let channel = ch_open(s:channel_base, {'mode': 'raw'})
+  try
+    call ch_sendraw(channel, str)
+  catch /E906/
+    return response
+  endtry
   while v:true
     try
       let msg = ch_read(channel, {'timeout': 50})
