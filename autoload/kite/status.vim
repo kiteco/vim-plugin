@@ -20,6 +20,7 @@ function! kite#status#status(...)
 
   if msg !=# 'NOT SET'
     call setbufvar(buf, 'kite_status', msg)
+    call s:trigger_statusline_update()
     return
   endif
 
@@ -49,5 +50,10 @@ function! kite#status#handler(buffer, response)
   endif
 
   call setbufvar(a:buffer, 'kite_status', json.status)
+  call s:trigger_statusline_update()
 endfunction
 
+
+function! s:trigger_statusline_update()
+  let &ro=&ro
+endfunction
