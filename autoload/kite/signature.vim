@@ -10,6 +10,7 @@ function! kite#signature#handler(response) abort
   let spacer = {'word': '', 'empty': 1, 'dup': 1}
   let indent = '  '
   let completions = []
+  let wrap_width = 50
 
 
   "
@@ -54,10 +55,10 @@ function! kite#signature#handler(response) abort
   endif
 
   " The completion popup does not wrap long lines so we wrap manually.
-  for line in kite#utils#wrap(function_name.'('.join(parameters, ', ').')', 50)
+  for line in kite#utils#wrap(function_name.'('.join(parameters, ', ').')', wrap_width)
     let completion = {
           \   'word':  '',
-          \   'abbr':  line,
+          \   'abbr':  indent.line,
           \   'empty': 1,
           \   'dup':   1
           \ }
@@ -113,13 +114,16 @@ function! kite#signature#handler(response) abort
       call add(arguments, name)
     endfor
 
-    let completion = {
-          \   'word':  '',
-          \   'abbr':  indent.function_name.'('.join(arguments, ', ').')',
-          \   'empty': 1,
-          \   'dup':   1
-          \ }
-    call add(completions, completion)
+
+    for line in kite#utils#wrap(function_name.'('.join(parameters, ', ').')', wrap_width)
+      let completion = {
+            \   'word':  '',
+            \   'abbr':  indent.line,
+            \   'empty': 1,
+            \   'dup':   1
+            \ }
+      call add(completions, completion)
+    endfor
   endfor
 
   return completions
