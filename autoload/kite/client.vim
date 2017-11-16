@@ -170,7 +170,7 @@ endfunction
 " lines - either a list (from async commands) or a string (from sync)
 function! kite#client#parse_response(lines)
   if type(a:lines) == v:t_string
-    let lines = split(a:lines, "\r\n")
+    let lines = split(a:lines, '\r\?\n')
   else
     let lines = a:lines
   endif
@@ -181,7 +181,7 @@ function! kite#client#parse_response(lines)
   endif
 
   if type(a:lines) == v:t_string
-    let lines = split(a:lines, "\r\n")
+    let lines = split(a:lines, '\r\?\n')
   else
     let lines = a:lines
   endif
