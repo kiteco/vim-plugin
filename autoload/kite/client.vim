@@ -156,10 +156,10 @@ function! s:external_http_cmd(endpoint, ...)
     if kite#utils#windows()
       let cmd .= s:win_escape_json(a:1)
     else
-      let cmd .= shellescape(a:1)
+      let cmd .= s:shellescape(a:1)
     endif
   endif
-  let cmd .= ' '.shellescape(a:endpoint)
+  let cmd .= ' '.s:shellescape(a:endpoint)
   call kite#utils#log('> '.cmd)
   return cmd
 endfunction
@@ -200,6 +200,16 @@ function! kite#client#parse_response(lines)
 endfunction
 
 
+" Only used with NeoVim on not-Windows, in async jobs.
+function! s:shellescape(str)
+  let [_shell, &shell] = [&shell, 'sh']
+  let escaped = shellescape(a:str)
+  let &shell = _shell
+  return escaped
+endfunction
+
+
+" Only used with NeoVim on Windows.
 function! s:win_escape_json(str)
   " Literal " -> \"
   let a = escape(a:str, '"')
