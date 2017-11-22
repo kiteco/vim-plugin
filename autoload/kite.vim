@@ -13,6 +13,10 @@ endfunction
 
 
 function! kite#toggle()
+  " Always set up Kite events
+  call s:setup_kite_events()
+  call s:on_bufenter()
+
   if s:supported_language() && s:file_size_ok()
     call s:enable()
   else
@@ -23,6 +27,17 @@ endfunction
 
 function! kite#max_file_size()
   return 1048576  " 1MB
+endfunction
+
+
+function s:setup_kite_events()
+  augroup KiteEvents
+    autocmd! * <buffer>
+    autocmd CursorHold               <buffer> call kite#events#event('selection')
+    autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
+    autocmd FocusGained              <buffer> call kite#events#event('focus')
+    autocmd BufEnter                 <buffer> call s:on_bufenter()
+  augroup END
 endfunction
 
 
@@ -46,10 +61,6 @@ function! s:enable()
 
   augroup KiteFiles
     autocmd! * <buffer>
-    autocmd CursorHold               <buffer> call kite#events#event('selection')
-    autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
-    autocmd FocusGained              <buffer> call kite#events#event('focus')
-    autocmd BufEnter                 <buffer> call s:on_bufenter()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
@@ -57,8 +68,6 @@ function! s:enable()
       autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
     endif
   augroup END
-
-  call s:on_bufenter()
 
   if &pumheight == 0
     set pumheight=10
