@@ -86,3 +86,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Vim help tags
+doc/tags
+
