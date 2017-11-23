@@ -1,9 +1,13 @@
 function! kite#events#event(action)
-  if wordcount().bytes > kite#max_file_size() | return | endif
-
   let filename = kite#utils#filepath(0)
 
-  let text = kite#utils#buffer_contents()
+  if wordcount().bytes < kite#max_file_size()
+    let action = a:action
+    let text = kite#utils#buffer_contents()
+  else
+    let action = 'skip'
+    let text = ''
+  endif
 
   let [sel_start, sel_end] = kite#utils#selected_region_characters()
   if [sel_start, sel_end] == [-1, -1]
@@ -15,7 +19,7 @@ function! kite#events#event(action)
         \ 'source':     'vim',
         \ 'filename':   filename,
         \ 'text':       text,
-        \ 'action':     a:action,
+        \ 'action':     action,
         \ 'selections': selections
         \ })
 
