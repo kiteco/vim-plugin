@@ -18,6 +18,10 @@ function! kite#status#status(...)
     endif
   endif
 
+  if wordcount().bytes > kite#max_file_size()
+    let msg = 'file too large'
+  endif
+
   if msg !=# 'NOT SET'
     call setbufvar(buf, 'kite_status', msg)
     call s:trigger_statusline_update()
