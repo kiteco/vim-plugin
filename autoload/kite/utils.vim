@@ -5,8 +5,14 @@ else
 endif
 
 let s:separator  = !exists('+shellslash') || &shellslash ? '/' : '\'
+let s:doc_dir    = expand('<sfile>:p:h:h:h').s:separator.'doc'
 let s:lib_dir    = expand('<sfile>:p:h:h:h').s:separator.'lib'
 let s:lib_subdir = s:lib_dir.s:separator.(s:os ==# 'Windows' ? 'windows' : s:os ==# 'Darwin' ? 'macos' : 'linux')
+
+
+function! kite#utils#generate_help()
+  execute 'helptags' s:doc_dir
+endfunction
 
 
 function! kite#utils#windows()
