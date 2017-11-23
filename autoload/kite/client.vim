@@ -14,7 +14,7 @@ function! kite#client#logged_in(handler)
   if has('channel')
     let response = s:internal_http(path)
   else
-    let response = s:external_http(s:base_url.path)
+    let response = s:external_http(s:base_url.path, '', '50ms')
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -136,10 +136,12 @@ function! s:internal_http(path, ...)
 endfunction
 
 
-" Optional argument is json to be posted
+" Optional arguments:
+" 1. json to be posted
+" 2. timeout
 function! s:external_http(url, ...)
   if a:0
-    let cmd = s:external_http_cmd(a:url, a:1)
+    let cmd = call(function('s:external_http_cmd'), [a:url] + a:000)
   else
     let cmd = s:external_http_cmd(a:url)
   endif
@@ -148,15 +150,22 @@ endif
 endfunction
 
 
-" Optional argument is json to be posted
+" Optional arguments:
+" 1. json to be posted
+" 2. timeout
 function! s:external_http_cmd(endpoint, ...)
   let cmd = s:http_binary
   if a:0
-    let cmd .= ' --post --data '
-    if kite#utils#windows()
-      let cmd .= s:win_escape_json(a:1)
-    else
-      let cmd .= s:shellescape(a:1)
+    if a:0 == 2
+      let cmd .= ' --timeout '.a:2
+    endif
+    if !empty(a:1)
+      let cmd .= ' --post --data '
+      if kite#utils#windows()
+        let cmd .= s:win_escape_json(a:1)
+      else
+        let cmd .= s:shellescape(a:1)
+      endif
     endif
   endif
   let cmd .= ' '.s:shellescape(a:endpoint)
