@@ -243,7 +243,7 @@ function! kite#hover#handler(response)
         call s:content(line)
         let s:clickables[line('$')] = {
               \   'type': 'symbol_report',
-              \   'id': symbol.value[0].details.module.members[i].id
+              \   'id': symbol.value[0].details.type.members[i].id
               \ }
         let i += 1
       endfor
