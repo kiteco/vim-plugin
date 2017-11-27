@@ -7,6 +7,7 @@ let s:example_path = '/api/python/curation'
 let s:webapp_path  = '/clientapi/desktoplogin?d='
 let s:status_path  = '/clientapi/status?filename='
 let s:user_path    = '/clientapi/user'
+let s:symbol_report_path = '/api/editor/symbol'
 
 
 function! kite#client#logged_in(handler)
@@ -58,6 +59,16 @@ endfunction
 
 function! s:timer_hover(path, handler, timer)
   call a:handler(kite#client#parse_response(s:internal_http(a:path)))
+endfunction
+
+
+function! kite#client#symbol_report(id, handler)
+  let path = s:symbol_report_path.'/'.a:id
+  if has('channel')
+    call s:async(function('s:timer_hover', [path, a:handler]))
+  else
+    call kite#async#execute(s:external_http_cmd(s:base_url.path), a:handler)
+  endif
 endfunction
 
 

@@ -22,7 +22,7 @@ function! kite#hover#handler(response)
 
   let json = json_decode(a:response.body)
 
-  let symbol = json.symbol[0]
+  let symbol = type(json.symbol) == v:t_list ? json.symbol[0] : json.symbol
   let report = json.report
 
   call s:openKiteWindow()
@@ -131,11 +131,19 @@ function! kite#hover#handler(response)
     " 2. Top members
 
     " a.i, a.ii
-    " TODO links
-    let members = map(symbol.value[0].details.module.members, {_,v -> [v.name, v.value[0].kind]})
+    let members = map(copy(symbol.value[0].details.module.members), {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
       call s:section('TOP MEMBERS')
-      call s:content(kite#utils#columnise(members, '    '))
+      let members_with_types = kite#utils#columnise(members, '    ')
+      let i = 0
+      for line in members_with_types
+        call s:content(line)
+        let s:clickables[line('$')] = {
+              \   'type': 'symbol_report',
+              \   'id': symbol.value[0].details.module.members[i].id
+              \ }
+        let i += 1
+      endfor
     endif
 
   elseif kind ==# 'type'
@@ -226,11 +234,19 @@ function! kite#hover#handler(response)
 
     " a. Member
     " i. Name, ii. Id
-    " TODO links
-    let members = map(symbol.value[0].details.type.members, {_,v -> [v.name, v.value[0].kind]})
+    let members = map(copy(symbol.value[0].details.type.members), {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
       call s:section('TOP ATTRIBUTES')
-      call s:content(kite#utils#columnise(members, '    '))
+      let members_with_types = kite#utils#columnise(members, '    ')
+      let i = 0
+      for line in members_with_types
+        call s:content(line)
+        let s:clickables[line('$')] = {
+              \   'type': 'symbol_report',
+              \   'id': symbol.value[0].details.module.members[i].id
+              \ }
+        let i += 1
+      endfor
     endif
 
 
@@ -381,6 +397,8 @@ function! s:handle_click()
       else
         call s:show_code(clickable.file, clickable.line)
       endif
+    elseif clickable.type == 'symbol_report'
+      call kite#report#symbol_report(clickable.id)
     endif
   endif
 endfunction
