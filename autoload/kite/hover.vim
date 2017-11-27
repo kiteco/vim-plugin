@@ -154,6 +154,7 @@ function! kite#hover#handler(response)
     " b. Label
     let label = symbol.value[0].kind
     " c. Constructor
+    let parameters = []
     if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
       let constructor = symbol.value[0].details.type.language_details.python.constructor
       " i. Parameters
