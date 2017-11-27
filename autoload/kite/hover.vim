@@ -234,7 +234,7 @@ function! kite#hover#handler(response)
 
     " a. Member
     " i. Name, ii. Id
-    let members = map(copy(symbol.value[0].details.type.members), {_,v -> [v.name, v.value[0].kind]})
+    let members = map(copy(symbol.value[0].details.type.members), {_,v -> [v.name, !empty(v.value) ? v.value[0].kind : '']})
     if !empty(members)
       call s:section('TOP ATTRIBUTES')
       let members_with_types = kite#utils#columnise(members, '    ')
