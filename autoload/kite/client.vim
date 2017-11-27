@@ -22,7 +22,7 @@ endfunction
 
 
 function! kite#client#status(filename, handler)
-  let path = s:status_path.a:filename
+  let path = s:status_path.kite#utils#url_encode(a:filename)
   if has('channel')
     let response = s:internal_http(path)
   else
