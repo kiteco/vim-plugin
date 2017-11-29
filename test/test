@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+
+# Runs your tests.
+#
+# Installation:
+#
+# 1. Place this file in your plugin's test/ directory.
+# 2. Replace YOUR_PLUGIN (below) with the appropriate filename.
+# 3. Set any options you need with additional `--cmd '...'` lines below.
+#
+# Usage:
+#
+# ./test     - runs all tests
+# ./test foo - runs all tests whose names match foo
+
+
+VIM="/Applications/MacVim.app/Contents/MacOS/Vim -v"
+
+$VIM -u NONE -U NONE -N                      \
+  --cmd 'set rtp+=../'                       \
+  --cmd 'source ../plugin/kite.vim'   \
+  -S runner.vim                              \
+  test_*.vim                                 \
+  $*
+
+cat messages.log
+
+grep -q "0 errors, 0 failures" messages.log
+status=$?
+rm messages.log
+exit $status
+
