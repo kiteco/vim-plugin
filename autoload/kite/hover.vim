@@ -361,6 +361,14 @@ function! s:setupKiteWindow()
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   set filetype=kite
 
+  " Use the sign column as a margin between the window divider and our content.
+  if exists('&signcolumn')
+    set signcolumn=yes
+  else
+    sign define KiteDummy
+    execute 'sign place 42 line=9999 name=KiteDummy buffer='.bufnr('%')
+  endif
+
   nmap <buffer> <silent> <CR> :call <SID>handle_click()<CR>
 endfunction
 
