@@ -121,7 +121,8 @@ function! s:internal_http(path, ...)
   else
     let str = 'GET '.a:path." HTTP/1.0\nHost: localhost\n\n"
   endif
-  call kite#utils#log('> '.str)
+  call kite#utils#log(map(split(str, '\n', 1), '"> ".v:val'))
+
 
   let response = ''
   let channel = ch_open(s:channel_base, {'mode': 'raw'})
@@ -190,7 +191,7 @@ endfunction
 " lines - either a list (from async commands) or a string (from sync)
 function! kite#client#parse_response(lines)
   if type(a:lines) == v:t_string
-    let lines = split(a:lines, '\r\?\n')
+    let lines = split(a:lines, '\r\?\n', 1)
   else
     let lines = a:lines
   endif
