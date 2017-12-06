@@ -33,7 +33,5 @@ augroup END
 
 nnoremap <silent> <Plug>(kite-hover) :call kite#hover#hover()<CR>
 
-command! KiteTour help kite
-
-call kite#utils#generate_help()
+command! KiteTour call kite#utils#generate_help() | help kite
 
