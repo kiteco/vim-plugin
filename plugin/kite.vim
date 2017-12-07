@@ -4,6 +4,9 @@ endif
 let g:loaded_kite = 1
 
 
+filetype on
+
+
 if !exists('g:kite_auto_complete')
   let g:kite_auto_complete = 1
 endif
