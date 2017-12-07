@@ -267,7 +267,8 @@ function! s:token(type)
     if mode() == 'i'
       normal! b
     else
-      normal! lb
+      normal! l
+      normal! b
     endif
     let offset1 = Offset()
     normal! e
