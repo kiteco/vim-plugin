@@ -1,3 +1,9 @@
+if exists('g:loaded_kite') || &cp || v:version < 700
+  finish
+endif
+let g:loaded_kite = 1
+
+
 if !exists('g:kite_auto_complete')
   let g:kite_auto_complete = 1
 endif
