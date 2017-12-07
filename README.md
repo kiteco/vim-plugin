@@ -78,6 +78,8 @@ set completeopt+=noinsert  " don't insert any text until user chooses a match
 set completeopt-=noselect  " select first match
 ```
 
+Make sure you have either `menu` or `menuone` otherwise you won't see any completions.
+
 To see documentation in the preview window for each completion option, copy all the lines above into your vimrc and change the preview line to:
 
 ```viml
