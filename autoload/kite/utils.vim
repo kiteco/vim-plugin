@@ -184,10 +184,10 @@ function! s:selected_region(type)
 
     call setpos('.', pos_end)
     " end position is exclusive
-    let [ve, &virtualedit] = [&virtualedit, 'onemore']
+    let [ve, &virtualedit, ww, &whichwrap] = [&virtualedit, 'onemore', &whichwrap, '']
     normal! l
     let offset2 = Offset()
-    let &virtualedit = ve
+    let [&virtualedit, &whichwrap] = [ve, ww]
 
     " restore visual selection
     normal! gv
@@ -264,6 +264,7 @@ function! s:token(type)
   if character_under_cursor =~ '\k'
     let pos = getpos('.')
 
+    let [ww, &whichwrap] = [&whichwrap, '']
     if mode() == 'i'
       normal! b
     else
@@ -276,7 +277,7 @@ function! s:token(type)
     let [ve, &virtualedit] = [&virtualedit, 'onemore']
     normal! l
     let offset2 = Offset()
-    let &virtualedit = ve
+    let [&virtualedit, &whichwrap] = [ve, ww]
 
     call setpos('.', pos)
 
