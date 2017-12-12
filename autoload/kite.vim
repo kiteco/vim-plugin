@@ -3,6 +3,11 @@ let s:status_poll_interval = 5000  " milliseconds
 let s:timer = -1
 
 
+if g:kite_override_sign_column_highlight
+  highlight! link SignColumn LineNr
+endif
+
+
 function kite#statusline()
   if exists('b:kite_status') && !empty(b:kite_status)
     return 'Kite: '.kite#utils#capitalize(b:kite_status)

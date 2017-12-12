@@ -15,6 +15,10 @@ if !exists('g:kite_preview_code')
   let g:kite_preview_code = 0
 endif
 
+if !exists('g:kite_override_sign_column_highlight')
+  let g:kite_override_sign_column_highlight = 1
+endif
+
 if !exists('g:kite_log')
   let g:kite_log = 0
 endif
