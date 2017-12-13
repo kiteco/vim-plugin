@@ -98,3 +98,16 @@ function Test_zip()
   let expected = [ [1,7], [2,8], ['',9] ]
   call assert_equal(expected, kite#utils#zip(a, b, ''))
 endfunction
+
+
+function Test_token_characters()
+  edit hover_example1.py
+
+  " last character of line
+  normal 1G$
+  call assert_equal([7, 9], kite#utils#token_characters())
+
+  " first character of last word of line
+  normal b
+  call assert_equal([7, 9], kite#utils#token_characters())
+endfunction
