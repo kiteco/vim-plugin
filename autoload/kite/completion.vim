@@ -15,6 +15,13 @@ function! kite#completion#insertcharpre()
       let s:should_trigger_completion = 1
     endif
   endif
+
+  " Trigger a fresh completion after every keystroke when the popup menu
+  " is visible (by calling the function which TextChangedI would call
+  " (TextChangedI is not triggered when the popup menu is visible)).
+  if pumvisible()
+    call kite#completion#autocomplete()
+  endif
 endfunction
 
 
