@@ -51,7 +51,7 @@ As you edit your code in Vim/Neovim, the Kite Sidebar will show completions, pop
 
 ### Completions
 
-Kite's ranked completions are integrated with Vim's insert-mode completion, specifically the user-defined completion.
+Kite's ranked completions are integrated with Vim's insert-mode completion, specifically the user-defined completion.  Kite shows normal completions or signature-completions as appropriate for the cursor position.
 
 By default Kite's completions will show up automatically as you type.  You can opt out via:
 
