@@ -115,7 +115,7 @@ function! kite#signature#handler(response) abort
     endfor
 
 
-    for line in kite#utils#wrap(function_name.'('.join(parameters, ', ').')', wrap_width)
+    for line in kite#utils#wrap(function_name.'('.join(arguments, ', ').')', wrap_width)
       let completion = {
             \   'word':  '',
             \   'abbr':  indent.line,
