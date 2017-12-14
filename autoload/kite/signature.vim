@@ -41,17 +41,17 @@ function! kite#signature#handler(response) abort
         let name = '*'.name.'*'
       endif
       call add(parameters, name)
-
-      " ii. vararg indicator
-      if kite#utils#present(call.callee.details.function.language_details.python, 'vararg')
-        call add(parameters, '*'.call.callee.details.function.language_details.python.vararg.name)
-      endif
-
-      " iii. keyword arguments indicator
-      if kite#utils#present(call.callee.details.function, 'kwarg')
-        call add(parameters, '**'.call.callee.details.function.kwarg.name)
-      endif
     endfor
+
+    " ii. vararg indicator
+    if kite#utils#present(call.callee.details.function.language_details.python, 'vararg')
+      call add(parameters, '*'.call.callee.details.function.language_details.python.vararg.name)
+    endif
+
+    " iii. keyword arguments indicator
+    if kite#utils#present(call.callee.details.function.language_details.python, 'kwarg')
+      call add(parameters, '**'.call.callee.details.function.language_details.python.kwarg.name)
+    endif
   endif
 
   " The completion popup does not wrap long lines so we wrap manually.
