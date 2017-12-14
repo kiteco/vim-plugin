@@ -70,7 +70,7 @@ function! kite#hover#handler(response)
       " i. name of function
       let name = symbol.name
       " ii. arguments
-      let arguments = map(kite#utils#coerce(signature, 'args', []), {_,v -> v.name})
+      let arguments = map(copy(kite#utils#coerce(signature, 'args', [])), {_,v -> v.name})
       " iii. keyword arguments
       for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
         call add(arguments, kwarg.name.'='.join(map(filter(copy(kwarg.types), '!empty(v:val.examples)'), {_,v -> v.examples[0]}), '|'))
