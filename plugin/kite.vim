@@ -23,6 +23,14 @@ if !exists('g:kite_log')
   let g:kite_log = 0
 endif
 
+if !exists('g:kite_short_timeout')
+  let g:kite_short_timeout = '50ms'
+endif
+
+if !exists('g:kite_long_timeout')
+  let g:kite_long_timeout = '1s'
+endif
+
 if !(has('nvim') || has('job'))
   call kite#utils#warn('disabled - requires nvim or vim with the +job feature')
   finish

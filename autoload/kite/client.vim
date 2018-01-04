@@ -15,7 +15,7 @@ function! kite#client#logged_in(handler)
   if has('channel')
     let response = s:internal_http(path)
   else
-    let response = s:external_http(s:base_url.path, '', '50ms')
+    let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -26,7 +26,7 @@ function! kite#client#status(filename, handler)
   if has('channel')
     let response = s:internal_http(path)
   else
-    let response = s:external_http(s:base_url.path)
+    let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -42,7 +42,7 @@ function! kite#client#example(id, handler)
   if has('channel')
     let response = s:internal_http(path)
   else
-    let response = s:external_http(s:base_url.path)
+    let response = s:external_http(s:base_url.path, '', g:kite_long_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -53,7 +53,7 @@ function! kite#client#hover(filename, hash, characters_start, characters_end, ha
   if has('channel')
     call s:async(function('s:timer_hover', [path, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
   endif
 endfunction
 
@@ -67,7 +67,7 @@ function! kite#client#symbol_report(id, handler)
   if has('channel')
     call s:async(function('s:timer_hover', [path, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
   endif
 endfunction
 
@@ -77,7 +77,7 @@ function! kite#client#signatures(json, handler)
   if has('channel')
     let response = s:internal_http(path, a:json)
   else
-    let response = s:external_http(s:base_url.path, a:json)
+    let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -88,7 +88,7 @@ function! kite#client#completions(json, handler)
   if has('channel')
     let response = s:internal_http(path, a:json)
   else
-    let response = s:external_http(s:base_url.path, a:json)
+    let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -99,7 +99,7 @@ function! kite#client#post_event(json, handler)
   if has('channel')
     call s:async(function('s:timer_post_event', [path, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, a:json), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, a:json, g:kite_short_timeout), a:handler)
   endif
 endfunction
 
