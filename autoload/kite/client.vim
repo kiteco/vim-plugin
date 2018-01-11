@@ -15,7 +15,7 @@ function! kite#client#logged_in(handler)
   if has('channel')
     let response = s:internal_http(path, g:kite_short_timeout)
   else
-    let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -26,7 +26,7 @@ function! kite#client#status(filename, handler)
   if has('channel')
     let response = s:internal_http(path, g:kite_short_timeout)
   else
-    let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -42,7 +42,7 @@ function! kite#client#example(id, handler)
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout)
   else
-    let response = s:external_http(s:base_url.path, '', g:kite_long_timeout)
+    let response = s:external_http(s:base_url.path, g:kite_long_timeout)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -53,7 +53,7 @@ function! kite#client#hover(filename, hash, characters_start, characters_end, ha
   if has('channel')
     call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
   endif
 endfunction
 
@@ -67,7 +67,7 @@ function! kite#client#symbol_report(id, handler)
   if has('channel')
     call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
   endif
 endfunction
 
@@ -77,7 +77,7 @@ function! kite#client#signatures(json, handler)
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout, a:json)
   else
-    let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
+    let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -88,7 +88,7 @@ function! kite#client#completions(json, handler)
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout, a:json)
   else
-    let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
+    let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
   endif
   return a:handler(kite#client#parse_response(response))
 endfunction
@@ -99,7 +99,7 @@ function! kite#client#post_event(json, handler)
   if has('channel')
     call s:async(function('s:timer_post_event', [path, g:kite_short_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, a:json, g:kite_short_timeout), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, a:json), a:handler)
   endif
 endfunction
 
@@ -156,29 +156,23 @@ function! s:internal_http(path, timeout, ...)
 endfunction
 
 
-" Optional arguments:
-" 1. json to be posted
-" 2. timeout
-function! s:external_http(url, ...)
+" Optional argument is json to be posted
+function! s:external_http(url, timeout, ...)
   if a:0
-    let cmd = call(function('s:external_http_cmd'), [a:url] + a:000)
+    let cmd = call(function('s:external_http_cmd'), [a:url, a:timeout] + a:000)
   else
-    let cmd = s:external_http_cmd(a:url)
+    let cmd = s:external_http_cmd(a:url, a:timeout)
   endif
   return system(cmd)
 endif
 endfunction
 
 
-" Optional arguments:
-" 1. json to be posted
-" 2. timeout
-function! s:external_http_cmd(endpoint, ...)
+" Optional argument is json to be posted
+function! s:external_http_cmd(endpoint, timeout, ...)
   let cmd = s:http_binary
+  let cmd .= ' --timeout '.a:timeout.'ms'
   if a:0
-    if a:0 == 2
-      let cmd .= ' --timeout '.a:2.'ms'
-    endif
     if !empty(a:1)
       let cmd .= ' --post --data '
       if kite#utils#windows()
