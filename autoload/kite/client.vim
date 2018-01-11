@@ -13,7 +13,7 @@ let s:symbol_report_path = '/api/editor/symbol'
 function! kite#client#logged_in(handler)
   let path = s:user_path
   if has('channel')
-    let response = s:internal_http(path)
+    let response = s:internal_http(path, g:kite_short_timeout)
   else
     let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
   endif
@@ -24,7 +24,7 @@ endfunction
 function! kite#client#status(filename, handler)
   let path = s:status_path.kite#utils#url_encode(a:filename)
   if has('channel')
-    let response = s:internal_http(path)
+    let response = s:internal_http(path, g:kite_short_timeout)
   else
     let response = s:external_http(s:base_url.path, '', g:kite_short_timeout)
   endif
@@ -40,7 +40,7 @@ endfunction
 function! kite#client#example(id, handler)
   let path = s:example_path.'/'.a:id
   if has('channel')
-    let response = s:internal_http(path)
+    let response = s:internal_http(path, g:kite_long_timeout)
   else
     let response = s:external_http(s:base_url.path, '', g:kite_long_timeout)
   endif
@@ -51,21 +51,21 @@ endfunction
 function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
   let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
   if has('channel')
-    call s:async(function('s:timer_hover', [path, a:handler]))
+    call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
   endif
 endfunction
 
-function! s:timer_hover(path, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path)))
+function! s:timer_hover(path, timeout, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout)))
 endfunction
 
 
 function! kite#client#symbol_report(id, handler)
   let path = s:symbol_report_path.'/'.a:id
   if has('channel')
-    call s:async(function('s:timer_hover', [path, a:handler]))
+    call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, '', g:kite_long_timeout), a:handler)
   endif
@@ -75,7 +75,7 @@ endfunction
 function! kite#client#signatures(json, handler)
   let path = s:editor_path.'/signatures'
   if has('channel')
-    let response = s:internal_http(path, a:json)
+    let response = s:internal_http(path, g:kite_long_timeout, a:json)
   else
     let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
   endif
@@ -86,7 +86,7 @@ endfunction
 function! kite#client#completions(json, handler)
   let path = s:editor_path.'/completions'
   if has('channel')
-    let response = s:internal_http(path, a:json)
+    let response = s:internal_http(path, g:kite_long_timeout, a:json)
   else
     let response = s:external_http(s:base_url.path, a:json, g:kite_long_timeout)
   endif
@@ -97,14 +97,14 @@ endfunction
 function! kite#client#post_event(json, handler)
   let path = s:editor_path.'/event'
   if has('channel')
-    call s:async(function('s:timer_post_event', [path, a:json, a:handler]))
+    call s:async(function('s:timer_post_event', [path, g:kite_short_timeout, a:json, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, a:json, g:kite_short_timeout), a:handler)
   endif
 endfunction
 
-function! s:timer_post_event(path, json, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:json)))
+function! s:timer_post_event(path, timeout, json, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout, a:json)))
 endfunction
 
 
@@ -114,7 +114,7 @@ endfunction
 
 
 " Optional argument is json to be posted
-function! s:internal_http(path, ...)
+function! s:internal_http(path, timeout, ...)
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
   if a:0
     let str = 'POST '.a:path." HTTP/1.0\nHost: localhost\nContent-Type: application/x-www-form-urlencoded\nContent-Length: ".len(a:1)."\n\n".a:1
@@ -125,6 +125,7 @@ function! s:internal_http(path, ...)
 
 
   let response = ''
+  let response_content_length = -1
   let channel = ch_open(s:channel_base, {'mode': 'raw'})
   try
     call ch_sendraw(channel, str)
@@ -133,7 +134,10 @@ function! s:internal_http(path, ...)
   endtry
   while v:true
     try
-      let msg = ch_read(channel, {'timeout': 50})
+      let msg = ch_read(channel, {'timeout': a:timeout})
+      if response_content_length == -1
+        let response_content_length = kite#client#content_length(msg)
+      endif
     catch /E906/
       " channel no longer available
       let msg = ''
@@ -142,6 +146,10 @@ function! s:internal_http(path, ...)
       break
     else
       let response .= msg
+      if kite#client#body_length(response) == response_content_length
+        break
+      endif
+      call kite#utils#log('Incomplete response...')
     endif
   endwhile
   return response
@@ -218,6 +226,30 @@ function! kite#client#parse_response(lines)
   let body = join(lines[sep+1:], "\n")
 
   return {'status': status, 'body': body}
+endfunction
+
+
+" Returns the value of the Content-Length HTTP header extracted
+" from the text, or -1 if none found.
+function! kite#client#content_length(text)
+  let matches = matchlist(a:text, 'Content-Length: \(\d\+\)')
+  if empty(matches)
+    return -1
+  else
+    return str2nr(matches[1])
+  endif
+endfunction
+
+
+" Returns the length in bytes of the entity-body of the HTTP
+" response text, 0 for an empty body, or -1 if no body is found.
+function! kite#client#body_length(text)
+  let a = split(a:text, '\r\?\n\r\?\n', 1)
+  if len(a) == 2
+    return len(a[1])
+  else
+    return -1
+  endif
 endfunction
 
 
