@@ -177,7 +177,7 @@ function! s:external_http_cmd(endpoint, ...)
   let cmd = s:http_binary
   if a:0
     if a:0 == 2
-      let cmd .= ' --timeout '.a:2
+      let cmd .= ' --timeout '.a:2.'ms'
     endif
     if !empty(a:1)
       let cmd .= ' --post --data '

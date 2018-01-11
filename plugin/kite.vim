@@ -24,11 +24,11 @@ if !exists('g:kite_log')
 endif
 
 if !exists('g:kite_short_timeout')
-  let g:kite_short_timeout = '50ms'
+  let g:kite_short_timeout = 120  " ms
 endif
 
 if !exists('g:kite_long_timeout')
-  let g:kite_long_timeout = '1s'
+  let g:kite_long_timeout = 400  " ms
 endif
 
 if !(has('nvim') || has('job'))
