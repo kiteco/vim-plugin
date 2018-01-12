@@ -143,13 +143,15 @@ function! s:internal_http(path, timeout, ...)
       let msg = ''
     endtry
     if msg == ''
+      call kite#utils#log('Timed out waiting for response')
       break
     else
       let response .= msg
-      if kite#client#body_length(response) == response_content_length
+      let response_length = kite#client#body_length(response)
+      if response_length == response_content_length
         break
       endif
-      call kite#utils#log('Incomplete response...')
+      call kite#utils#log('Incomplete response: received '.response_length.' bytes of '.response_content_length.' bytes. Waiting for more')
     endif
   endwhile
   return response
