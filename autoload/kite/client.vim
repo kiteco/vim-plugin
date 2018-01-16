@@ -148,7 +148,7 @@ function! s:internal_http(path, timeout, ...)
     else
       let response .= msg
       let response_length = kite#client#body_length(response)
-      if response_length == response_content_length
+      if (response_content_length != -1) && (response_length == response_content_length)
         break
       endif
       call kite#utils#log('Incomplete response: received '.response_length.' bytes of '.response_content_length.' bytes. Waiting for more')
