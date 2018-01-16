@@ -157,14 +157,12 @@ endfunction
 "
 " NOTE: the cursor is moved during the function (but finishes where it started).
 function! s:selected_region(type)
-  if a:type == 'c'
-    let Offset = function('kite#utils#character_offset')
-  else
-    let Offset = function('kite#utils#byte_offset')
-  endif
-
   if mode() ==# 'n' || mode() ==# 'i'
-    let offset = Offset()
+    if a:type == 'c'
+      let offset = kite#utils#character_offset()
+    else
+      let offset = kite#utils#byte_offset_start()
+    endif
     return [offset, offset]
   endif
 
@@ -180,14 +178,19 @@ function! s:selected_region(type)
     normal! v
 
     call setpos('.', pos_start)
-    let offset1 = Offset()
+    if a:type == 'c'
+      let offset1 = kite#utils#character_offset()
+    else
+      let offset1 = kite#utils#byte_offset_start()
+    endif
 
     call setpos('.', pos_end)
     " end position is exclusive
-    let [ve, &virtualedit, ww, &whichwrap] = [&virtualedit, 'onemore', &whichwrap, '']
-    normal! l
-    let offset2 = Offset()
-    let [&virtualedit, &whichwrap] = [ve, ww]
+    if a:type == 'c'
+      let offset2 = kite#utils#character_offset() + 1
+    else
+      let offset2 = kite#utils#byte_offset_end() + 1
+    endif
 
     " restore visual selection
     normal! gv
@@ -209,13 +212,25 @@ endfunction
 
 
 " Returns the 0-based index into the buffer of the cursor position.
-" Returns -2 for a new, empty buffer or 0 for an existing, empty buffer.
-function! kite#utils#byte_offset()
-  " We could use `return (wordcount().cursor_bytes) - 1` but with a multibyte
-  " character it reports the character's last byte rather than its first.  So
-  " we would have to step one character left, get the byte offset, and add 1.
-  " Overall, the following is easier.
-  return line2byte(line('.')) - 1 + col('.') - 1
+" If the cursor is on a multibyte character, it reports the character's
+" first byte.
+function! kite#utils#byte_offset_start()
+  let offset = line2byte(line('.')) - 1 + col('.') - 1
+  if offset < 0
+    let offset = 0
+  endif
+  return offset
+endfunction
+
+" Returns the 0-based index into the buffer of the cursor position.
+" If the cursor is on a multibyte character, it reports the character's
+" last byte.
+function! kite#utils#byte_offset_end()
+  let offset = wordcount().cursor_bytes - 1
+  if offset < 0
+    let offset = 0
+  endif
+  return offset
 endfunction
 
 
@@ -252,32 +267,31 @@ endfunction
 "
 " NOTE: the cursor is moved during the function (but finishes where it started).
 function! s:token(type)
-  if a:type == 'c'
-    let Offset = function('kite#utils#character_offset')
-  else
-    let Offset = function('kite#utils#byte_offset')
-  endif
-
   " In insert mode, current column is the one we're about to insert into.
   let col = (mode() == 'i') ? col('.') - 1 : col('.')
   let character_under_cursor = matchstr(getline('.'), '\%'.col.'c.')
   if character_under_cursor =~ '\k'
     let pos = getpos('.')
 
-    let [ww, &whichwrap] = [&whichwrap, '']
     if mode() == 'i'
       normal! b
     else
       normal! l
       normal! b
     endif
-    let offset1 = Offset()
+    if a:type == 'c'
+      let offset1 = kite#utils#character_offset()
+    else
+      let offset1 = kite#utils#byte_offset_start()
+    endif
+
     normal! e
     " end position is exclusive
-    let [ve, &virtualedit] = [&virtualedit, 'onemore']
-    normal! l
-    let offset2 = Offset()
-    let [&virtualedit, &whichwrap] = [ve, ww]
+    if a:type == 'c'
+      let offset2 = kite#utils#character_offset() + 1
+    else
+      let offset2 = kite#utils#byte_offset_end() + 1
+    endif
 
     call setpos('.', pos)
 
