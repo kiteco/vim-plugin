@@ -303,10 +303,8 @@ endfunction
 
 
 function! kite#utils#buffer_contents()
-  let k = @k
-  silent %y k
-  let [contents, @k] = [@k, k]
-  return contents
+  let line_ending = {"unix": "\n", "dos": "\r\n", "mac": "\r"}[&fileformat]
+  return join(getline(1, '$'), line_ending).line_ending
 endfunction
 
 

@@ -1,3 +1,18 @@
+function Test_buffer_contents()
+  edit hover_example1.py
+
+  let _ff = &ff
+
+  set ff=unix
+  call assert_equal("import os\nout = os.path.join(\"abc\", \"def\")\n", kite#utils#buffer_contents())
+
+  set ff=dos
+  call assert_equal("import os\r\nout = os.path.join(\"abc\", \"def\")\r\n", kite#utils#buffer_contents())
+
+  let &ff=_ff
+endfunction
+
+
 function Test_selected_region_example1()
   edit hover_example1.py
 
