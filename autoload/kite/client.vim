@@ -113,6 +113,11 @@ function! s:async(callback)
 endfunction
 
 
+function! s:on_std_out(_channel, message) dict
+  let self.stdoutbuffer .= a:message
+endfunction
+
+
 " Optional argument is json to be posted
 function! s:internal_http(path, timeout, ...)
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
@@ -123,38 +128,45 @@ function! s:internal_http(path, timeout, ...)
   endif
   call kite#utils#log(map(split(str, '\n', 1), '"> ".v:val'))
 
+  let options = {'stdoutbuffer': ''}
+  try
+    " I don't know whether the `drop` option is necessary.
+    let channel = ch_open(s:channel_base, {
+          \   'mode':     'raw',
+          \   'callback': function('s:on_std_out', options),
+          \   'drop':     'never'
+          \ })
+  catch /E898|E901|E902/
+    call kite#utils#log('Cannot open channel: '.str)
+    return ''
+  endtry
 
-  let response = ''
-  let response_content_length = -1
-  let channel = ch_open(s:channel_base, {'mode': 'raw'})
   try
     call ch_sendraw(channel, str)
-  catch /E906/
-    return response
+  catch /E630|E631/
+    call kite#utils#log('Cannot send over channel: '.str)
+    return ''
   endtry
-  while v:true
-    try
-      let msg = ch_read(channel, {'timeout': a:timeout})
-      if response_content_length == -1
-        let response_content_length = kite#client#content_length(msg)
-      endif
-    catch /E906/
-      " channel no longer available
-      let msg = ''
-    endtry
-    if msg == ''
-      call kite#utils#log('Timed out waiting for response')
-      break
-    else
-      let response .= msg
-      let response_length = kite#client#body_length(response)
-      if (response_content_length != -1) && (response_length == response_content_length)
-        break
-      endif
-      call kite#utils#log('Incomplete response: received '.response_length.' bytes of '.response_content_length.' bytes. Waiting for more')
+
+  let start = reltime()
+
+  while ch_status(channel) !=# 'closed'
+    if reltimefloat(reltime(start))*1000 > a:timeout
+      call kite#utils#log('| Timed out waiting for response (timeout: '.a:timeout.'ms)')
+      try
+        call ch_close(channel)
+      catch /E906/
+        " noop
+      endtry
+      return ''
     endif
+
+    sleep 5m
   endwhile
-  return response
+
+  call kite#utils#log('| Received complete response: '.string(reltimefloat(reltime(start))*1000).'ms')
+
+  return options.stdoutbuffer
 endfunction
 
 
