@@ -193,7 +193,9 @@ function! kite#hover#handler(response)
         " ii. Arguments
         call add(arguments, signature.args)
         " iii. Keyword arguments
-        call add(arguments, map(copy(signature.language_details.python.kwargs), {_,v -> v.name.'='.v.types[0].examples[0]}))
+        if kite#utils#present(signature.language_details.python, 'kwargs')
+          call add(arguments, map(copy(signature.language_details.python.kwargs), {_,v -> v.name.'='.v.types[0].examples[0]}))
+        endif
 
         call s:content(name.'('.join(arguments, ', ').')')
       endfor
