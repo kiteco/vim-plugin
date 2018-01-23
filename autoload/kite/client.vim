@@ -126,6 +126,7 @@ function! s:internal_http(path, timeout, ...)
   else
     let str = 'GET '.a:path." HTTP/1.0\nHost: localhost\n\n"
   endif
+  call kite#utils#log('')
   call kite#utils#log(map(split(str, '\n', 1), '"> ".v:val'))
 
   let options = {'stdoutbuffer': ''}
@@ -197,6 +198,7 @@ function! s:external_http_cmd(endpoint, timeout, ...)
     endif
   endif
   let cmd .= ' '.s:shellescape(a:endpoint)
+  call kite#utils#log('')
   call kite#utils#log('> '.cmd)
   return cmd
 endfunction
