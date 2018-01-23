@@ -49,6 +49,8 @@ endfunction
 
 
 function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
+  call s:wait_for_pending_events()
+
   let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
   if has('channel')
     call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
@@ -73,6 +75,8 @@ endfunction
 
 
 function! kite#client#signatures(json, handler)
+  call s:wait_for_pending_events()
+
   let path = s:editor_path.'/signatures'
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout, a:json)
@@ -84,6 +88,8 @@ endfunction
 
 
 function! kite#client#completions(json, handler)
+  call s:wait_for_pending_events()
+
   let path = s:editor_path.'/completions'
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout, a:json)
@@ -260,6 +266,13 @@ function! kite#client#body_length(text)
   else
     return -1
   endif
+endfunction
+
+
+function! s:wait_for_pending_events()
+  while kite#events#any_events_pending()
+    sleep 5m
+  endwhile
 endfunction
 
 

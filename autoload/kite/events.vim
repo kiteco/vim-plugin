@@ -1,3 +1,10 @@
+let s:events_pending = 0
+
+function! kite#events#any_events_pending()
+  return s:events_pending > 0
+endfunction
+
+
 function! kite#events#event(action)
   let filename = kite#utils#filepath(0)
 
@@ -23,11 +30,13 @@ function! kite#events#event(action)
         \ 'selections': selections
         \ })
 
+  let s:events_pending += 1
+
   call kite#client#post_event(json, function('kite#events#handler'))
 endfunction
 
 
 function! kite#events#handler(response)
-  " Noop
+  let s:events_pending -= 1
 endfunction
 

@@ -20,6 +20,7 @@ function! kite#completion#insertcharpre()
   " is visible (by calling the function which TextChangedI would call
   " (TextChangedI is not triggered when the popup menu is visible)).
   if pumvisible()
+    call kite#utils#log('# Trigger autocomplete because of pumvisible(): '.v:char)
     call kite#completion#autocomplete()
   endif
 endfunction
