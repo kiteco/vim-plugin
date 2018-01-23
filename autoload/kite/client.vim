@@ -137,14 +137,14 @@ function! s:internal_http(path, timeout, ...)
           \   'callback': function('s:on_std_out', options),
           \   'drop':     'never'
           \ })
-  catch /E898|E901|E902/
+  catch /E898\|E901\|E902/
     call kite#utils#log('Cannot open channel: '.str)
     return ''
   endtry
 
   try
     call ch_sendraw(channel, str)
-  catch /E630|E631/
+  catch /E630\|E631\|E906/
     call kite#utils#log('Cannot send over channel: '.str)
     return ''
   endtry
