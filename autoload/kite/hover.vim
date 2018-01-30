@@ -446,12 +446,12 @@ function! s:show_code(file, line, ...)
     execute 'noautocmd keepjumps keepalt '.bufwinnr(t:source_buffer).'wincmd w'
     if a:0
       if a:file !=# expand('%:p')
-        execute 'edit' a:file
+        execute 'hide edit' a:file
       endif
       execute (a:1 + 1).'go'
     else
       if a:file !=# expand('%:p')
-        execute 'edit +'.a:line a:file
+        execute 'hide edit +'.a:line a:file
       else
         execute a:line
       endif
