@@ -245,30 +245,6 @@ function! kite#client#parse_response(lines)
 endfunction
 
 
-" Returns the value of the Content-Length HTTP header extracted
-" from the text, or -1 if none found.
-function! kite#client#content_length(text)
-  let matches = matchlist(a:text, 'Content-Length: \(\d\+\)')
-  if empty(matches)
-    return -1
-  else
-    return str2nr(matches[1])
-  endif
-endfunction
-
-
-" Returns the length in bytes of the entity-body of the HTTP
-" response text, 0 for an empty body, or -1 if no body is found.
-function! kite#client#body_length(text)
-  let a = split(a:text, '\r\?\n\r\?\n', 1)
-  if len(a) == 2
-    return len(a[1])
-  else
-    return -1
-  endif
-endfunction
-
-
 function! s:wait_for_pending_events()
   while kite#events#any_events_pending()
     sleep 5m
