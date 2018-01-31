@@ -7,6 +7,7 @@ let s:example_path = '/api/python/curation'
 let s:webapp_path  = '/clientapi/desktoplogin?d='
 let s:status_path  = '/clientapi/status?filename='
 let s:user_path    = '/clientapi/user'
+let s:plan_path    = '/clientapi/plan'
 let s:symbol_report_path = '/api/editor/symbol'
 
 
@@ -23,6 +24,17 @@ endfunction
 
 function! kite#client#status(filename, handler)
   let path = s:status_path.kite#utils#url_encode(a:filename)
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+  return a:handler(kite#client#parse_response(response))
+endfunction
+
+
+function! kite#client#plan(handler)
+  let path = s:plan_path
   if has('channel')
     let response = s:internal_http(path, g:kite_short_timeout)
   else

@@ -90,41 +90,43 @@ function! kite#signature#handler(response) abort
 
 
   " 4. Popular patterns
-  let signatures = call.signatures
-  if len(signatures) > 0
-    call add(completions, spacer)
-    call add(completions, s:heading('Popular Patterns'))
+  if kite#plan#is_pro()
+    let signatures = call.signatures
+    if len(signatures) > 0
+      call add(completions, spacer)
+      call add(completions, s:heading('Popular Patterns'))
+    endif
+
+    for signature in signatures
+
+      " b. Arguments
+      let arguments = []
+      for arg in kite#utils#coerce(signature, 'args', [])
+        call add(arguments, arg.name)
+      endfor
+
+      " c. Keyword arguments
+      for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
+        let name = kwarg.name
+        let examples = kite#utils#coerce(kwarg.types[0], 'examples', [])
+        if len(examples) > 0
+          let name .= '='.examples[0]
+        endif
+        call add(arguments, name)
+      endfor
+
+
+      for line in kite#utils#wrap(function_name.'('.join(arguments, ', ').')', wrap_width)
+        let completion = {
+              \   'word':  '',
+              \   'abbr':  indent.line,
+              \   'empty': 1,
+              \   'dup':   1
+              \ }
+        call add(completions, completion)
+      endfor
+    endfor
   endif
-
-  for signature in signatures
-
-    " b. Arguments
-    let arguments = []
-    for arg in kite#utils#coerce(signature, 'args', [])
-      call add(arguments, arg.name)
-    endfor
-
-    " c. Keyword arguments
-    for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
-      let name = kwarg.name
-      let examples = kite#utils#coerce(kwarg.types[0], 'examples', [])
-      if len(examples) > 0
-        let name .= '='.examples[0]
-      endif
-      call add(arguments, name)
-    endfor
-
-
-    for line in kite#utils#wrap(function_name.'('.join(arguments, ', ').')', wrap_width)
-      let completion = {
-            \   'word':  '',
-            \   'abbr':  indent.line,
-            \   'empty': 1,
-            \   'dup':   1
-            \ }
-      call add(completions, completion)
-    endfor
-  endfor
 
   return completions
 endfunction
