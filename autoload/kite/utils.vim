@@ -106,6 +106,9 @@ endfunction
 
 " Opens `url` in the user's browser.
 function! kite#utils#browse(url)
+  let metric = a:url =~ 'stackoverflow\.com' ? 'stackoverflow_example' : 'open_in_web'
+  call kite#metrics#requested(metric)
+
   if !exists('g:loaded_netrw')
     runtime! autoload/netrw.vim
   endif
@@ -114,6 +117,8 @@ function! kite#utils#browse(url)
   else
     call netrw#NetrwBrowseX(a:url, 0)
   endif
+
+  call kite#metrics#fulfilled(metric)
 endfunction
 
 

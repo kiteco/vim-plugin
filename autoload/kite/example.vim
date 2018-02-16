@@ -1,6 +1,7 @@
 function! kite#example#handler(response)
   call kite#utils#log('example: '.a:response.status)
   if a:response.status != 200 | return | endif
+  call kite#metrics#fulfilled('code_example')
 
   let json = json_decode(a:response.body)
 

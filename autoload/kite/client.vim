@@ -8,7 +8,19 @@ let s:webapp_path  = '/clientapi/desktoplogin?d='
 let s:status_path  = '/clientapi/status?filename='
 let s:user_path    = '/clientapi/user'
 let s:plan_path    = '/clientapi/plan'
+let s:counter_path = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
+
+
+function! kite#client#counter(json, handler)
+  let path = s:counter_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_long_timeout, a:json)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
+  endif
+  return a:handler(kite#client#parse_response(response))
+endfunction
 
 
 function! kite#client#logged_in(handler)

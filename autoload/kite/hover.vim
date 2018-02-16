@@ -12,6 +12,7 @@ function! kite#hover#hover()
   let [token_start, token_end] = kite#utils#token_characters()
   if [token_start, token_end] == [-1, -1] | return | endif
 
+  call kite#metrics#requested('expand_panel')
   call kite#client#hover(filename, hash, token_start, token_end, function('kite#hover#handler'))
 endfunction
 
@@ -19,6 +20,7 @@ endfunction
 function! kite#hover#handler(response)
   call kite#utils#log('hover: '.a:response.status)
   if a:response.status != 200 | return | endif
+  call kite#metrics#fulfilled('expand_panel')
 
   let json = json_decode(a:response.body)
 
@@ -417,6 +419,8 @@ endfunction
 
 " Optional argument is zero-based byte offset into file.
 function! s:show_code(file, line, ...)
+  call kite#metrics#requested('usage')
+
   if g:kite_preview_code
     silent! noautocmd wincmd P
     if !&previewwindow
@@ -457,10 +461,13 @@ function! s:show_code(file, line, ...)
       endif
     endif
   endif
+
+  call kite#metrics#fulfilled('usage')
 endfunction
 
 
 function! s:show_example(id)
+  call kite#metrics#requested('code_example')
   let code = kite#client#example(a:id, function('kite#example#handler'))
   call s:openKiteExamplesWindow()
   silent %d _
