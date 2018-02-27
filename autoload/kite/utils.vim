@@ -31,8 +31,7 @@ function! kite#utils#kite_installed()
     " Assume Kite is installed if the output contains 'InstallPath'
     return match(split(output, '\n'), 'InstallPath') > -1
   else  " osx
-    return  !empty(system('mdfind kMDItemCFBundleIdentifier = "com.kite.Kite"')) ||
-          \ !empty(system('mdfind kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'))
+    return !empty(system('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'''))
   endif
 endfunction
 
