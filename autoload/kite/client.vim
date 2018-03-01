@@ -29,7 +29,7 @@ function! kite#client#logged_in(handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -40,7 +40,7 @@ function! kite#client#status(filename, handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -51,7 +51,7 @@ function! kite#client#plan(handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -67,7 +67,7 @@ function! kite#client#example(id, handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_long_timeout)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -78,7 +78,8 @@ function! kite#client#hover(filename, hash, characters_start, characters_end, ha
   if has('channel')
     call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout),
+          \ function('s:parse_and_handle', [a:handler]))
   endif
 endfunction
 
@@ -88,7 +89,8 @@ function! kite#client#symbol_report(id, handler)
   if has('channel')
     call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout),
+          \ function('s:parse_and_handle', [a:handler]))
   endif
 endfunction
 
@@ -102,7 +104,7 @@ function! kite#client#signatures(json, handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -115,7 +117,7 @@ function! kite#client#completions(json, handler)
   else
     let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
   endif
-  return a:handler(kite#client#parse_response(response))
+  return a:handler(s:parse_response(response))
 endfunction
 
 
@@ -124,16 +126,17 @@ function! kite#client#post_event(json, handler)
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_short_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, a:json), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, a:json),
+          \ function('s:parse_and_handle', [a:handler]))
   endif
 endfunction
 
 function! s:timer_get(path, timeout, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout)))
+  call a:handler(s:parse_response(s:internal_http(a:path, a:timeout)))
 endfunction
 
 function! s:timer_post(path, timeout, json, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout, a:json)))
+  call a:handler(s:parse_response(s:internal_http(a:path, a:timeout, a:json)))
 endfunction
 
 function! s:async(callback)
@@ -232,10 +235,15 @@ function! s:external_http_cmd(endpoint, timeout, ...)
 endfunction
 
 
+function! s:parse_and_handle(handler, out)
+  call a:handler(s:parse_response(a:out))
+endfunction
+
+
 " Returns the integer HTTP response code and the string body in a dictionary.
 "
 " lines - either a list (from async commands) or a string (from sync)
-function! kite#client#parse_response(lines)
+function! s:parse_response(lines)
   if type(a:lines) == v:t_string
     let lines = split(a:lines, '\r\?\n', 1)
   else
