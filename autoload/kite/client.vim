@@ -77,21 +77,17 @@ function! kite#client#hover(filename, hash, characters_start, characters_end, ha
 
   let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
   if has('channel')
-    call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
+    call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
   endif
-endfunction
-
-function! s:timer_hover(path, timeout, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout)))
 endfunction
 
 
 function! kite#client#symbol_report(id, handler)
   let path = s:symbol_report_path.'/'.a:id
   if has('channel')
-    call s:async(function('s:timer_hover', [path, g:kite_long_timeout, a:handler]))
+    call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout), a:handler)
   endif
@@ -127,16 +123,19 @@ endfunction
 function! kite#client#post_event(json, handler)
   let path = s:editor_path.'/event'
   if has('channel')
-    call s:async(function('s:timer_post_event', [path, g:kite_short_timeout, a:json, a:handler]))
+    call s:async(function('s:timer_post', [path, g:kite_short_timeout, a:json, a:handler]))
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, a:json), a:handler)
   endif
 endfunction
 
-function! s:timer_post_event(path, timeout, json, handler, timer)
-  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout, a:json)))
+function! s:timer_get(path, timeout, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout)))
 endfunction
 
+function! s:timer_post(path, timeout, json, handler, timer)
+  call a:handler(kite#client#parse_response(s:internal_http(a:path, a:timeout, a:json)))
+endfunction
 
 function! s:async(callback)
   call timer_start(0, a:callback)
