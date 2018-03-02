@@ -27,11 +27,11 @@ endfunction
 
 function! kite#utils#kite_installed()
   if kite#utils#windows()
-    let output = system('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
+    let output = kite#async#sync('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
     " Assume Kite is installed if the output contains 'InstallPath'
     return match(split(output, '\n'), 'InstallPath') > -1
   else  " osx
-    return !empty(system('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'''))
+    return !empty(kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'''))
   endif
 endfunction
 
@@ -43,7 +43,7 @@ function! kite#utils#kite_running()
     let [cmd, process] = ['ps -axco command', '^Kite$']
   endif
 
-  return match(split(system(cmd), '\n'), process) > -1
+  return match(split(kite#async#sync(cmd), '\n'), process) > -1
 endfunction
 
 

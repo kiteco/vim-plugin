@@ -1,3 +1,41 @@
+let s:async_sync_id = 0
+let s:async_sync_outputs = {}
+
+function! s:next_async_sync_id()
+  let async_sync_id = s:async_sync_id
+  let s:async_sync_id += 1
+  return async_sync_id
+endfunction
+
+function! s:async_sync_output(async_sync_id, output)
+  if type(a:output) == v:t_list
+    " Ensure empty list becomes an empty string.
+    let output = join(a:output, "\n")
+  else
+    let output = a:output
+  endif
+  let s:async_sync_outputs[a:async_sync_id] = output
+endfunction
+
+
+" Executes `cmd` asynchronously but looks synchronous to the caller.
+function! kite#async#sync(cmd)
+  let async_sync_id = s:next_async_sync_id()
+  let s:async_sync_outputs[async_sync_id] = 'PENDING'
+
+  call kite#async#execute(a:cmd, function('s:async_sync_output', [async_sync_id]))
+
+  while s:async_sync_outputs[async_sync_id] ==# 'PENDING'
+    sleep 5ms
+  endwhile
+
+  let output = s:async_sync_outputs[async_sync_id]
+  unlet s:async_sync_outputs[async_sync_id]
+
+  return output
+endfunction
+
+
 function! kite#async#execute(cmd, handler)
   let options = {
         \ 'stdoutbuffer': [],
