@@ -1,8 +1,15 @@
+" Values for s:os are used in plugin directory structure
+" and also metric values.
 if has('win64') || has('win32') || has('win32unix')
-  let s:os = 'Windows'
+  let s:os = 'windows'
 else
-  let s:os = substitute(system('uname'), '\n', '', '')  " Darwin or Linux
+  let uname = substitute(system('uname'), '\n', '', '')  " Darwin or Linux
+  let s:os = uname ==? 'Darwin' ? 'macos' : 'linux'
 endif
+
+function! kite#utils#windows()
+  return s:os ==# 'windows'
+endfunction
 
 let s:separator  = !exists('+shellslash') || &shellslash ? '/' : '\'
 let s:doc_dir    = expand('<sfile>:p:h:h:h').s:separator.'doc'
@@ -15,8 +22,8 @@ function! kite#utils#generate_help()
 endfunction
 
 
-function! kite#utils#windows()
-  return s:os ==# 'Windows'
+function! kite#utils#os()
+  return s:os
 endfunction
 
 
