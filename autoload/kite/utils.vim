@@ -179,7 +179,7 @@ function! s:selected_region(type)
     endif
 
     " switch to normal mode
-    normal! v
+    execute "normal! \<Esc>"
 
     call setpos('.', pos_start)
     if a:type == 'c'
