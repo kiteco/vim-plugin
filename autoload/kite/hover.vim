@@ -327,15 +327,18 @@ function! kite#hover#handler(response)
 
 
   if !empty(report.links)
-    call s:section('LINKS')
-    for link in report.links
-      let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
-      call s:content('-> '.link.title .' ('.domain.')')
-      let s:clickables[line('$')] = {
-            \   'type': 'link',
-            \   'url': link.url
-            \ }
-    endfor
+    let links = filter(report.links, 'v:val.url !~ "stackoverflow.com"')
+    if !empty(links)
+      call s:section('LINKS')
+      for link in links
+        let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
+        call s:content('-> '.link.title .' ('.domain.')')
+        let s:clickables[line('$')] = {
+              \   'type': 'link',
+              \   'url': link.url
+              \ }
+      endfor
+    endif
   endif
 
 
