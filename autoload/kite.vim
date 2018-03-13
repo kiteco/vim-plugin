@@ -176,9 +176,3 @@ function! s:supported_language()
   return index(s:supported_languages, &filetype) > -1
 endfunction
 
-
-" function! s:file_size_ok()
-"   let size = getfsize(expand('%'))
-"   return size > 0 && size < kite#max_file_size()
-" endfunction
-
