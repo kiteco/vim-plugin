@@ -46,9 +46,11 @@ if kite#utils#windows()
   set noshelltemp
 endif
 
+call kite#init()
+
 augroup Kite
   autocmd!
-  autocmd BufEnter * call kite#toggle()
+  autocmd BufEnter * call kite#bufenter()
 augroup END
 
 
