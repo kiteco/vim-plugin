@@ -17,63 +17,12 @@ function kite#statusline()
 endfunction
 
 
-function! kite#toggle()
-  " Always set up Kite events
-  call s:setup_kite_events()
-  call s:on_bufenter()
-
-  if s:supported_language() && s:file_size_ok()
-    call s:enable()
-  else
-    call s:disable()
-  endif
-endfunction
-
-
 function! kite#max_file_size()
   return 1048576  " 1MB
 endfunction
 
 
-function s:setup_kite_events()
-  augroup KiteEvents
-    autocmd! * <buffer>
-    autocmd CursorHold               <buffer> call kite#events#event('selection')
-    autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
-    autocmd FocusGained              <buffer> call kite#events#event('focus')
-    autocmd BufEnter                 <buffer> call s:on_bufenter()
-  augroup END
-endfunction
-
-
-function! s:on_bufenter()
-  call kite#events#event('focus')
-  call kite#status#status()
-endfunction
-
-
-function! s:enable()
-  if s:timer == -1
-    let s:timer = timer_start(s:status_poll_interval,
-          \   function('kite#status#status'),
-          \   {'repeat': -1}
-          \ )
-  else
-    call timer_pause(s:timer, 0)  " unpause
-  endif
-
-  if getbufvar('', 'kite_enabled') | return | endif
-
-  augroup KiteFiles
-    autocmd! * <buffer>
-    autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
-    autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
-
-    if exists('g:kite_documentation_continual') && g:kite_documentation_continual
-      autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
-    endif
-  augroup END
-
+function! kite#init()
   if &pumheight == 0
     set pumheight=10
   endif
@@ -83,9 +32,48 @@ function! s:enable()
   endif
 
   set shortmess+=c
-  setlocal completefunc=kite#completion#complete
-  call s:configure_completeopt()
 
+  call s:configure_completeopt()
+endfunction
+
+
+function! kite#bufenter()
+  if s:supported_language()
+    call s:setup_events()
+    call s:setup_mappings()
+
+    setlocal completefunc=kite#completion#complete
+
+    call kite#events#event('focus')
+    call kite#status#status()
+    call s:start_status_timer()
+
+  else
+    call s:stop_status_timer()
+    call s:teardown_events()
+  endif
+endfunction
+
+
+function s:setup_events()
+  augroup KiteEvents
+    autocmd! * <buffer>
+
+    autocmd CursorHold               <buffer> call kite#events#event('selection')
+    autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
+    autocmd FocusGained              <buffer> call kite#events#event('focus')
+
+    autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
+    autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
+
+    if exists('g:kite_documentation_continual') && g:kite_documentation_continual
+      autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
+    endif
+  augroup END
+endfunction
+
+
+function! s:setup_mappings()
   " When the pop-up menu is closed with <C-e>, <C-y>, or <CR>,
   " the TextChangedI event is fired again, which re-opens the
   " pop-up menu.  To avoid this, we set a flag when one of those
@@ -127,16 +115,30 @@ function! s:enable()
   if empty(maparg('K', 'n')) && !hasmapto('(kite-hover)', 'n')
     nmap <silent> <buffer> K <Plug>(kite-hover)
   endif
-
-  call setbufvar('', 'kite_enabled', 1)
 endfunction
 
 
-function! s:disable()
-  if exists('#KiteFiles')
-    autocmd! KiteFiles * <buffer>
+function! s:start_status_timer()
+  if s:timer == -1
+    let s:timer = timer_start(s:status_poll_interval,
+          \   function('kite#status#status'),
+          \   {'repeat': -1}
+          \ )
+  else
+    call timer_pause(s:timer, 0)  " unpause
   endif
+endfunction
+
+
+function! s:stop_status_timer()
   call timer_pause(s:timer, 1)
+endfunction
+
+
+function! s:teardown_events()
+  if exists('#KiteEvents')
+    autocmd! KiteEvents * <buffer>
+  endif
 endfunction
 
 
@@ -175,8 +177,8 @@ function! s:supported_language()
 endfunction
 
 
-function! s:file_size_ok()
-  let size = getfsize(expand('%'))
-  return size > 0 && size < kite#max_file_size()
-endfunction
+" function! s:file_size_ok()
+"   let size = getfsize(expand('%'))
+"   return size > 0 && size < kite#max_file_size()
+" endfunction
 
