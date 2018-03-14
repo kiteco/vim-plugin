@@ -1,5 +1,6 @@
 let s:supported_languages = ['python']
-let s:status_poll_interval = 5000  " milliseconds
+let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
+let s:editor_metrics_interval = 10 * 60 * 1000  " 10min in milliseconds
 let s:timer = -1
 
 
@@ -175,4 +176,12 @@ endfunction
 function! s:supported_language()
   return index(s:supported_languages, &filetype) > -1
 endfunction
+
+
+call kite#metrics#show_editor_metrics_opt_in()
+
+call timer_start(s:editor_metrics_interval,
+      \   function('kite#metrics#send'),
+      \   {'repeat': -1}
+      \ )
 

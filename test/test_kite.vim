@@ -127,3 +127,8 @@ function Test_token_characters()
   call assert_equal([7, 9], kite#utils#token_characters())
 endfunction
 
+
+function Test_base64()
+  call assert_equal('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=', kite#base64#encode('abcdefghijklmnopqrstuvwxyz'))
+  call assert_equal('abcdefghijklmnopqrstuvwxyz', kite#base64#decode('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo='))
+endfunction

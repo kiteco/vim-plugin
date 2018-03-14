@@ -10,6 +10,7 @@ let s:user_path    = '/clientapi/user'
 let s:plan_path    = '/clientapi/plan'
 let s:counter_path = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
+let s:segment_path = 'https://api.segment.io/v1/track'
 
 
 function! kite#client#counter(json, handler)
@@ -131,6 +132,18 @@ function! kite#client#post_event(json, handler)
   endif
 endfunction
 
+
+function! kite#client#segment(json)
+  let key = kite#utils#development() ? 'HB6YvUg60tbMahjKJPwb9TexnHAIJRuy' : 'rbTbZkh6ec2U78iJhVis24FaVSzoFJNs'
+  let headers = {
+        \ 'Content-Type': 'application/json',
+        \ 'Authorization': 'Basic '.kite#base64#encode(key.':')
+        \ }
+  let NullHandler = {output -> output}
+  call kite#async#execute(s:external_http_cmd(s:segment_path, g:kite_external_timeout, a:json, headers), NullHandler)
+endfunction
+
+
 function! s:timer_get(path, timeout, handler, timer)
   call a:handler(s:parse_response(s:internal_http(a:path, a:timeout)))
 endfunction
@@ -214,7 +227,9 @@ endif
 endfunction
 
 
-" Optional argument is json to be posted
+" Optional arguments:
+" - json to be posted
+" - http headers (dictionary)
 function! s:external_http_cmd(endpoint, timeout, ...)
   let cmd = s:http_binary
   let cmd .= ' --timeout '.a:timeout.'ms'
@@ -227,6 +242,10 @@ function! s:external_http_cmd(endpoint, timeout, ...)
         let cmd .= s:shellescape(a:1)
       endif
     endif
+    if !empty(a:2)
+      for [key, value] in items(a:2)
+        let cmd.= ' --header '.key.'='.shellescape(value)
+      endfor
   endif
   let cmd .= ' '.s:shellescape(a:endpoint)
   call kite#utils#log('')

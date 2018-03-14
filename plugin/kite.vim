@@ -31,6 +31,10 @@ if !exists('g:kite_long_timeout')
   let g:kite_long_timeout = 400  " ms
 endif
 
+if !exists('g:kite_external_timeout')
+  let g:kite_external_timeout = 1000  " ms
+endif
+
 if !(has('nvim') || has('job'))
   call kite#utils#warn('disabled - requires nvim or vim with the +job feature')
   finish
@@ -57,4 +61,7 @@ augroup END
 nnoremap <silent> <Plug>(kite-hover) :call kite#hover#hover()<CR>
 
 command! KiteTour call kite#utils#generate_help() | help kite
+
+command! KiteEnableEditorMetrics :call kite#metrics#enable_editor_metrics()
+command! KiteDisableEditorMetrics :call kite#metrics#disable_editor_metrics()
 
