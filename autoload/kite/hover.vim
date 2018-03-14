@@ -326,22 +326,6 @@ function! kite#hover#handler(response)
   endif
 
 
-  if !empty(report.links)
-    let links = filter(report.links, 'v:val.url !~ "stackoverflow.com"')
-    if !empty(links)
-      call s:section('LINKS')
-      for link in links
-        let domain = matchlist(link.url, '\vhttps?://([^/]+)/')[1]
-        call s:content('-> '.link.title .' ('.domain.')')
-        let s:clickables[line('$')] = {
-              \   'type': 'link',
-              \   'url': link.url
-              \ }
-      endfor
-    endif
-  endif
-
-
   " The noautocmd doesn't appear to have any effect (vim/vim#2084).
   noautocmd wincmd p
 endfunction
