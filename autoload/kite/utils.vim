@@ -86,7 +86,7 @@ function! kite#utils#mac_address()
     else
       let output = kite#async#sync('ifconfig')
     endif
-    let s:mac_address = split(matchstr(output, 'ether \(\x\{2}[:-]\)\{5}\x\{2}'))[1]
+    let s:mac_address = matchstr(output, '\(\x\{2}[:-]\)\{5}\x\{2}')
     let s:mac_address = tr(s:mac_address, '-', ':')
   endif
   return s:mac_address
