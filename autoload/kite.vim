@@ -35,6 +35,11 @@ function! kite#init()
   set shortmess+=c
 
   call s:configure_completeopt()
+
+  call timer_start(s:editor_metrics_interval,
+        \   function('kite#metrics#send'),
+        \   {'repeat': -1}
+        \ )
 endfunction
 
 
@@ -53,6 +58,10 @@ function! kite#bufenter()
     call s:stop_status_timer()
     call s:teardown_events()
   endif
+
+  " Call this here so that it is not invoked during vim' startup,
+  " which the docs warn against and causes problems.
+  call kite#metrics#show_editor_metrics_opt_in()
 endfunction
 
 
@@ -176,12 +185,4 @@ endfunction
 function! s:supported_language()
   return index(s:supported_languages, &filetype) > -1
 endfunction
-
-
-call kite#metrics#show_editor_metrics_opt_in()
-
-call timer_start(s:editor_metrics_interval,
-      \   function('kite#metrics#send'),
-      \   {'repeat': -1}
-      \ )
 
