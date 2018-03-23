@@ -65,9 +65,9 @@ function! kite#metrics#show_editor_metrics_opt_in()
         \ "status of the Kite application to ensure that it is running correctly.\n".
         \ "Type 'Yes' to opt-in or 'No' to disable this (or <Esc> or <Enter> to cancel): "
   let response = input(prompt)
-  if response =~? '\v^(yes|y)$'
+  if response =~? '^y'
     call kite#metrics#enable_editor_metrics()
-  elseif response =~? '\v^(no|n)$'
+  elseif response =~? '^n'
     call kite#metrics#disable_editor_metrics()
   endif
 endfunction
