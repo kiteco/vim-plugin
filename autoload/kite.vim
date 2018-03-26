@@ -59,7 +59,7 @@ function! kite#bufenter()
     call s:teardown_events()
   endif
 
-  " Call this here so that it is not invoked during vim' startup,
+  " Call this here so that it is not invoked during vim's startup,
   " which the docs warn against and causes problems.
   call kite#metrics#show_editor_metrics_opt_in()
 endfunction
