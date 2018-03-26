@@ -2,6 +2,8 @@
 " Editor feature metrics
 "
 
+let s:prompted = 0
+
 
 " Optional argument is value by which to increment named metric.
 " Defaults to 1.
@@ -59,6 +61,11 @@ function! kite#metrics#show_editor_metrics_opt_in()
   if s:editor_metrics_decided()
     return
   endif
+
+  if s:prompted
+    return
+  endif
+  let s:prompted = 1
 
   let prompt =
         \ "Kite can periodically send information to our servers about the\n".
