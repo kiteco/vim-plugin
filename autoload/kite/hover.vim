@@ -80,7 +80,7 @@ function! kite#hover#handler(response)
       call add(patterns, name.'('.join(arguments, ', ').')')
     endfor
     if !empty(patterns)
-      call s:section('POPULAR PATTERNS')
+      call s:section('HOW OTHERS USED THIS')
       call s:content(patterns)
     endif
 
@@ -135,7 +135,7 @@ function! kite#hover#handler(response)
     " a.i, a.ii
     let members = map(copy(symbol.value[0].details.module.members), {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
-      call s:section('TOP MEMBERS')
+      call s:section('POPULAR MEMBERS')
       let members_with_types = kite#utils#columnise(members, '    ')
       let i = 0
       for line in members_with_types
@@ -241,7 +241,7 @@ function! kite#hover#handler(response)
     " i. Name, ii. Id
     let members = map(copy(symbol.value[0].details.type.members), {_,v -> [v.name, !empty(v.value) ? v.value[0].kind : '']})
     if !empty(members)
-      call s:section('TOP ATTRIBUTES')
+      call s:section('POPULAR MEMBERS')
       let members_with_types = kite#utils#columnise(members, '    ')
       let i = 0
       for line in members_with_types
@@ -273,7 +273,7 @@ function! kite#hover#handler(response)
 
 
 
-  call s:section('DOCUMENTATION')
+  call s:section('DESCRIPTION')
   " Handle embedded line breaks.
   call s:content(split(report.description_text, "\n"))
 
@@ -304,7 +304,7 @@ function! kite#hover#handler(response)
 
 
   if !empty(report.examples)
-    call s:section('EXAMPLES')
+    call s:section('HOW TO')
     for example in report.examples
       call s:content('-> '.example.title)
       let s:clickables[line('$')] = {
@@ -475,6 +475,3 @@ endfunction
 function! s:content(text)
   call append(line('$'), a:text)
 endfunction
-
-
-
