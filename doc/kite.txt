@@ -17,14 +17,13 @@ using all the open source code on GitHub.
 Press |K| when your cursor is over a identifier to open a split window with
 documentation about the identifier. In addition to documentation, Kite also
 provides information about where you've used the identifier in your codebase,
-curated code examples showing you how to use the identifier, as well as links
-to common questions about the identifier on Stack Overflow.
+as well as curated code examples showing you how to use the identifier.
 
-3. Sidebar integration
+3. Copilot integration
 
-While you code in VIM, the Sidebar will automatically show you information
-about the code that you're currently working with. To open the Sidebar, click
-on the Kite menubar icon and select "Open Sidebar".
+While you code in VIM, the Copilot will automatically show you information
+about the code that you're currently working with. To open the Copilot, click
+on the Kite menubar icon and select "Open Copilot".
 
 To learn more about Kite and how to use the VIM plugin, visit our [help
 page](http://help.kite.com).

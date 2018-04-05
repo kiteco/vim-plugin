@@ -94,7 +94,7 @@ function! kite#signature#handler(response) abort
     let signatures = call.signatures
     if len(signatures) > 0
       call add(completions, spacer)
-      call add(completions, s:heading('Popular Patterns'))
+      call add(completions, s:heading('How Others Used This'))
     endif
 
     for signature in signatures
@@ -135,4 +135,3 @@ endfunction
 function s:heading(text)
   return {'abbr': a:text.':', 'word': '', 'empty': 1, 'dup': 1}
 endfunction
-

@@ -44,7 +44,7 @@ function! kite#status#handler(buffer, response)
 
   if !exists('b:kite_whitelist_checked')
     if status ==? 'not whitelisted'
-      call kite#utils#info("Kite is not enabled for this file. Please whitelist it in Kite's settings to enable Kite.")
+      call kite#utils#info("Kite is not enabled for this file. Please whitelist it in Kite settings to enable Kite.")
     endif
     let b:kite_whitelist_checked = 1
   endif
@@ -56,4 +56,3 @@ function! kite#status#handler(buffer, response)
   call setbufvar(a:buffer, 'kite_status', json.status)
   redrawstatus
 endfunction
-
