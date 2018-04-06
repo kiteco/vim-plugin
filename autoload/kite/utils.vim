@@ -320,6 +320,26 @@ function! s:selected_region(type)
 endfunction
 
 
+" Returns the 0-based index of the cursor in the buffer.
+"
+" Returns -1 when the buffer is empty.
+function! kite#utils#cursor_characters()
+  if mode() ==? 'v'
+    " switch to normal mode
+    execute "normal! \<Esc>"
+
+    let cursor = kite#utils#character_offset()
+
+    " restore visual selection
+    normal! gv
+
+    return cursor
+  endif
+
+  return kite#utils#character_offset()
+endfunction
+
+
 " Returns the 0-based index into the buffer of the cursor position.
 " Returns -1 when the buffer is empty.
 "
@@ -349,74 +369,6 @@ function! kite#utils#byte_offset_end()
     let offset = 0
   endif
   return offset
-endfunction
-
-
-" Returns a 2-element list of 0-based character indices into the buffer.
-"
-" When a token is under the cursor, the elements are the start (inclusive)
-" and end (exclusive) of the token.
-"
-" Returns [-1, -1] when no token is under the cursor.
-function! kite#utils#token_characters()
-  return s:token('c')
-endfunction
-
-
-" Returns a 2-element list of 0-based byte indices into the buffer.
-"
-" When a token is under the cursor, the elements are the start (inclusive)
-" and end (exclusive) of the token.
-"
-" Returns [-1, -1] when no token is under the cursor.
-function! kite#utils#token_bytes()
-  return s:token('b')
-endfunction
-
-
-" Returns a 2-element list of 0-based indices into the buffer.
-"
-" When a token is under the cursor, the elements are the start (inclusive)
-" and end (exclusive) of the token.
-"
-" Returns [-1, -1] when no token is under the cursor.
-"
-" param type (String) - 'c' for character indices, 'b' for byte indices
-"
-" NOTE: the cursor is moved during the function (but finishes where it started).
-function! s:token(type)
-  " In insert mode, current column is the one we're about to insert into.
-  let col = (mode() == 'i') ? col('.') - 1 : col('.')
-  let character_under_cursor = matchstr(getline('.'), '\%'.col.'c.')
-  if character_under_cursor =~ '\k'
-    let pos = getpos('.')
-
-    if mode() == 'i'
-      normal! b
-    else
-      normal! l
-      normal! b
-    endif
-    if a:type == 'c'
-      let offset1 = kite#utils#character_offset()
-    else
-      let offset1 = kite#utils#byte_offset_start()
-    endif
-
-    normal! e
-    " end position is exclusive
-    if a:type == 'c'
-      let offset2 = kite#utils#character_offset() + 1
-    else
-      let offset2 = kite#utils#byte_offset_end() + 1
-    endif
-
-    call setpos('.', pos)
-
-    return [offset1, offset2]
-  else
-    return [-1, -1]
-  endif
 endfunction
 
 

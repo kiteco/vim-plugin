@@ -9,11 +9,10 @@ function! kite#hover#hover()
 
   let filename = kite#utils#filepath(1)
   let hash = kite#utils#buffer_md5()
-  let [token_start, token_end] = kite#utils#token_characters()
-  if [token_start, token_end] == [-1, -1] | return | endif
+  let cursor = kite#utils#cursor_characters()
 
   call kite#metrics#requested('expand_panel')
-  call kite#client#hover(filename, hash, token_start, token_end, function('kite#hover#handler'))
+  call kite#client#hover(filename, hash, cursor, function('kite#hover#handler'))
 endfunction
 
 
