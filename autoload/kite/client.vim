@@ -175,11 +175,9 @@ function! s:internal_http(path, timeout, ...)
 
   let options = {'stdoutbuffer': ''}
   try
-    " I don't know whether the `drop` option is necessary.
     let channel = ch_open(s:channel_base, {
           \   'mode':     'raw',
-          \   'callback': function('s:on_std_out', options),
-          \   'drop':     'never'
+          \   'callback': function('s:on_std_out', options)
           \ })
   catch /E898\|E901\|E902/
     call kite#utils#log('Cannot open channel: '.str)
