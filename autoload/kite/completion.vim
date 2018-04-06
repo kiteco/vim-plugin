@@ -80,6 +80,7 @@ function! kite#completion#complete(findstart, base)
 
     let params = {
           \   'filename':     filename,
+          \   'editor':       'vim',
           \   'text':         text,
           \   'cursor_runes': cursor
           \ }
