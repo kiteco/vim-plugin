@@ -72,10 +72,10 @@ function! kite#client#example(id, handler)
 endfunction
 
 
-function! kite#client#hover(filename, hash, characters_start, characters_end, handler)
+function! kite#client#hover(filename, hash, cursor, handler)
   call s:wait_for_pending_events()
 
-  let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?selection_begin_runes='.a:characters_start.'&selection_end_runes='.a:characters_end
+  let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?cursor_runes='.a:cursor
   if has('channel')
     call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else

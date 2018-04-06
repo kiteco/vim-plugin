@@ -68,6 +68,22 @@ function Test_selected_region_example2()
 endfunction
 
 
+function Test_cursor_characters()
+  edit hover_example1.py
+
+  normal 2Gfj
+  call assert_equal(24, kite#utils#cursor_characters())
+
+  normal v
+  call assert_equal(24, kite#utils#cursor_characters())
+  call assert_equal('v', mode())
+
+  normal e
+  call assert_equal(27, kite#utils#cursor_characters())
+  call assert_equal('v', mode())
+endfunction
+
+
 function Test_columnise()
   let data = [
         \ [ 'a',   'bb', 'ccc'   ],
@@ -112,19 +128,6 @@ function Test_zip()
   let b = [7, 8, 9]
   let expected = [ [1,7], [2,8], ['',9] ]
   call assert_equal(expected, kite#utils#zip(a, b, ''))
-endfunction
-
-
-function Test_token_characters()
-  edit hover_example1.py
-
-  " last character of line
-  normal 1G$
-  call assert_equal([7, 9], kite#utils#token_characters())
-
-  " first character of last word of line
-  normal b
-  call assert_equal([7, 9], kite#utils#token_characters())
 endfunction
 
 
