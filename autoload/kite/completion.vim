@@ -85,10 +85,6 @@ function! kite#completion#complete(findstart, base)
           \   'cursor_runes': cursor
           \ }
 
-    if s:signature
-      let params.editor = 'vim'
-    endif
-
     let json = json_encode(params)
 
     if s:signature
