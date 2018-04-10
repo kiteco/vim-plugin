@@ -108,8 +108,8 @@ function! kite#completion#handler(response) abort
   let json = json_decode(a:response.body)
 
   " API should return 404 status when no completions but it sometimes
-  " return 200 status and "completions":"null".
-  if type(json.completions) == v:t_list
+  " return 200 status and an empty response body, or "completions":"null".
+  if !empty(json) && type(json.completions) == v:t_list
     return map(json.completions, {_, c ->
           \   {
           \     'word': c.insert,
