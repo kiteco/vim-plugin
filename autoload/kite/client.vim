@@ -231,20 +231,22 @@ endfunction
 function! s:external_http_cmd(endpoint, timeout, ...)
   let cmd = s:http_binary
   let cmd .= ' --timeout '.a:timeout.'ms'
-  if a:0
-    if !empty(a:1)
-      let cmd .= ' --post --data '
-      if kite#utils#windows()
-        let cmd .= s:win_escape_json(a:1)
-      else
-        let cmd .= s:shellescape(a:1)
-      endif
+
+  if a:0 > 0
+    let cmd .= ' --post --data '
+    if kite#utils#windows()
+      let cmd .= s:win_escape_json(a:1)
+    else
+      let cmd .= s:shellescape(a:1)
     endif
-    if !empty(a:2)
-      for [key, value] in items(a:2)
-        let cmd.= ' --header '.key.'='.shellescape(value)
-      endfor
   endif
+
+  if a:0 > 1
+    for [key, value] in items(a:2)
+      let cmd.= ' --header '.key.'='.shellescape(value)
+    endfor
+  endif
+
   let cmd .= ' '.s:shellescape(a:endpoint)
   call kite#utils#log('')
   call kite#utils#log('> '.cmd)
