@@ -109,18 +109,18 @@ function! kite#completion#handler(response) abort
 
   " API should return 404 status when no completions but it sometimes
   " return 200 status and an empty response body, or "completions":"null".
-  if !empty(json) && type(json.completions) == v:t_list
-    return map(json.completions, {_, c ->
-          \   {
-          \     'word': c.insert,
-          \     'abbr': c.display,
-          \     'info': c.documentation_text,
-          \     'menu': (kite#utils#present(c, 'symbol') && kite#utils#present(c.symbol, 'value') ? c.symbol.value[0].kind : '')
-          \   }
-          \ })
-  else
+  if empty(json) || type(json.completions) != v:t_list
     return []
   endif
+
+  return map(json.completions, {_, c ->
+        \   {
+        \     'word': c.insert,
+        \     'abbr': c.display,
+        \     'info': c.documentation_text,
+        \     'menu': (kite#utils#present(c, 'symbol') && kite#utils#present(c.symbol, 'value') ? c.symbol.value[0].kind : '')
+        \   }
+        \ })
 endfunction
 
 
