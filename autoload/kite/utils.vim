@@ -496,23 +496,6 @@ function! kite#utils#coerce(dict, key, default)
 endfunction
 
 
-function! kite#utils#dig(dict, key, default)
-  let dict = a:dict
-  for k in split(a:key, '\.')
-    if has_key(dict, k)
-      let dict = dict[k]
-    else
-      return a:default
-    endif
-  endfor
-  if type(dict) == type(a:default)  " in case of null
-    return dict
-  else
-    return a:default
-  endif
-endfunction
-
-
 function! kite#utils#present(dict, key)
   return has_key(a:dict, a:key) && !empty(a:dict[a:key])
 endfunction

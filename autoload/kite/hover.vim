@@ -23,14 +23,16 @@ function! kite#hover#handler(response)
 
   let json = json_decode(a:response.body)
 
-  let symbol = type(json.symbol) == v:t_list ? json.symbol[0] : json.symbol
+  let sym = type(json.symbol) == v:t_list ? json.symbol[0] : json.symbol
+  let symbol = g:kite#document#Document.New(sym)
+
   let report = json.report
 
   call s:openKiteWindow()
   silent %d _
 
   let s:clickables = {}
-  let kind = symbol.value[0].kind
+  let kind = symbol.dig('value[0].kind', '')
   let winwidth = winwidth(0) - 8  " subtract a safe 8 for sign column, line number columns, fold column.
 
   if kind ==# 'function'
@@ -38,24 +40,26 @@ function! kite#hover#handler(response)
     " 1. Name of function with parameters.  Label: "function"
 
     " a. Name
-    let name = symbol.value[0].repr
+    let name = symbol.dig('value[0].repr', '')
     " b. Parameters
     let parameters = []
-    for parameter in kite#utils#coerce(symbol.value[0].details.function, 'parameters', [])
+    for parameter in symbol.dig('value[0].details.function.parameters', [])
       " i. name
       call add(parameters, parameter.name)
     endfor
     " ii. vararg indicator
-    if has_key(symbol.value[0].details.function.language_details.python, 'vararg')
-      call add(parameters, '*'.symbol.value[0].details.function.language_details.python.vararg.name)
+    let v = symbol.dig('value[0].details.function.language_details.python.vararg.name', '')
+    if v != ''
+      call add(parameters, '*'.v)
     endif
     " iii. keyword arguments indicator
-    if has_key(symbol.value[0].details.function.language_details.python, 'kwarg')
-      call add(parameters, '**'.symbol.value[0].details.function.language_details.python.kwarg.name)
+    let v = symbol.dig('value[0].details.function.language_details.python.kwarg.name', '')
+    if v != ''
+      call add(parameters, '**'.v)
     endif
     let fn_name = name.'('.join(parameters, ', ').')'
     " c. Label 'function'
-    let label = symbol.value[0].kind
+    let label = symbol.dig('value[0].kind', '')
 
     let padding = '    '
     let left_width = winwidth - len(label) - len(padding)
@@ -67,13 +71,14 @@ function! kite#hover#handler(response)
     " 2. Function's popular patterns
 
     let patterns = []
-    for signature in kite#utils#coerce(symbol.value[0].details.function, 'signatures', [])
+    for signature in symbol.dig('value[0].details.function.signatures', [])
+      let sigdoc = g:kite#document#Document.New(signature)
       " i. name of function
-      let name = symbol.name
+      let name = symbol.dig('name', '')
       " ii. arguments
-      let arguments = map(copy(kite#utils#coerce(signature, 'args', [])), {_,v -> v.name})
+      let arguments = map(copy(sigdoc.dig('args', [])), {_,v -> v.name})
       " iii. keyword arguments
-      for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
+      for kwarg in sigdoc.dig('language_details.python.kwargs', [])
         call add(arguments, kwarg.name.'='.join(map(filter(copy(kwarg.types), '!empty(v:val.examples)'), {_,v -> v.examples[0]}), '|'))
       endfor
       call add(patterns, name.'('.join(arguments, ', ').')')
@@ -87,9 +92,10 @@ function! kite#hover#handler(response)
     " 3. Parameters and their types.
 
     let parameters = []
-    for parameter in kite#utils#coerce(symbol.value[0].details.function, 'parameters', [])
+    for parameter in symbol.dig('value[0].details.function.parameters', [])
+      let paramdoc = g:kite#document#Document.New(parameter)
       " i. name; ii. types
-      call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
+      call add(parameters, [parameter.name, kite#utils#map_join(paramdoc.dig('inferred_value', []), 'repr', ' | ')])
     endfor
     if !empty(parameters)
       call s:section('PARAMETERS')
@@ -100,9 +106,10 @@ function! kite#hover#handler(response)
     " 4. Keyword arguments
 
     let kwargs = []
-    for kwarg in kite#utils#coerce(symbol.value[0].details.function.language_details.python, 'kwarg_parameters', [])
+    for kwarg in symbol.dig('value[0].details.function.language_details.python.kwarg_parameters', [])
+      let kwargdoc = g:kite#document#Document.New(kwarg)
       " i. name; ii. types
-      call add(kwargs, [kwarg.name, kite#utils#map_join(kite#utils#coerce(kwarg, 'inferred_value', []),'repr', ' | ')])
+      call add(kwargs, [kwarg.name, kite#utils#map_join(kwargdoc.dig('inferred_value', []),'repr', ' | ')])
     endfor
     if !empty(kwargs)
       call s:section('KEYWORD ARGUMENTS')
@@ -111,7 +118,7 @@ function! kite#hover#handler(response)
 
 
     " 5. Returns
-    let returns = kite#utils#map_join(kite#utils#coerce(symbol.value[0].details.function, 'return_value', []), 'repr', ' | ')
+    let returns = kite#utils#map_join(symbol.dig('value[0].details.function.return_value', []), 'repr', ' | ')
     if !empty(returns)
       call s:section('RETURNS')
       call s:content(returns)
@@ -122,9 +129,9 @@ function! kite#hover#handler(response)
     " 1. Name of module.  Label: "module"
 
     " a. Name
-    let name = symbol.value[0].repr
+    let name = symbol.dig('value[0].repr', '')
     " b. Label
-    let label = symbol.value[0].kind
+    let label = symbol.dig('value[0].kind', '')
 
     let padding = winwidth - len(name) - len(label)
     call s:section(kite#utils#columnise([[name, label]], repeat(' ', padding)), 1)
@@ -132,16 +139,17 @@ function! kite#hover#handler(response)
     " 2. Top members
 
     " a.i, a.ii
-    let members = map(copy(symbol.value[0].details.module.members), {_,v -> [v.name, v.value[0].kind]})
+    let members = map(copy(symbol.dig('value[0].details.module.members', [])), {_,v -> [v.name, v.value[0].kind]})
     if !empty(members)
       call s:section('POPULAR MEMBERS')
       let members_with_types = kite#utils#columnise(members, '    ')
       let i = 0
+      let module = symbol.dig('value[0].details.module', {})
       for line in members_with_types
         call s:content(line)
         let s:clickables[line('$')] = {
               \   'type': 'symbol_report',
-              \   'id': symbol.value[0].details.module.members[i].id
+              \   'id': module.members[i].id
               \ }
         let i += 1
       endfor
@@ -151,22 +159,25 @@ function! kite#hover#handler(response)
     " 1. Name of type.  Label: type
 
     " a. Name
-    let name = symbol.value[0].repr
+    let name = symbol.dig('value[0].repr', '')
     " b. Label
-    let label = symbol.value[0].kind
+    let label = symbol.dig('value[0].kind', '')
     " c. Constructor
     let parameters = []
-    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
-      let constructor = symbol.value[0].details.type.language_details.python.constructor
+    let constructor = symbol.dig('value[0].details.type.language_details.python.constructor', {})
+    if !empty(constructor)
+      let condoc = g:kite#document#Document.New(constructor)
       " i. Parameters
-      let parameters = map(copy(kite#utils#coerce(constructor, 'parameters', [])), {_,v -> v.name})
+      let parameters = map(copy(condoc.dig('parameters', [])), {_,v -> v.name})
       " ii. Vararg indicator
-      if has_key(constructor.language_details.python, 'vararg')
-        call add(parameters, '*'.constructor.language_details.python.vararg.name)
+      let v = condoc.dig('language_details.python.vararg.name', '')
+      if v != ''
+        call add(parameters, '*'.v)
       endif
       " iii. Keyword arguments indicator
-      if has_key(constructor.language_details.python, 'kwarg')
-        call add(parameters, '**'.constructor.language_details.python.kwarg.name)
+      let v = condoc.dig('language_details.python.kwarg.name', '')
+      if v != ''
+        call add(parameters, '**'.v)
       endif
     endif
 
@@ -179,23 +190,26 @@ function! kite#hover#handler(response)
 
     " 2. Popular constructor patterns
 
-    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
-      let constructor = symbol.value[0].details.type.language_details.python.constructor
 
+    let constructor = symbol.dig('value[0].details.type.language_details.python.constructor', {})
+    if !empty(constructor)
       if len(constructor.signatures) > 0
         call s:section('POPULAR CONSTRUCTOR PATTERNS')
       endif
 
       " a. Popular pattern
       for signature in constructor.signatures
+        let sigdoc = g:kite#document#Document.New(signature)
+
         let arguments = []
         " i. Name of function
-        let name = symbol.name
+        let name = symbol.dig('name', '')
         " ii. Arguments
         call add(arguments, signature.args)
         " iii. Keyword arguments
-        if kite#utils#present(signature.language_details.python, 'kwargs')
-          call add(arguments, map(copy(signature.language_details.python.kwargs), {_,v -> v.name.'='.kite#utils#coerce(v.types[0], 'examples', [''])[0]}))
+        let kwargs = sigdoc.dig('language_details.python.kwargs', [])
+        if !empty(kwargs)
+          call add(arguments, map(copy(kwargs), {_,v -> v.name.'='.kite#utils#coerce(v.types[0], 'examples', [''])[0]}))
         endif
 
         call s:content(name.'('.join(arguments, ', ').')')
@@ -204,11 +218,12 @@ function! kite#hover#handler(response)
 
     " 3. Constructor parameters
 
-    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
-      let constructor = symbol.value[0].details.type.language_details.python.constructor
+    let constructor = symbol.dig('value[0].details.type.language_details.python.constructor', {})
+    if !empty(constructor)
+      let condoc = g:kite#document#Document.New(constructor)
       " a. Parameters
       let parameters = []
-      for parameter in kite#utils#dig(constructor, 'language_details.parameters', [])
+      for parameter in condoc.dig('language_details.parameters', [])
         " i. Name, ii. Type
         call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
       endfor
@@ -220,11 +235,12 @@ function! kite#hover#handler(response)
 
     " 4. Constructor **kwargs
 
-    if kite#utils#present(symbol.value[0].details.type.language_details.python, 'constructor')
-      let constructor = symbol.value[0].details.type.language_details.python.constructor
+    let constructor = symbol.dig('value[0].details.type.language_details.python.constructor', {})
+    if !empty(constructor)
+      let condoc = g:kite#document#Document.New(constructor)
       " a. Kwarg
       let parameters = []
-      for parameter in kite#utils#dig(constructor, 'language_details.python.kwarg_parameters', [])
+      for parameter in condoc.dig('language_details.python.kwarg_parameters', [])
         " i. Name, ii. Type
         call add(parameters, [parameter.name, kite#utils#map_join(kite#utils#coerce(parameter, 'inferred_value', []), 'repr', ' | ')])
       endfor
@@ -238,16 +254,18 @@ function! kite#hover#handler(response)
 
     " a. Member
     " i. Name, ii. Id
-    let members = map(copy(symbol.value[0].details.type.members), {_,v -> [v.name, !empty(v.value) ? v.value[0].kind : '']})
+    let members = symbol.dig('value[0].details.type.members', [])
     if !empty(members)
+      let members_with_kind = map(copy(members), {_,v -> [v.name, !empty(v.value) ? v.value[0].kind : '']})
       call s:section('POPULAR MEMBERS')
-      let members_with_types = kite#utils#columnise(members, '    ')
+      let members_with_types = kite#utils#columnise(members_with_kind, '    ')
       let i = 0
       for line in members_with_types
         call s:content(line)
+
         let s:clickables[line('$')] = {
               \   'type': 'symbol_report',
-              \   'id': symbol.value[0].details.type.members[i].id
+              \   'id': members[i].id
               \ }
         let i += 1
       endfor
@@ -258,9 +276,9 @@ function! kite#hover#handler(response)
     " 1. Name of instance.  Label: {type of instance}
 
     " a. Name
-    let name = symbol.value[0].repr
+    let name = symbol.dig('value[0].repr', '')
     " b. Type
-    let type = symbol.value[0].type
+    let type = symbol.dig('value[0].type', '')
 
     let padding = winwidth - len(name) - len(type)
     call s:section(kite#utils#columnise([[name, type]], repeat(' ', padding)), 1)
@@ -281,7 +299,7 @@ function! kite#hover#handler(response)
     call s:content('-> Online documentation')
     let s:clickables[line('$')] = {
           \   'type': 'doc',
-          \   'id': symbol.value[0].id
+          \   'id': symbol.dig('value[0].id', '')
           \ }
   endif
 
@@ -314,13 +332,15 @@ function! kite#hover#handler(response)
   endif
 
 
-  if !empty(report.definition) && !empty(report.definition.filename)
+  let report_doc = g:kite#document#Document.New(report)
+  let [filename, line] = [report_doc.dig('definition.filename', ''), report_doc.dig('definition.line', '')]
+  if !empty(filename)
     call s:section('DEFINITION')
-    call s:content(fnamemodify(report.definition.filename, ':t').':'.report.definition.line)
+    call s:content(fnamemodify(filename, ':t').':'.line)
     let s:clickables[line('$')] = {
           \   'type': 'jump',
-          \   'file': report.definition.filename,
-          \   'line': report.definition.line
+          \   'file': filename,
+          \   'line': line
           \ }
   endif
 

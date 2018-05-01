@@ -135,3 +135,26 @@ function Test_base64()
   call assert_equal('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=', kite#base64#encode('abcdefghijklmnopqrstuvwxyz'))
   call assert_equal('abcdefghijklmnopqrstuvwxyz', kite#base64#decode('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo='))
 endfunction
+
+
+function Test_document()
+  let doc = g:kite#document#Document.New({'x': 42, 'y': ['a', 'b', {'c': [153]}], 'z': v:t_none})
+
+  " number value
+  call assert_equal(42, doc.dig('x', -1))
+  " list value
+  call assert_equal(['a', 'b', {'c': [153]}], doc.dig('y', []))
+  " list access
+  call assert_equal({'c': [153]}, doc.dig('y[-1]', {}))
+  " nested list access
+  call assert_equal(153, doc.dig('y[-1].c[0]', 0))
+
+  " unknown key
+  call assert_equal(-1, doc.dig('a', -1))
+  " non-existent index
+  call assert_equal({}, doc.dig('y[5]', {}))
+  " wrong type
+  call assert_equal('', doc.dig('x', ''))
+  " none
+  call assert_equal([], doc.dig('z.foo', []))
+endfunction
