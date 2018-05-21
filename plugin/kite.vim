@@ -60,6 +60,11 @@ augroup END
 
 nnoremap <silent> <Plug>(kite-hover) :call kite#hover#hover()<CR>
 
+command! KiteDocsAtCursor call kite#hover#hover()
+command! KiteOpenSidebar  call kite#hover#openKiteWindow()
+command! KiteCloseSidebar call kite#hover#closeKiteWindow()
+command! KiteOpenCopilot  call kite#client#copilot()
+
 command! KiteTour call kite#utils#generate_help() | help kite
 
 command! KiteEnableEditorMetrics :call kite#metrics#enable_editor_metrics()
