@@ -8,9 +8,20 @@ let s:webapp_path  = '/clientapi/desktoplogin?d='
 let s:status_path  = '/clientapi/status?filename='
 let s:user_path    = '/clientapi/user'
 let s:plan_path    = '/clientapi/plan'
+let s:copilot_path = '/clientapi/sidebar/open'
 let s:counter_path = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
 let s:segment_path = 'https://api.segment.io/v1/track'
+
+
+function! kite#client#copilot()
+  let path = s:copilot_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+endfunction
 
 
 function! kite#client#counter(json, handler)

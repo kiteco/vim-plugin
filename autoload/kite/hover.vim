@@ -29,7 +29,7 @@ function! kite#hover#handler(response)
 
   let report = json.report
 
-  call s:openKiteWindow()
+  call kite#hover#openKiteWindow()
   silent %d _
 
   let s:clickables = {}
@@ -351,7 +351,18 @@ function! kite#hover#handler(response)
 endfunction
 
 
-function! s:openKiteWindow()
+function! kite#hover#closeKiteWindow()
+  for buf in [s:kite_examples_window, s:kite_window]
+    try
+      execute 'bdelete' bufnr(buf)
+    catch /E94/
+      " buffer doesn't exist - noop
+    endtry
+  endfor
+endfunction
+
+
+function! kite#hover#openKiteWindow()
   let t:source_buffer = bufnr('%')
   let win = bufwinnr(s:kite_window)
   if win != -1
