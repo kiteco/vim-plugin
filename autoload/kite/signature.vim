@@ -5,8 +5,8 @@ function! kite#signature#handler(response) abort
   endif
 
   let json = json_decode(a:response.body)
-  let call = json.calls[0]
-  let function_name = split(call.callee.repr, '\.')[-1]
+  let call = g:kite#document#Document.New(json.calls[0])
+  let function_name = split(call.dig('callee.repr', ''), '\.')[-1]
   let spacer = {'word': '', 'empty': 1, 'dup': 1}
   let indent = '  '
   let completions = []
@@ -18,19 +18,17 @@ function! kite#signature#handler(response) abort
   "
   call add(completions, s:heading('Signature'))
 
-  let fn = call.callee.details.function
   let parameters = []
 
-  if empty(fn)
+  if empty(call.dig('callee.details.function', {}))
     call add(parameters, '')
 
   else
     " 1. Name of function with parameters.
-    let parameters = []
-    let [current_arg, in_kwargs] = [call.arg_index, call.language_details.python.in_kwargs]
+    let [current_arg, in_kwargs] = [call.dig('arg_index', 0), call.dig('language_details.python.in_kwargs', 0)]
 
     " 1.b Parameters
-    for parameter in kite#utils#dig(call.callee.details.function, 'parameters', [])
+    for parameter in call.dig('callee.details.function.parameters', [])
       " i. Parameter
       let name = parameter.name
       if kite#utils#present(parameter.language_details.python, 'default_value')
@@ -44,13 +42,15 @@ function! kite#signature#handler(response) abort
     endfor
 
     " ii. vararg indicator
-    if kite#utils#present(call.callee.details.function.language_details.python, 'vararg')
-      call add(parameters, '*'.call.callee.details.function.language_details.python.vararg.name)
+    let vararg = call.dig('callee.details.function.language_details.python.vararg', {})
+    if !empty(vararg)
+      call add(parameters, '*'.vararg.name)
     endif
 
     " iii. keyword arguments indicator
-    if kite#utils#present(call.callee.details.function.language_details.python, 'kwarg')
-      call add(parameters, '**'.call.callee.details.function.language_details.python.kwarg.name)
+    let kwarg = call.dig('callee.details.function.language_details.python.kwarg', {})
+    if !empty(kwarg)
+      call add(parameters, '**'.kwarg.name)
     endif
   endif
 
@@ -67,11 +67,12 @@ function! kite#signature#handler(response) abort
 
 
   " 3. Keyword arguments
-  if !empty(fn) && has_key(fn, 'kwarg_parameters') && type(fn.kwarg_parameters) == v:t_list
+  let kwarg_parameters = call.dig('callee.details.function.kwarg_parameters', [])
+  if !empty(kwarg_parameters)
     call add(completions, spacer)
     call add(completions, s:heading('**kw'))
 
-    for kwarg in call.callee.details.function.kwarg_parameters
+    for kwarg in kwarg_parameters
       let name = kwarg.name
       let types = kite#utils#map_join(kwarg.inferred_value, 'repr', '|')
       if empty(types)
@@ -91,22 +92,23 @@ function! kite#signature#handler(response) abort
 
   " 4. Popular patterns
   if kite#plan#is_pro()
-    let signatures = call.signatures
+    let signatures = call.dig('signatures', [])
     if len(signatures) > 0
       call add(completions, spacer)
       call add(completions, s:heading('How Others Used This'))
     endif
 
     for signature in signatures
+      let sigdoc = g:kite#document#Document.New(signature)
 
       " b. Arguments
       let arguments = []
-      for arg in kite#utils#coerce(signature, 'args', [])
+      for arg in sigdoc.dig('args', [])
         call add(arguments, arg.name)
       endfor
 
       " c. Keyword arguments
-      for kwarg in kite#utils#coerce(signature.language_details.python, 'kwargs', [])
+      for kwarg in sigdoc.dig('language_details.python.kwargs', [])
         let name = kwarg.name
         let examples = kite#utils#coerce(kwarg.types[0], 'examples', [])
         if len(examples) > 0
