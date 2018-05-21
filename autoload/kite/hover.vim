@@ -5,6 +5,7 @@ let s:kite_examples_window = '\[Kite__Example\]'
 
 
 function! kite#hover#hover()
+  if b:kite_skip | return | endif
   if wordcount().bytes > kite#max_file_size() | return | endif
 
   let filename = kite#utils#filepath(1)

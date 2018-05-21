@@ -32,11 +32,13 @@ function! kite#events#event(action)
 
   let s:events_pending += 1
 
-  call kite#client#post_event(json, function('kite#events#handler'))
+  call kite#client#post_event(json, function('kite#events#handler', [bufnr('')]))
 endfunction
 
 
-function! kite#events#handler(response)
+function! kite#events#handler(bufnr, response)
   let s:events_pending -= 1
+
+  call setbufvar(a:bufnr, 'kite_skip', a:response.status == 403)
 endfunction
 
