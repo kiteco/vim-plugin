@@ -23,8 +23,10 @@ function! kite#status#status(...)
   endif
 
   if msg !=# 'NOT SET'
-    call setbufvar(buf, 'kite_status', msg)
-    redrawstatus
+    if msg !=# getbufvar(buf, 'kite_status')
+      call setbufvar(buf, 'kite_status', msg)
+      redrawstatus
+    endif
     return
   endif
 
@@ -53,6 +55,8 @@ function! kite#status#handler(buffer, response)
     let status = 'ready'
   endif
 
-  call setbufvar(a:buffer, 'kite_status', status)
-  redrawstatus
+  if status !=# getbufvar(a:buffer, 'kite_status')
+    call setbufvar(a:buffer, 'kite_status', status)
+    redrawstatus
+  endif
 endfunction
