@@ -53,6 +53,6 @@ function! kite#status#handler(buffer, response)
     let status = 'ready'
   endif
 
-  call setbufvar(a:buffer, 'kite_status', json.status)
+  call setbufvar(a:buffer, 'kite_status', status)
   redrawstatus
 endfunction
