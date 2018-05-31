@@ -2,6 +2,8 @@
 "
 " Optional argument is a timer id (when called by a timer).
 function! kite#status#status(...)
+  if !s:status_in_status_line() | return | endif
+
   let buf = bufnr('')
   let msg = 'NOT SET'
 
@@ -60,3 +62,9 @@ function! kite#status#handler(buffer, response)
     redrawstatus
   endif
 endfunction
+
+
+function! s:status_in_status_line()
+  return stridx(&statusline, 'kite#statusline()') != -1
+endfunction
+
