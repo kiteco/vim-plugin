@@ -67,7 +67,7 @@ command! KiteOpenCopilot  call kite#client#copilot()
 command! KiteGeneralSettings call kite#client#settings()
 command! KitePermissions  call kite#client#permissions()
 
-command! KiteTour call kite#utils#generate_help() | help kite
+command! KiteHelp call kite#utils#generate_help() | help kite
 
 command! KiteEnableEditorMetrics :call kite#metrics#enable_editor_metrics()
 command! KiteDisableEditorMetrics :call kite#metrics#disable_editor_metrics()
