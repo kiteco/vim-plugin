@@ -353,11 +353,10 @@ endfunction
 
 function! kite#hover#closeKiteWindow()
   for buf in [s:kite_examples_window, s:kite_window]
-    try
-      execute 'bdelete' bufnr(buf)
-    catch /E94/
-      " buffer doesn't exist - noop
-    endtry
+    let win = bufwinnr(buf)
+    if win != -1
+      execute win.'wincmd c'
+    endif
   endfor
 endfunction
 
