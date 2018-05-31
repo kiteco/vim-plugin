@@ -138,6 +138,8 @@ let g:kite_override_sign_column_highlight=0
 - `KiteOpenSidebar` - open the Kite sidebar within Vim.
 - `KiteCloseSidebar` - close the Kite sidebar within Vim.
 - `KiteOpenCopilot` - open the Kite Copilot and focus on it.
+- `KiteGeneralSettings` - open Kite's settings in the Copilot.
+- `KitePermissions` - open Kite's permission settings in the Copilot.
 - `KiteHelp` - show overview documentation.
 
 
