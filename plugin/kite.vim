@@ -65,6 +65,7 @@ command! KiteOpenSidebar  call kite#hover#openKiteWindow()
 command! KiteCloseSidebar call kite#hover#closeKiteWindow()
 command! KiteOpenCopilot  call kite#client#copilot()
 command! KiteGeneralSettings call kite#client#settings()
+command! KitePermissions  call kite#client#permissions()
 
 command! KiteTour call kite#utils#generate_help() | help kite
 
