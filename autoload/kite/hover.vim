@@ -380,7 +380,7 @@ function! s:setupKiteWindow()
     call s:openKiteExamplesWindow()
     silent execute 'keepjumps keepalt above split '.s:kite_window
   endif
-  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
   set filetype=kite
 
   " Use the sign column as a margin between the window divider and our content.
