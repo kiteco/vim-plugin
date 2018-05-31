@@ -1,18 +1,18 @@
-let s:port         = 46624
-let s:channel_base = 'localhost:'.s:port
-let s:base_url     = 'http://127.0.0.1:'.s:port
-let s:editor_path  = '/clientapi/editor'
-let s:hover_path   = '/api/buffer/vim'
-let s:example_path = '/api/python/curation'
-let s:webapp_path  = '/clientapi/desktoplogin?d='
-let s:status_path  = '/clientapi/status?filename='
-let s:user_path    = '/clientapi/user'
-let s:plan_path    = '/clientapi/plan'
-let s:copilot_path = '/clientapi/sidebar/open'
-let s:counter_path = '/clientapi/metrics/counters'
+let s:port               = 46624
+let s:channel_base       = 'localhost:'.s:port
+let s:base_url           = 'http://127.0.0.1:'.s:port
+let s:editor_path        = '/clientapi/editor'
+let s:hover_path         = '/api/buffer/vim'
+let s:example_path       = '/api/python/curation'
+let s:webapp_path        = '/clientapi/desktoplogin?d ='
+let s:status_path        = '/clientapi/status?filename='
+let s:user_path          = '/clientapi/user'
+let s:plan_path          = '/clientapi/plan'
+let s:copilot_path       = '/clientapi/sidebar/open'
+let s:counter_path       = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
-let s:segment_path = 'https://api.segment.io/v1/track'
-let s:permissions_path = 'kite://settings/permissions'
+let s:segment_path       = 'https://api.segment.io/v1/track'
+let s:permissions_path   = 'kite://settings/permissions'
 
 
 function! kite#client#settings()
