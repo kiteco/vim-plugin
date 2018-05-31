@@ -12,6 +12,17 @@ let s:copilot_path = '/clientapi/sidebar/open'
 let s:counter_path = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
 let s:segment_path = 'https://api.segment.io/v1/track'
+let s:settings_path = 'kite://settings'
+
+
+function! kite#client#settings()
+  if kite#utils#windows()
+    let cmd = 'start "" "'.s:settings_path.'"'
+  else
+    let cmd = 'open "'.s:settings_path.'"'
+  endif
+  silent call system(cmd)
+endfunction
 
 
 function! kite#client#copilot()
