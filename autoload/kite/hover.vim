@@ -29,7 +29,7 @@ function! kite#hover#handler(response)
 
   let report = json.report
 
-  call s:openKiteWindow()
+  call kite#hover#openKiteWindow()
   silent %d _
 
   let s:clickables = {}
@@ -351,7 +351,17 @@ function! kite#hover#handler(response)
 endfunction
 
 
-function! s:openKiteWindow()
+function! kite#hover#closeKiteWindow()
+  for buf in [s:kite_examples_window, s:kite_window]
+    let win = bufwinnr(buf)
+    if win != -1
+      execute win.'wincmd c'
+    endif
+  endfor
+endfunction
+
+
+function! kite#hover#openKiteWindow()
   let t:source_buffer = bufnr('%')
   let win = bufwinnr(s:kite_window)
   if win != -1
@@ -369,7 +379,7 @@ function! s:setupKiteWindow()
     call s:openKiteExamplesWindow()
     silent execute 'keepjumps keepalt above split '.s:kite_window
   endif
-  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
   set filetype=kite
 
   " Use the sign column as a margin between the window divider and our content.

@@ -1,16 +1,48 @@
-let s:port         = 46624
-let s:channel_base = 'localhost:'.s:port
-let s:base_url     = 'http://127.0.0.1:'.s:port
-let s:editor_path  = '/clientapi/editor'
-let s:hover_path   = '/api/buffer/vim'
-let s:example_path = '/api/python/curation'
-let s:webapp_path  = '/clientapi/desktoplogin?d='
-let s:status_path  = '/clientapi/status?filename='
-let s:user_path    = '/clientapi/user'
-let s:plan_path    = '/clientapi/plan'
-let s:counter_path = '/clientapi/metrics/counters'
+let s:port               = 46624
+let s:channel_base       = 'localhost:'.s:port
+let s:base_url           = 'http://127.0.0.1:'.s:port
+let s:editor_path        = '/clientapi/editor'
+let s:hover_path         = '/api/buffer/vim'
+let s:example_path       = '/api/python/curation'
+let s:webapp_path        = '/clientapi/desktoplogin?d ='
+let s:status_path        = '/clientapi/status?filename='
+let s:user_path          = '/clientapi/user'
+let s:plan_path          = '/clientapi/plan'
+let s:copilot_path       = '/clientapi/sidebar/open'
+let s:counter_path       = '/clientapi/metrics/counters'
 let s:symbol_report_path = '/api/editor/symbol'
-let s:segment_path = 'https://api.segment.io/v1/track'
+let s:segment_path       = 'https://api.segment.io/v1/track'
+let s:permissions_path   = 'kite://settings/permissions'
+
+
+function! kite#client#settings()
+  if kite#utils#windows()
+    let cmd = 'start "" "'.s:settings_path.'"'
+  else
+    let cmd = 'open "'.s:settings_path.'"'
+  endif
+  silent call system(cmd)
+endfunction
+
+
+function! kite#client#permissions()
+  if kite#utils#windows()
+    let cmd = 'start "" "'.s:permissions_path.'"'
+  else
+    let cmd = 'open "'.s:permissions_path.'"'
+  endif
+  silent call system(cmd)
+endfunction
+
+
+function! kite#client#copilot()
+  let path = s:copilot_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+endfunction
 
 
 function! kite#client#counter(json, handler)
