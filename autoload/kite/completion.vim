@@ -1,5 +1,5 @@
 let s:should_trigger_completion = 0
-let s:signature = 0
+let s:pending = 0
 
 
 function! kite#completion#insertcharpre()
@@ -36,11 +36,64 @@ endfunction
 
 function! kite#completion#autocomplete()
   if !g:kite_auto_complete | return | endif
+  if b:kite_skip | return | endif
 
   if s:should_trigger_completion
     let s:should_trigger_completion = 0
-    call feedkeys("\<C-X>\<C-U>")
+
+    let s:pending += 1
+    call timer_start(0, function('kite#completion#get'))
   endif
+endfunction
+
+
+function! kite#completion#get(_timer)
+  let cursor = kite#utils#character_offset()
+  let text = kite#utils#buffer_contents()
+  if strlen(text) > kite#max_file_size() | return | endif
+
+  let line = getline('.')
+  let s:start = col('.') - 1
+
+  let signature = s:before_function_call_argument(line[:s:start-1])
+
+  if !signature
+    while s:start > 0 && line[s:start - 1] =~ '\w'
+      let s:start -= 1
+    endwhile
+  endif
+
+  let filename = kite#utils#filepath(0)
+
+  let params = {
+        \   'filename':     filename,
+        \   'editor':       'vim',
+        \   'text':         text,
+        \   'cursor_runes': cursor
+        \ }
+
+  let json = json_encode(params)
+
+  if s:pending > 1
+    let s:pending -= 1
+    return
+  endif
+
+  if signature
+    let s:completions = kite#client#signatures(json, function('kite#signature#handler'))
+  else
+    let s:completions = kite#client#completions(json, function('kite#completion#handler'))
+  endif
+
+  if s:pending > 1
+    let s:pending -= 1
+    return
+  endif
+
+  call kite#utils#log('go for complete '.s:start.' // '.len(s:completions))
+
+  let s:pending -= 1
+  call feedkeys("\<C-X>\<C-U>")
 endfunction
 
 
@@ -50,50 +103,13 @@ function! kite#completion#backspace()
 endfunction
 
 
+" NOTE: remember manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
   if a:findstart
-    " Store the buffer contents and cursor position here because when Vim
-    " calls this function the second time (with a:findstart == 0) Vim has
-    " already deleted the text between `start` and the cursor position.
-    let s:cursor = kite#utils#character_offset()
-    let s:text = kite#utils#buffer_contents()
-    if strlen(s:text) > kite#max_file_size() | return -3 | endif
-
-    let line = getline('.')
-    let start = col('.') - 1
-
-    let s:signature = s:before_function_call_argument(line[:start-1])
-
-    if s:signature
-      return start
-    endif
-
-    while start > 0 && line[start - 1] =~ '\w'
-      let start -= 1
-    endwhile
-    return start
+    return s:start
 
   else
-    let filename = kite#utils#filepath(0)
-    let [text, cursor] = [s:text, s:cursor]
-    unlet s:text s:cursor
-
-    let params = {
-          \   'filename':     filename,
-          \   'editor':       'vim',
-          \   'text':         text,
-          \   'cursor_runes': cursor
-          \ }
-
-    let json = json_encode(params)
-
-    if exists('b:kite_skip') && b:kite_skip | return [] | endif
-
-    if s:signature
-      return kite#client#signatures(json, function('kite#signature#handler'))
-    else
-      return kite#client#completions(json, function('kite#completion#handler'))
-    endif
+    return s:completions
   endif
 endfunction
 
