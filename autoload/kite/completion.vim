@@ -85,14 +85,12 @@ function! kite#completion#get(_timer)
     let s:completions = kite#client#completions(json, function('kite#completion#handler'))
   endif
 
-  if s:pending > 1
-    let s:pending -= 1
+  let s:pending -= 1
+
+  if s:pending
     return
   endif
 
-  call kite#utils#log('go for complete '.s:start.' // '.len(s:completions))
-
-  let s:pending -= 1
   call feedkeys("\<C-X>\<C-U>")
 endfunction
 
