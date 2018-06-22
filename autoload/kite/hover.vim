@@ -206,13 +206,11 @@ function! kite#hover#handler(response)
         " i. Name of function
         let name = symbol.dig('name', '')
         " ii. Arguments
-        call add(arguments, signature.args)
+        let arguments = map(copy(sigdoc.dig('args', [])), {_,v -> v.name})
         " iii. Keyword arguments
-        let kwargs = sigdoc.dig('language_details.python.kwargs', [])
-        if !empty(kwargs)
-          call add(arguments, map(copy(kwargs), {_,v -> v.name.'='.kite#utils#coerce(v.types[0], 'examples', [''])[0]}))
-        endif
-
+        for kwarg in sigdoc.dig('language_details.python.kwargs', [])
+          call add(arguments, kwarg.name.'='.join(map(filter(copy(kwarg.types), '!empty(v:val.examples)'), {_,v -> v.examples[0]}), '|'))
+        endfor
         call s:content(name.'('.join(arguments, ', ').')')
       endfor
     endif
