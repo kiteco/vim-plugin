@@ -6,7 +6,13 @@ function! kite#signature#handler(response) abort
 
   let json = json_decode(a:response.body)
   let call = g:kite#document#Document.New(json.calls[0])
-  let function_name = split(call.dig('callee.repr', ''), '\.')[-1]
+
+  let function_name = call.dig('func_name', '')
+  if empty(function_name)
+    let function_name = call.dig('callee.repr', '')
+  endif
+  let function_name = split(function_name, '\.')[-1]
+
   let spacer = {'word': '', 'empty': 1, 'dup': 1}
   let indent = '  '
   let completions = []
