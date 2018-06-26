@@ -104,6 +104,11 @@ function! kite#completion#handler(response) abort
     return []
   endif
 
+  " This should not happen but evidently it sometimes does (#107).
+  if empty(a:response.body)
+    return []
+  endif
+
   let json = json_decode(a:response.body)
 
   " API should return 404 status when no completions but it sometimes
