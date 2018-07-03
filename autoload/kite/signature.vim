@@ -25,18 +25,16 @@ function! kite#signature#handler(response) abort
   call add(completions, s:heading('Signature'))
 
   let parameters = []
+  let [current_arg, in_kwargs] = [call.dig('arg_index', 0), call.dig('language_details.python.in_kwargs', 0)]
+  let kind = call.dig('callee.kind', '')
 
-  if empty(call.dig('callee.details.function', {}))
-    call add(parameters, '')
-
-  else
-    " 1. Name of function with parameters.
-    let [current_arg, in_kwargs] = [call.dig('arg_index', 0), call.dig('language_details.python.in_kwargs', 0)]
-
-    " 1.b Parameters
+  " 1. Name of function with parameters.
+  if kind ==# 'function'
+    " 1.b.1. Parameters
     for parameter in call.dig('callee.details.function.parameters', [])
-      " i. Parameter
+      " 1.b.1.a. Name
       let name = parameter.name
+      " 1.b.1.b. Default value
       if kite#utils#present(parameter.language_details.python, 'default_value')
         let name .= '='.parameter.language_details.python.default_value[0].repr
       endif
@@ -46,17 +44,41 @@ function! kite#signature#handler(response) abort
       endif
       call add(parameters, name)
     endfor
-
-    " ii. vararg indicator
+    " 1.b.2. vararg indicator
     let vararg = call.dig('callee.details.function.language_details.python.vararg', {})
     if !empty(vararg)
       call add(parameters, '*'.vararg.name)
     endif
-
-    " iii. keyword arguments indicator
+    " 1.b.3. keyword arguments indicator
     let kwarg = call.dig('callee.details.function.language_details.python.kwarg', {})
     if !empty(kwarg)
       call add(parameters, '**'.kwarg.name)
+    endif
+
+  elseif kind ==# 'type'
+    " 1.c.1. Parameters
+    for parameter in call.dig('callee.details.type.language_details.python.constructor.parameters', [])
+      " 1.c.1.a. Name
+      let name = parameter.name
+      " 1.c.1.b. Default value
+      if kite#utils#present(parameter.language_details.python, 'default_value')
+        let name .= '='.parameter.language_details.python.default_value[0].repr
+      endif
+      " 2. Highlight current argument
+      if !in_kwargs && len(parameters) == current_arg
+        let name = '*'.name.'*'
+      endif
+      call add(parameters, name)
+    endfor
+    " 1.c.2. vararg indicator
+    let vararg = call.dig('callee.details.type.language_details.python.constructor.language_details.python.vararg', {})
+    if !empty(vararg)
+      call add(parameters, '*'.vararg.name)
+    endif
+    " 1.c.3. keyword arguments indicator
+    let kwarg = call.dig('callee.details.type.language_details.python.constructor.language_details.python.kwarg', {})
+    if !empty(kwarg)
+      call add(parameters, '*'.kwarg.name)
     endif
   endif
 
