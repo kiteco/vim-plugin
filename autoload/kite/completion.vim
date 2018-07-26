@@ -87,7 +87,7 @@ function! kite#completion#complete(findstart, base)
 
     let json = json_encode(params)
 
-    if b:kite_skip | return [] | endif
+    if exists('b:kite_skip') && b:kite_skip | return [] | endif
 
     if s:signature
       return kite#client#signatures(json, function('kite#signature#handler'))
