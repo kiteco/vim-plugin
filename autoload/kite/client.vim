@@ -17,7 +17,7 @@ let s:permissions_path   = 'kite://settings/permissions'
 
 function! kite#client#settings()
   if kite#utils#windows()
-    let cmd = 'start "" "'.s:settings_path.'"'
+    let cmd = 'cmd /c start "" "'.s:settings_path.'"'
   else
     let cmd = 'open "'.s:settings_path.'"'
   endif
@@ -27,7 +27,7 @@ endfunction
 
 function! kite#client#permissions()
   if kite#utils#windows()
-    let cmd = 'start "" "'.s:permissions_path.'"'
+    let cmd = 'cmd /c start "" "'.s:permissions_path.'"'
   else
     let cmd = 'open "'.s:permissions_path.'"'
   endif
@@ -37,7 +37,7 @@ endfunction
 
 function! kite#client#copilot()
   if kite#utils#windows()
-    let cmd = 'start "" "'.s:copilot_path.'"'
+    let cmd = 'cmd /c start "" "'.s:copilot_path.'"'
   else
     let cmd = 'open "'.s:copilot_path.'"'
   endif
