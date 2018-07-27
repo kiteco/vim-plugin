@@ -84,19 +84,6 @@ function Test_cursor_characters()
 endfunction
 
 
-function Test_columnise()
-  let data = [
-        \ [ 'a',   'bb', 'ccc'   ],
-        \ [ 'aaa', 'b',  'ccccc' ]
-        \ ]
-  let expected = [
-        \ 'a   - bb - ccc  ',
-        \ 'aaa - b  - ccccc'
-        \ ]
-  call assert_equal(expected, kite#utils#columnise(data, ' - '))
-endfunction
-
-
 function Test_map_join()
   let list = [ {'x':42}, {'x': 153} ]
   let expected = '42 - 153'
@@ -115,19 +102,6 @@ function Test_wrap()
         \ ]
 
   call assert_equal(expected, kite#utils#wrap(str, 20))
-endfunction
-
-
-function Test_zip()
-  let a = [1, 2, 3]
-  let b = [7, 8, 9]
-  let expected = [ [1,7], [2,8], [3,9] ]
-  call assert_equal(expected, kite#utils#zip(a, b, ''))
-
-  let a = [1, 2   ]
-  let b = [7, 8, 9]
-  let expected = [ [1,7], [2,8], ['',9] ]
-  call assert_equal(expected, kite#utils#zip(a, b, ''))
 endfunction
 
 

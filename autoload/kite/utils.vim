@@ -218,24 +218,6 @@ function! kite#utils#filepath(url_format)
 endfunction
 
 
-" Opens `url` in the user's browser.
-function! kite#utils#browse(url)
-  let metric = a:url =~ 'stackoverflow\.com' ? 'stackoverflow_example' : 'open_in_web'
-  call kite#metrics#requested(metric)
-
-  if !exists('g:loaded_netrw')
-    runtime! autoload/netrw.vim
-  endif
-  if exists('*netrw#BrowseX')
-    call netrw#BrowseX(a:url, 0)
-  else
-    call netrw#NetrwBrowseX(a:url, 0)
-  endif
-
-  call kite#metrics#fulfilled(metric)
-endfunction
-
-
 " Returns a 2-element list of 0-based character indices into the buffer.
 "
 " When no text is selected, both elements are the cursor position.
@@ -396,45 +378,8 @@ function! kite#utils#capitalize(str)
 endfunction
 
 
-" Converts a list of lists (rows) and returns a list of strings.
-" This left-aligns the columns and joins them with the separator.
-function! kite#utils#columnise(data, separator)
-  let maxWidths = map(copy(a:data[0]), 0)
-  for row in a:data
-    let i = 0
-    for cell in row
-      if strwidth(cell) > maxWidths[i]
-        let maxWidths[i] = strwidth(cell)
-      endif
-      let i += 1
-    endfor
-  endfor
-
-  return map(copy(a:data), {_,row ->
-        \   join(
-        \     map(copy(row), {i,v ->
-        \       printf('%-'.maxWidths[i].'s', v)
-        \     }),
-        \     a:separator)
-        \ })
-endfunction
-
-
 function! kite#utils#map_join(list, prop, sep)
   return join(map(copy(a:list), {_,v -> v[a:prop]}), a:sep)
-endfunction
-
-
-function! kite#utils#zip(list1, list2, none)
-  let result = []
-  let [len1, len2] = [len(a:list1), len(a:list2)]
-  for i in range(max([len1, len2]))
-    let e = []
-    call add(e, i < len1 ? a:list1[i] : a:none)
-    call add(e, i < len2 ? a:list2[i] : a:none)
-    call add(result, e)
-  endfor
-  return result
 endfunction
 
 

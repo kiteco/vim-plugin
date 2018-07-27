@@ -4,11 +4,6 @@ let s:editor_metrics_interval = 10 * 60 * 1000  " 10min in milliseconds
 let s:timer = -1
 
 
-if g:kite_override_sign_column_highlight
-  highlight! link SignColumn LineNr
-endif
-
-
 function kite#statusline()
   if exists('b:kite_status') && !empty(b:kite_status)
     return 'Kite: '.kite#utils#capitalize(b:kite_status)
@@ -24,10 +19,6 @@ endfunction
 
 
 function! kite#init()
-  if &pumheight == 0
-    set pumheight=10
-  endif
-
   if &updatetime == 4000
     set updatetime=100
   endif
@@ -77,7 +68,7 @@ function s:setup_events()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
-      autocmd CursorHold,CursorHoldI <buffer> call kite#hover#hover()
+      autocmd CursorHold,CursorHoldI <buffer> call kite#docs#docs()
     endif
   augroup END
 endfunction
@@ -122,8 +113,8 @@ function! s:setup_mappings()
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif
 
-  if empty(maparg('K', 'n')) && !hasmapto('(kite-hover)', 'n')
-    nmap <silent> <buffer> K <Plug>(kite-hover)
+  if empty(maparg('K', 'n')) && !hasmapto('(kite-docs)', 'n')
+    nmap <silent> <buffer> K <Plug>(kite-docs)
   endif
 endfunction
 

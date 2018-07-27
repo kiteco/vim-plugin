@@ -3,16 +3,20 @@ let s:channel_base       = 'localhost:'.s:port
 let s:base_url           = 'http://127.0.0.1:'.s:port
 let s:editor_path        = '/clientapi/editor'
 let s:hover_path         = '/api/buffer/vim'
-let s:example_path       = '/api/python/curation'
-let s:webapp_path        = '/clientapi/desktoplogin?d='
+let s:docs_path          = 'kite://docs/'
 let s:status_path        = '/clientapi/status?filename='
 let s:user_path          = '/clientapi/user'
 let s:plan_path          = '/clientapi/plan'
 let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
-let s:symbol_report_path = '/api/editor/symbol'
 let s:segment_path       = 'https://api.segment.io/v1/track'
 let s:permissions_path   = 'kite://settings/permissions'
+
+
+function! kite#client#docs(word)
+  let url = s:docs_path.a:word
+  call s:open_kite_url(url)
+endfunction
 
 
 function! kite#client#settings()
@@ -88,37 +92,10 @@ function! kite#client#plan(handler)
 endfunction
 
 
-function! kite#client#webapp_link(id)
-  call kite#utils#browse(s:base_url.s:webapp_path.kite#utils#url_encode('/docs/'.a:id))
-endfunction
-
-
-function! kite#client#example(id, handler)
-  let path = s:example_path.'/'.a:id
-  if has('channel')
-    let response = s:internal_http(path, g:kite_long_timeout)
-  else
-    let response = s:external_http(s:base_url.path, g:kite_long_timeout)
-  endif
-  return a:handler(s:parse_response(response))
-endfunction
-
-
 function! kite#client#hover(filename, hash, cursor, handler)
   call s:wait_for_pending_events()
 
   let path = s:hover_path.'/'.a:filename.'/'.a:hash.'/hover?cursor_runes='.a:cursor
-  if has('channel')
-    call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
-  else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout),
-          \ function('s:parse_and_handle', [a:handler]))
-  endif
-endfunction
-
-
-function! kite#client#symbol_report(id, handler)
-  let path = s:symbol_report_path.'/'.a:id
   if has('channel')
     call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
@@ -353,4 +330,14 @@ endfunction
 
 
 let s:http_binary = kite#utils#lib('kite-http')
+
+
+function! s:open_kite_url(url)
+  if kite#utils#windows()
+    let cmd = 'cmd /c start "" "'.a:url.'"'
+  else
+    let cmd = 'open "'.a:url.'"'
+  endif
+  silent call system(cmd)
+endfunction
 

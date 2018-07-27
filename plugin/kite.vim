@@ -11,12 +11,8 @@ if !exists('g:kite_auto_complete')
   let g:kite_auto_complete = 1
 endif
 
-if !exists('g:kite_preview_code')
-  let g:kite_preview_code = 0
-endif
-
-if !exists('g:kite_override_sign_column_highlight')
-  let g:kite_override_sign_column_highlight = 1
+if !exists('g:kite_documentation_continual')
+  let g:kite_documentation_continual = 0
 endif
 
 if !exists('g:kite_log')
@@ -58,11 +54,9 @@ augroup Kite
 augroup END
 
 
-nnoremap <silent> <Plug>(kite-hover) :call kite#hover#hover()<CR>
+nnoremap <silent> <Plug>(kite-docs) :call kite#docs#docs()<CR>
 
-command! KiteDocsAtCursor         call kite#hover#hover()
-command! KiteOpenSidebar          call kite#hover#openKiteWindow()
-command! KiteCloseSidebar         call kite#hover#closeKiteWindow()
+command! KiteDocsAtCursor         call kite#docs#docs()
 command! KiteOpenCopilot          call kite#client#copilot()
 command! KiteGeneralSettings      call kite#client#settings()
 command! KitePermissions          call kite#client#permissions()
