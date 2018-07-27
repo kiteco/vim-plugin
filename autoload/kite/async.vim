@@ -26,7 +26,7 @@ function! kite#async#sync(cmd)
   call kite#async#execute(a:cmd, function('s:async_sync_output', [async_sync_id]))
 
   while s:async_sync_outputs[async_sync_id] ==# 'PENDING'
-    sleep 5ms
+    sleep 5m
   endwhile
 
   let output = s:async_sync_outputs[async_sync_id]
