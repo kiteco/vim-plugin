@@ -20,32 +20,17 @@ endfunction
 
 
 function! kite#client#settings()
-  if kite#utils#windows()
-    let cmd = 'cmd /c start "" "'.s:settings_path.'"'
-  else
-    let cmd = 'open "'.s:settings_path.'"'
-  endif
-  silent call system(cmd)
+  call s:open_kite_url(s:settings_path)
 endfunction
 
 
 function! kite#client#permissions()
-  if kite#utils#windows()
-    let cmd = 'cmd /c start "" "'.s:permissions_path.'"'
-  else
-    let cmd = 'open "'.s:permissions_path.'"'
-  endif
-  silent call system(cmd)
+  call s:open_kite_url(s:permissions_path)
 endfunction
 
 
 function! kite#client#copilot()
-  if kite#utils#windows()
-    let cmd = 'cmd /c start "" "'.s:copilot_path.'"'
-  else
-    let cmd = 'open "'.s:copilot_path.'"'
-  endif
-  silent call system(cmd)
+  call s:open_kite_url(s:copilot_path)
 endfunction
 
 
