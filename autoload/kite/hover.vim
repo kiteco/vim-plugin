@@ -14,7 +14,13 @@ function! kite#hover#handler(response)
   if a:response.status == 200
     let json = json_decode(a:response.body)
     let sym = type(json.symbol) == v:t_list ? json.symbol[0] : json.symbol
-    let b:kite_id = sym.id
+    let id = sym.id
+    if empty(id)
+      let b:kite_id = -1
+    else
+      let b:kite_id = id
+    endif
+
   else
     let b:kite_id = -1
   endif
