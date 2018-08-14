@@ -104,8 +104,6 @@ endfunction
 
 
 function! kite#client#completions(json, handler)
-  call s:wait_for_pending_events()
-
   let path = s:editor_path.'/completions'
   if has('channel')
     let response = s:internal_http(path, g:kite_long_timeout, a:json)
