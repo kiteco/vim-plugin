@@ -41,56 +41,11 @@ function! kite#completion#autocomplete()
   if s:should_trigger_completion
     let s:should_trigger_completion = 0
 
-    let s:pending += 1
-    call timer_start(0, function('kite#completion#get'))
+    call timer_start(0, function('s:invoke_complete'))
   endif
 endfunction
 
-
-function! kite#completion#get(_timer)
-  let cursor = kite#utils#character_offset()
-  let text = kite#utils#buffer_contents()
-  if strlen(text) > kite#max_file_size() | return | endif
-
-  let line = getline('.')
-  let s:start = col('.') - 1
-
-  let signature = s:before_function_call_argument(line[:s:start-1])
-
-  if !signature
-    while s:start > 0 && line[s:start - 1] =~ '\w'
-      let s:start -= 1
-    endwhile
-  endif
-
-  let filename = kite#utils#filepath(0)
-
-  let params = {
-        \   'filename':     filename,
-        \   'editor':       'vim',
-        \   'text':         text,
-        \   'cursor_runes': cursor
-        \ }
-
-  let json = json_encode(params)
-
-  if s:pending > 1
-    let s:pending -= 1
-    return
-  endif
-
-  if signature
-    let s:completions = kite#client#signatures(json, function('kite#signature#handler'))
-  else
-    let s:completions = kite#client#completions(json, function('kite#completion#handler'))
-  endif
-
-  let s:pending -= 1
-
-  if s:pending
-    return
-  endif
-
+function! s:invoke_complete(_timer)
   call feedkeys("\<C-X>\<C-U>")
 endfunction
 
@@ -104,10 +59,66 @@ endfunction
 " NOTE: remember manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
   if a:findstart
-    return s:start
+    let s:pending += 1
+
+    " Store the buffer contents and cursor position here because when Vim
+    " calls this function the second time (with a:findstart == 0) Vim has
+    " already deleted the text between `start` and the cursor position.
+    let s:cursor = kite#utils#character_offset()
+    let s:text = kite#utils#buffer_contents()
+
+    return s:findstart()
 
   else
-    return s:completions
+    let completions = s:get_completions()
+    let s:pending -= 1
+    return completions
+  endif
+endfunction
+
+
+" sets s:signature
+function! s:findstart()
+  let line = getline('.')
+  let start = col('.') - 1
+
+  let s:signature = s:before_function_call_argument(line[:start-1])
+
+  if !s:signature
+    while start > 0 && line[start - 1] =~ '\w'
+      let start -= 1
+    endwhile
+  endif
+
+  return start
+endfunction
+
+
+" depends on s:signature, s:text, s:cursor
+function! s:get_completions()
+  let filename = kite#utils#filepath(0)
+
+  let params = {
+        \   'filename':     filename,
+        \   'editor':       'vim',
+        \   'text':         s:text,
+        \   'cursor_runes': s:cursor
+        \ }
+
+  let json = json_encode(params)
+
+  " Discard this completion request if one is already pending
+  " (remembering this request is already counted in s:pending).
+  " Ideally we would discard the pending one in favour of this
+  " but I do not know how to do that.
+  if s:pending > 1
+    return []
+  endif
+
+  if s:signature
+    return kite#client#signatures(json, function('kite#signature#handler'))
+  else
+    return kite#client#completions(json, function('kite#completion#handler'))
   endif
 endfunction
 
