@@ -1,5 +1,5 @@
 let s:should_trigger_completion = 0
-let s:pending = 0
+let s:completion_counter = 0
 
 
 function! kite#completion#insertcharpre()
@@ -36,17 +36,12 @@ endfunction
 
 function! kite#completion#autocomplete()
   if !g:kite_auto_complete | return | endif
-  if b:kite_skip | return | endif
+  if  b:kite_skip          | return | endif
 
   if s:should_trigger_completion
     let s:should_trigger_completion = 0
-
-    call timer_start(0, function('s:invoke_complete'))
+    call feedkeys("\<C-X>\<C-U>")
   endif
-endfunction
-
-function! s:invoke_complete(_timer)
-  call feedkeys("\<C-X>\<C-U>")
 endfunction
 
 
@@ -56,28 +51,24 @@ function! kite#completion#backspace()
 endfunction
 
 
-" NOTE: remember manual invocation calls this method.
+" Manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
   if a:findstart
-    let s:pending += 1
-
     " Store the buffer contents and cursor position here because when Vim
     " calls this function the second time (with a:findstart == 0) Vim has
     " already deleted the text between `start` and the cursor position.
     let s:cursor = kite#utils#character_offset()
     let s:text = kite#utils#buffer_contents()
 
-    return s:findstart()
-
+    let s:startcol = s:findstart()
+    return s:startcol
   else
-    let completions = s:get_completions()
-    let s:pending -= 1
-    return completions
+    call s:get_completions()
+    return []
   endif
 endfunction
 
 
-" sets s:signature
 function! s:findstart()
   let line = getline('.')
   let start = col('.') - 1
@@ -94,8 +85,13 @@ function! s:findstart()
 endfunction
 
 
-" depends on s:signature, s:text, s:cursor
 function! s:get_completions()
+  if s:signature
+    call kite#signature#increment_completion_counter()
+  else
+    let s:completion_counter = s:completion_counter + 1
+  endif
+
   let filename = kite#utils#filepath(0)
 
   let params = {
@@ -107,31 +103,29 @@ function! s:get_completions()
 
   let json = json_encode(params)
 
-  " Discard this completion request if one is already pending
-  " (remembering this request is already counted in s:pending).
-  " Ideally we would discard the pending one in favour of this
-  " but I do not know how to do that.
-  if s:pending > 1
-    return []
-  endif
-
   if s:signature
-    return kite#client#signatures(json, function('kite#signature#handler'))
+    call kite#client#signatures(json, function('kite#signature#handler', [kite#signature#completion_counter(), s:startcol]))
   else
-    return kite#client#completions(json, function('kite#completion#handler'))
+    call kite#client#completions(json, function('kite#completion#handler', [s:completion_counter, s:startcol]))
   endif
 endfunction
 
 
-function! kite#completion#handler(response) abort
+function! kite#completion#handler(counter, startcol, response) abort
   call kite#utils#log('completion: '.a:response.status)
+
+  " Ignore old completion results.
+  if a:counter != s:completion_counter
+    return
+  endif
+
   if a:response.status != 200
-    return []
+    return
   endif
 
   " This should not happen but evidently it sometimes does (#107).
   if empty(a:response.body)
-    return []
+    return
   endif
 
   let json = json_decode(a:response.body)
@@ -139,10 +133,10 @@ function! kite#completion#handler(response) abort
   " API should return 404 status when no completions but it sometimes
   " return 200 status and an empty response body, or "completions":"null".
   if empty(json) || type(json.completions) != v:t_list
-    return []
+    return
   endif
 
-  return map(json.completions, {_, c ->
+  let matches = map(json.completions, {_, c ->
         \   {
         \     'word': c.insert,
         \     'abbr': c.display,
@@ -150,6 +144,7 @@ function! kite#completion#handler(response) abort
         \     'menu': (kite#utils#present(c, 'symbol') && kite#utils#present(c.symbol, 'value') ? c.symbol.value[0].kind : '')
         \   }
         \ })
+  call complete(a:startcol+1, matches)
 endfunction
 
 

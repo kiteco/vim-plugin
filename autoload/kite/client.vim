@@ -105,12 +105,12 @@ endfunction
 
 function! kite#client#completions(json, handler)
   let path = s:editor_path.'/completions'
-  if has('channel')
-    let response = s:internal_http(path, g:kite_long_timeout, a:json)
+  if !has('channel')
+    call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
-    let response = s:external_http(s:base_url.path, g:kite_long_timeout, a:json)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, a:json),
+          \ function('s:parse_and_handle', [a:handler]))
   endif
-  return a:handler(s:parse_response(response))
 endfunction
 
 

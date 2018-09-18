@@ -1,7 +1,24 @@
-function! kite#signature#handler(response) abort
+let s:completion_counter = 0
+
+function! kite#signature#increment_completion_counter()
+  let s:completion_counter = s:completion_counter + 1
+endfunction
+
+function! kite#signature#completion_counter()
+  return s:completion_counter
+endfunction
+
+
+function! kite#signature#handler(counter, startcol, response) abort
   call kite#utils#log('signature: '.a:response.status)
+
+  " Ignore old completion results.
+  if a:counter != s:completion_counter
+    return
+  endif
+
   if a:response.status != 200
-    return []
+    return
   endif
 
   let json = json_decode(a:response.body)
@@ -158,7 +175,7 @@ function! kite#signature#handler(response) abort
     endfor
   endif
 
-  return completions
+  call complete(a:startcol+1, completions)
 endfunction
 
 
