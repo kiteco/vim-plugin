@@ -327,7 +327,26 @@ endfunction
 "
 " Does not work in visual mode.
 function! kite#utils#character_offset()
-  return (wordcount().cursor_chars) - 1
+  " wordcount().cursor_chars is 1-based so we need to subtract 1.
+
+  if mode() ==# 'n'
+    return wordcount().cursor_chars - 1
+  endif
+
+  " In insert mode the cursor isn't really between two characters;
+  " it is actually on the second character.  However we want the offset
+  " of the character before the cursor.
+  "
+  " If the cursor is just before (i.e. on) the end of the line, and
+  " the file has dos line endings, the wordcount().cursor_chars will
+  " regard the cursor as on the second character of the \r\n.
+  if mode() ==# 'i'
+    if col('.') == col('$') && &ff ==# 'dos'
+      return wordcount().cursor_chars - 3
+    else
+      return wordcount().cursor_chars - 2
+    endif
+  endif
 endfunction
 
 
