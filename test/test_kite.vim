@@ -84,6 +84,90 @@ function Test_cursor_characters()
 endfunction
 
 
+function Test_character_offset()
+  func ExitInsert(timer)
+    let g:offset = kite#utils#character_offset()
+    call feedkeys("\<Esc>", "t")
+  endfunc
+
+  enew
+
+  " unix line endings
+  set ff=unix
+
+  " <newline><cursor>
+  normal o
+  call assert_equal(1, kite#utils#character_offset())
+
+  " <cursor>json.
+  %d _
+  normal ijson.
+  normal 0
+  call assert_equal(0, kite#utils#character_offset())
+
+  " j<cursor>son.
+  %d _
+  normal ijson.
+  normal 0l
+  call assert_equal(1, kite#utils#character_offset())
+
+  " j.<cursor>
+  " It's only possible to position the cursor after the . in insert mode.
+  %d _
+  call timer_start(100, 'ExitInsert')
+  call feedkeys("ij.", "xt!")
+  call assert_equal(2, g:offset)
+
+  " import json<newline>json.<cursor>
+  " It's only possible to position the cursor after the . in insert mode.
+  %d _
+  normal iimport json
+  normal ojson
+  call timer_start(100, 'ExitInsert')
+  call feedkeys("A.", "xt!")
+  call assert_equal(17, g:offset)
+
+  " dos line endings
+  set ff=dos
+
+  " <newline><cursor>
+  %d _
+  normal o
+  call assert_equal(2, kite#utils#character_offset())
+
+  " <cursor>json.
+  %d _
+  normal ijson.
+  normal 0
+  call assert_equal(0, kite#utils#character_offset())
+
+  " j<cursor>son.
+  %d _
+  normal ijson.
+  normal 0l
+  call assert_equal(1, kite#utils#character_offset())
+
+  " j.<cursor>
+  " It's only possible to position the cursor after the . in insert mode.
+  %d _
+  call timer_start(100, 'ExitInsert')
+  call feedkeys("ij.", "xt!")
+  call assert_equal(2, g:offset)
+
+  " import json<newline>json.<cursor>
+  " It's only possible to position the cursor after the . in insert mode.
+  %d _
+  normal iimport json
+  normal ojson
+  call timer_start(100, 'ExitInsert')
+  call feedkeys("A.", "xt!")
+  call assert_equal(18, g:offset)
+
+  " Tidy up.
+  bdelete!
+endfunction
+
+
 function Test_map_join()
   let list = [ {'x':42}, {'x': 153} ]
   let expected = '42 - 153'
