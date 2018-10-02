@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+
+#
+# Runs the editor JSON tests.
+#
+
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+pushd "$DIR" >/dev/null
+
+VIM="${VIM:-/Applications/MacVim.app/Contents/MacOS/Vim -v}"
+
+KITED_TEST_PORT=56624
+
+$VIM -u NONE -U NONE -N             \
+  --cmd 'set rtp+=../'              \
+  --cmd 'source ../plugin/kite.vim' \
+  -S editor_json_tests_runner.vim
+
+cat messages.log
+grep -q "fail" messages.log
+status=$?
+rm messages.log
+
+popd >/dev/null
+
+if [ $status -eq 1 ]; then
+  exit 0
+else
+  exit 1
+fi
+

@@ -1,0 +1,3 @@
+[submodule "editors-json-tests"]
+	path = editors-json-tests
+	url = https://github.com/kiteco/editors-json-tests

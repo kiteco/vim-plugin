@@ -1,4 +1,4 @@
-let s:port               = 46624
+let s:port               = empty($KITED_TEST_PORT) ? 46624 : $KITED_TEST_PORT
 let s:channel_base       = 'localhost:'.s:port
 let s:base_url           = 'http://127.0.0.1:'.s:port
 let s:editor_path        = '/clientapi/editor'
@@ -10,6 +10,8 @@ let s:plan_path          = '/clientapi/plan'
 let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
 let s:permissions_path   = 'kite://settings/permissions'
+
+let s:requests = []
 
 
 function! kite#client#docs(word)
@@ -144,6 +146,13 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:internal_http(path, timeout, ...)
+  " Record request details for testing.
+  call add(s:requests, {
+        \ 'method': a:0 ? 'POST' : 'GET',
+        \ 'path':   a:path,
+        \ 'body':   a:0 ? a:1 : ''
+        \ })
+
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
   if a:0
     let str = 'POST '.a:path." HTTP/1.0\nHost: localhost\nContent-Type: application/x-www-form-urlencoded\nContent-Length: ".len(a:1)."\n\n".a:1
@@ -305,3 +314,12 @@ function! s:open_kite_url(url)
   silent call system(cmd)
 endfunction
 
+
+function! kite#client#requests()
+  return s:requests
+endfunction
+
+
+function! kite#client#reset_requests()
+  let s:requests = []
+endfunction
