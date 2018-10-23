@@ -19,6 +19,10 @@ endfunction
 
 
 function! kite#init()
+  if &pumheight == 0
+    set pumheight=10
+  endif
+
   if &updatetime == 4000
     set updatetime=100
   endif
