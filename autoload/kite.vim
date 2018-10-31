@@ -1,6 +1,5 @@
 let s:supported_languages = ['python']
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
-let s:editor_metrics_interval = 10 * 60 * 1000  " 10min in milliseconds
 let s:timer = -1
 
 
@@ -30,11 +29,6 @@ function! kite#init()
   set shortmess+=c
 
   call s:configure_completeopt()
-
-  call timer_start(s:editor_metrics_interval,
-        \   function('kite#metrics#send'),
-        \   {'repeat': -1}
-        \ )
 endfunction
 
 
@@ -53,10 +47,6 @@ function! kite#bufenter()
     call s:stop_status_timer()
     call s:teardown_events()
   endif
-
-  " Call this here so that it is not invoked during vim's startup,
-  " which the docs warn against and causes problems.
-  call kite#metrics#show_editor_metrics_opt_in()
 endfunction
 
 

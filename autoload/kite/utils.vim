@@ -1,6 +1,3 @@
-let s:plugin_version = ''
-let s:mac_address = ''
-
 " Values for s:os are used in plugin directory structure
 " and also metric values.
 if has('win64') || has('win32') || has('win32unix')
@@ -20,48 +17,6 @@ let s:doc_dir    = s:plugin_dir.s:separator.'doc'
 let s:lib_dir    = s:plugin_dir.s:separator.'lib'
 let s:lib_subdir = s:lib_dir.s:separator.(s:os)
 
-if kite#utils#windows()
-  let s:settings_path = join(
-        \ [$LOCALAPPDATA, 'Kite', 'vim-plugin.json'],
-        \ s:separator)
-  let s:development_path = join(
-        \ [$LOCALAPPDATA, 'Kite', 'vim-development'],
-        \ s:separator)
-else
-  let s:settings_path    = fnamemodify('~/.kite/vim-plugin.json', ':p')
-  let s:development_path = fnamemodify('~/.kite/vim-development', ':p')
-endif
-
-
-" Returns 1 if we are running in 'development mode', 0 otherwise.
-function! kite#utils#development()
-  return filereadable(s:development_path)
-endfunction
-
-
-" When called with 1 argument, read the value for the given key.
-" Return 0 if the key is not present.
-"
-" When called with 2 arguments, write the key and value.
-"
-" Optional argument is value to set.
-function! kite#utils#settings(key, ...)
-  if filereadable(s:settings_path)
-    let json = join(readfile(s:settings_path), "\n")
-    let settings = json_decode(json)
-  else
-    let settings = {}
-  endif
-
-  if a:0
-    let settings[a:key] = a:1
-    let json = json_encode(settings)
-    call writefile(split(json, "\n"), s:settings_path)
-  else
-    return get(settings, a:key)
-  endif
-endfunction
-
 
 function! kite#utils#generate_help()
   execute 'helptags' s:doc_dir
@@ -70,32 +25,6 @@ endfunction
 
 function! kite#utils#os()
   return s:os
-endfunction
-
-
-" Returns the current unix time (in seconds) as a string.
-function! kite#utils#unix_timestamp()
-  return split(reltimestr(reltime()), '\.')[0]
-endfunction
-
-
-function! kite#utils#mac_address()
-  if empty(s:mac_address)
-    if kite#utils#windows()
-      let output = kite#async#sync('ipconfig /all')
-    else
-      let output = kite#async#sync('ifconfig')
-    endif
-    let s:mac_address = matchstr(output, '\(\x\{2}[:-]\)\{5}\x\{2}')
-    let s:mac_address = tr(s:mac_address, '-', ':')
-  endif
-  return s:mac_address
-endfunction
-
-
-function! kite#utils#plugin_version()
-  let path = s:plugin_dir.s:separator.'VERSION'
-  return readfile(path)[0]
 endfunction
 
 
@@ -133,41 +62,6 @@ function! kite#utils#logged_in(...)
   else
     return kite#client#logged_in(function('kite#utils#logged_in'))
   endif
-endfunction
-
-
-" Returns one of:
-"
-" 'unsupported'   - Kite is not supported on this computer
-" 'uninstalled'   - Kite is supported but not installed on this computer
-" 'installed'     - Kite is installed on this computer but not running
-" 'running'       - Kite is running on this computer but kited is not reachable
-" 'reachable'     - kited is reachable on this computer but the user is not logged in
-" 'authenticated' - kited is reachable and the user is currently logged in
-function! kite#utils#kited_state()
-  if index(['macos', 'windows'], s:os) == -1
-    return 'unsupported'
-  endif
-
-  if !kite#utils#kite_installed()
-    return 'uninstalled'
-  endif
-
-  if !kite#utils#kite_running()
-    return 'installed'
-  endif
-
-  " A response status of 0 indicates timeout/unreachable.
-  let logged_in_status = kite#client#logged_in({response -> response.status})
-  if !logged_in_status
-    return 'running'
-  endif
-
-  if logged_in_status != 200
-    return 'reachable'
-  endif
-
-  return 'authenticated'
 endfunction
 
 

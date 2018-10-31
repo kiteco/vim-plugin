@@ -189,12 +189,6 @@ function Test_wrap()
 endfunction
 
 
-function Test_base64()
-  call assert_equal('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=', kite#base64#encode('abcdefghijklmnopqrstuvwxyz'))
-  call assert_equal('abcdefghijklmnopqrstuvwxyz', kite#base64#decode('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo='))
-endfunction
-
-
 function Test_document()
   let doc = g:kite#document#Document.New({'x': 42, 'y': ['a', 'b', {'c': [153]}], 'z': v:t_none})
 
