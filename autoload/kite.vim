@@ -101,7 +101,11 @@ function! s:setup_mappings()
   " TextChangedI is not fired when the pop-up menu is open.  Therefore use
   " an insert-mode mapping to force completion to re-occur when backspace is
   " pressed while the pop-up menu is open.
-  inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
+  "
+  " This can cause problems in some cases in gVim. #123.
+  if !(kite#utils#windows() && has('gui_running'))
+    inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
+  endif
 
   if exists('g:kite_tab_complete')
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
