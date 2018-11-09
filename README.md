@@ -18,32 +18,6 @@ Download Kite from https://kite.com.  During Kite's installation process, select
 Kite will also keep the plugin up to date automatically.
 
 
-### Manual installation
-
-#### Vim
-
-Assuming your Vim configuration is in `~/.vim/`:
-
-```sh
-$ mkdir -p ~/.vim/pack/kite/start/kite
-$ git clone https://github.com/kiteco/vim-plugin.git ~/.vim/pack/kite/start/kite/
-```
-
-Restart Vim.
-
-
-#### Neovim
-
-Assuming your Neovim configuration is in `~/.config/nvim`:
-
-```sh
-$ mkdir -p ~/.config/nvim/pack/kite/start/kite
-$ git clone https://github.com/kiteco/vim-plugin.git ~/.config/nvim/pack/kite/start/kite/
-```
-
-Restart Neovim.
-
-
 ### Kite Copilot
 
 As you edit your code in Vim/Neovim, the Kite Copilot will show completions, examples, and docs for the code under the cursor.
@@ -153,12 +127,6 @@ You can also opt in or out at any time with the following commands:
 " Opt out
 :KiteDisableEditorMetrics
 ```
-
-
-### Development
-
-When working on the plugin, ensure the file `~/.kite/vim-development` (or `$LOCALAPPDATA$\Kite\vim-development` on Windows) is present.  This tells the plugin to use development mode, i.e. to use the non-production key when POSTing metrics to Segment.
-
 
 ### Debugging
 
