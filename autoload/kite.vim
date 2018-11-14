@@ -102,8 +102,8 @@ function! s:setup_mappings()
   " an insert-mode mapping to force completion to re-occur when backspace is
   " pressed while the pop-up menu is open.
   "
-  " This can cause problems in some cases in gVim. #123.
-  if !(kite#utils#windows() && has('gui_running'))
+  " This can cause problems in gVim <= 8.0.1806. #123.
+  if !(kite#utils#windows() && has('gui_running') && (v:version < 800 || (v:version == 800 && !has('patch1806'))))
     inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
   endif
 
