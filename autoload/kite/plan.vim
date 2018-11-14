@@ -1,5 +1,14 @@
+let s:is_pro = 1
+
+
+" Optional argument is timer.
+function! kite#plan#check(...)
+  call kite#client#plan(function('kite#plan#handler'))
+endfunction
+
+
 function! kite#plan#is_pro()
-  return kite#client#plan(function('kite#plan#handler'))
+  return s:is_pro
 endfunction
 
 
@@ -8,5 +17,5 @@ function! kite#plan#handler(response)
 
   let json = json_decode(a:response.body)
 
-  return json.active_subscription ==? 'pro' && json.status ==? 'active'
+  let s:is_pro = json.active_subscription ==? 'pro' && json.status ==? 'active'
 endfunction
