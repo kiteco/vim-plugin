@@ -115,39 +115,66 @@ endfunction
 
 
 function s:expect_request(properties)
-  let expected = {
-        \ 'method': a:properties.method,
-        \ 'path':   a:properties.path,
-        \ 'body':   has_key(a:properties, 'body') ? a:properties.body : ''
-        \ }
+  let body = has_key(a:properties, 'body') ? a:properties.body : ''
 
-  let idx = index(kite#client#requests(), expected)
-
-  if idx > 0  " success
-    call remove(kite#client#requests(), idx)
-  else
-    " generate a failed assertion
-    call assert_equal(expected, empty(kite#client#requests()) ? {} : kite#client#requests()[0])
-  endif
-
-  " TODO when to reset the requests? at start of each test?
+  let requests = kite#client#request_history()
+  for request in requests
+    if request.method == a:properties.method &&
+          \ request.path == a:properties.path &&
+          \ request.body == body
+      call assert_equal(1, 1)  " register success
+      return
+    endif
+  endfor
+  call assert_report('Missing request: '.
+        \ 'method='.a:properties.method.' '.
+        \ 'path='.a:properties.path.' '.
+        \ 'body='.body)
 endfunction
 
 
 function s:expect_not_request(properties)
-  " TODO
+  let body = has_key(a:properties, 'body') ? a:properties.body : ''
+
+  let requests = kite#client#request_history()
+  for request in requests
+    if request.method == a:properties.method &&
+          \ request.path == a:properties.path &&
+          \ request.body == body
+      call assert_report('Unwanted request: '.
+            \ 'method='.a:properties.method.' '.
+            \ 'path='.a:properties.path.' '.
+            \ 'body='.body)
+      return
+    endif
+  endfor
+  call assert_equal(1, 1)  " register success
 endfunction
 
 
 function s:expect_request_count(properties)
-  " TODO
-  call Log('skip request_count expectation - not implemented')
+  let matching_requests = 0
+  let requests = kite#client#request_history()
+  for request in requests
+    if request.method == a:properties.method &&
+          \ request.path == a:properties.path
+      let matching_requests += 1
+    endif
+  endfor
+  call assert_equal(a:properties.count, matching_requests)
 endfunction
 
 
 function s:expect_not_request_count(properties)
-  " TODO
-  call Log('skip request_count negative expectation - not implemented')
+  let matching_requests = 0
+  let requests = kite#client#request_history()
+  for request in requests
+    if request.method == a:properties.method &&
+          \ request.path == a:properties.path
+      let matching_requests += 1
+    endif
+  endfor
+  call assert_notequal(a:properties.count, matching_requests)
 endfunction
 
 

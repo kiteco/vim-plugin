@@ -11,8 +11,6 @@ let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
 let s:permissions_path   = 'kite://settings/permissions'
 
-let s:requests = []
-
 
 function! kite#client#docs(word)
   let url = s:docs_path.a:word
@@ -146,13 +144,6 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:internal_http(path, timeout, ...)
-  " Record request details for testing.
-  call add(s:requests, {
-        \ 'method': a:0 ? 'POST' : 'GET',
-        \ 'path':   a:path,
-        \ 'body':   a:0 ? a:1 : ''
-        \ })
-
   " Use HTTP 1.0 (not 1.1) to avoid having to parse chunked responses.
   if a:0
     let str = 'POST '.a:path." HTTP/1.0\nHost: localhost\nContent-Type: application/x-www-form-urlencoded\nContent-Length: ".len(a:1)."\n\n".a:1
@@ -315,11 +306,8 @@ function! s:open_kite_url(url)
 endfunction
 
 
-function! kite#client#requests()
-  return s:requests
-endfunction
-
-
-function! kite#client#reset_requests()
-  let s:requests = []
-endfunction
+if !empty($KITED_TEST_PORT)
+  function! kite#client#request_history()
+    return json_decode(s:internal_http('/testapi/request-history', 500))
+  endfunction
+endif
