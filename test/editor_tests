@@ -11,7 +11,7 @@ pushd "$DIR" >/dev/null
 
 VIM="${VIM:-/Applications/MacVim.app/Contents/MacOS/Vim -v}"
 
-KITED_TEST_PORT=56624
+export KITED_TEST_PORT=56624
 
 $VIM -u NONE -U NONE -N             \
   --cmd 'set rtp+=../'              \
