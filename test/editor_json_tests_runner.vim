@@ -115,37 +115,71 @@ endfunction
 
 
 function s:expect_request(properties)
-  let body = has_key(a:properties, 'body') ? a:properties.body : ''
+  " NOTE: the body is generally JSON.  Should we compare this as a string
+  " or as a data structure (dictionaries etc)?
+  "
+  " For now we compare a data structure.
+
+  let body = has_key(a:properties, 'body') ? a:properties.body : {}
+  if type(body) == 1  " string
+    " this is a file, e.g. "data/request.json"
+    call assert_report('expect_request: data file not supported: '.body)
+    return
+  endif
 
   let requests = kite#client#request_history()
   for request in requests
-    if request.method == a:properties.method &&
-          \ request.path == a:properties.path &&
-          \ request.body == body
-      call assert_equal(1, 1)  " register success
-      return
+    if request.method == a:properties.method && request.path == a:properties.path
+      " request.body is a string, not a dictionary.
+      if type(request.body) == 1  " string
+        let rbody = json_decode(request.body)
+      else
+        let rbody = request.body
+      endif
+
+      if rbody == body
+        call assert_equal(1, 1)  " register success
+        return
+      endif
     endif
   endfor
   call assert_report('Missing request: '.
         \ 'method='.a:properties.method.' '.
         \ 'path='.a:properties.path.' '.
-        \ 'body='.body)
+        \ 'body='.json_encode(body))
 endfunction
 
 
 function s:expect_not_request(properties)
-  let body = has_key(a:properties, 'body') ? a:properties.body : ''
+  " NOTE: the body is generally JSON.  Should we compare this as a string
+  " or as a data structure (dictionaries etc)?
+  "
+  " For now we compare a data structure.
+
+  let body = has_key(a:properties, 'body') ? a:properties.body : {}
+  if type(body) == 1  " string
+    " this is a file, e.g. "data/request.json"
+    call assert_report('expect_request: data file not supported: '.body)
+    return
+  endif
 
   let requests = kite#client#request_history()
   for request in requests
-    if request.method == a:properties.method &&
-          \ request.path == a:properties.path &&
-          \ request.body == body
-      call assert_report('Unwanted request: '.
-            \ 'method='.a:properties.method.' '.
-            \ 'path='.a:properties.path.' '.
-            \ 'body='.body)
-      return
+    if request.method == a:properties.method && request.path == a:properties.path
+      " request.body is a string, not a dictionary.
+      if type(request.body) == 1  " string
+        let rbody = json_decode(request.body)
+      else
+        let rbody = request.body
+      endif
+
+      if rbody == body
+        call assert_report('Unwanted request: '.
+              \ 'method='.a:properties.method.' '.
+              \ 'path='.a:properties.path.' '.
+              \ 'body='.json_encode(body))
+        return
+      endif
     endif
   endfor
   call assert_equal(1, 1)  " register success

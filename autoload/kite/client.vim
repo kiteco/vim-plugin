@@ -308,6 +308,10 @@ endfunction
 
 if !empty($KITED_TEST_PORT)
   function! kite#client#request_history()
-    return json_decode(s:internal_http('/testapi/request-history', 500))
+    return json_decode(
+          \   s:parse_response(
+          \     s:internal_http('/testapi/request-history', 500)
+          \   ).body
+          \ )
   endfunction
 endif
