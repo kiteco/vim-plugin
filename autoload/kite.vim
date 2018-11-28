@@ -5,8 +5,8 @@ let s:timer = -1
 
 
 function kite#statusline()
-  if exists('b:kite_status') && !empty(b:kite_status)
-    return 'Kite: '.kite#utils#capitalize(b:kite_status)
+  if exists('b:kite_status')
+    return b:kite_status
   else
     return ''
   endif

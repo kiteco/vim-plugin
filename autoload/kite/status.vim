@@ -7,21 +7,17 @@ function! kite#status#status(...)
   let buf = bufnr('')
   let msg = 'NOT SET'
 
-  if kite#utils#logged_in()
-    if !getbufvar('', 'kite_enabled')
-      let msg = 'ready'
-    endif
-  else
-    let msg = 'not logged in'
+  if !kite#utils#logged_in()
+    let msg = 'Kite: not logged in'
     if !kite#utils#kite_installed()
-      let msg = 'not installed'
+      let msg = 'Kite: not installed'
     elseif !kite#utils#kite_running()
-      let msg = 'not running'
+      let msg = 'Kite: not running'
     endif
   endif
 
   if wordcount().bytes > kite#max_file_size()
-    let msg = 'file too large'
+    let msg = 'Kite: file too large'
   endif
 
   if msg !=# 'NOT SET'
@@ -54,11 +50,23 @@ function! kite#status#handler(buffer, response)
   endif
 
   if index(['not whitelisted', 'blacklisted', 'ignored'], status) > -1
-    let status = 'ready'
+    let msg = ''
   endif
 
-  if status !=# getbufvar(a:buffer, 'kite_status')
-    call setbufvar(a:buffer, 'kite_status', status)
+  if status == 'ready'
+    let msg = 'Kite'
+  endif
+
+  if status == 'syncing'
+    let msg = 'Kite: syncing'
+  endif
+
+  if status == 'indexing'
+    let msg = 'Kite: indexing'
+  endif
+
+  if msg !=# getbufvar(a:buffer, 'kite_status')
+    call setbufvar(a:buffer, 'kite_status', msg)
     redrawstatus
   endif
 endfunction
