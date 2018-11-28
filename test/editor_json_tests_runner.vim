@@ -44,15 +44,15 @@ function LogErrorTrace()
   let i = 0
   for error in v:errors
     if i > 0
-      call Log(repeat(s:indent, 2).'--------')
+      call Log(repeat(s:indent, 3).'--------')
     endif
     for trace in reverse(split(error, '\.\.'))
       if trace =~ ' line \d\+: '
         let m = matchend(trace, ' line \d\+: ')
-        call Log(repeat(s:indent, 2).trace[m:])
-        call Log(repeat(s:indent, 2).s:normalise_line_number(trace[:m-3]))
+        call Log(repeat(s:indent, 3).trace[m:])
+        call Log(repeat(s:indent, 3).s:normalise_line_number(trace[:m-3]))
       else
-        call Log(repeat(s:indent, 2).s:normalise_line_number(trace))
+        call Log(repeat(s:indent, 3).s:normalise_line_number(trace))
       endif
     endfor
     let i += 1
