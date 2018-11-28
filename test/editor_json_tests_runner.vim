@@ -95,8 +95,17 @@ endfunction
 
 
 function s:action_input_text(properties)
+  " This fires InsertCharPre before each character but does not fire
+  " TextChangedI at all.  So we fire it manually.
+  " But test_override('char_avail', 1) works around this (somehow).
+  call test_override('char_avail', 1)
+
   execute 'normal! a'.a:properties.text
+  doautocmd KiteEvents TextChangedI
+
   sleep 50m  " give auto-completion time to happen
+
+  call test_override('char_avail', 0)
 endfunction
 
 
@@ -147,6 +156,7 @@ function s:expect_request(properties)
     let errmsg .= ' body='.json_encode(body)
   endif
   call assert_report(errmsg)
+  " call Log(string(kite#client#request_history()))
 endfunction
 
 
@@ -281,7 +291,7 @@ bdelete
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
   for test in tests
-    " if test !~ 'events.json' | continue | endif  " TODO remove this
+    " if test !~ 'completions_spec.json' | continue | endif  " TODO remove this
     call RunTest(test)
   endfor
 endfor
@@ -302,4 +312,4 @@ write
 "
 
 
-qall!
+" qall!
