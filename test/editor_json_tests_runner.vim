@@ -115,73 +115,71 @@ endfunction
 
 
 function s:expect_request(properties)
-  " NOTE: the body is generally JSON.  Should we compare this as a string
-  " or as a data structure (dictionaries etc)?
-  "
-  " For now we compare a data structure.
+  let body_expected = has_key(a:properties, 'body')
 
-  let body = has_key(a:properties, 'body') ? a:properties.body : {}
-  if type(body) == 1  " string
-    " this is a file, e.g. "data/request.json"
-    call assert_report('expect_request: data file not supported: '.body)
-    return
+  if body_expected
+    let body = a:properties.body
+
+    " If body is a string, it is the path to a json file
+    if type(body) == 1
+      let body = json_decode(join(readfile(File(body)), "\n"))
+    endif
   endif
 
-  let requests = kite#client#request_history()
-  for request in requests
+  for request in kite#client#request_history()
     if request.method == a:properties.method && request.path == a:properties.path
-      " request.body is a string, not a dictionary.
-      if type(request.body) == 1  " string
-        let rbody = json_decode(request.body)
+      if body_expected
+        if body == json_decode(request.body)
+          call assert_equal(1, 1)  " register success
+          return
+        endif
       else
-        let rbody = request.body
-      endif
-
-      if rbody == body
         call assert_equal(1, 1)  " register success
         return
       endif
     endif
   endfor
-  call assert_report('Missing request: '.
+
+  let errmsg = 'Missing request: '.
         \ 'method='.a:properties.method.' '.
-        \ 'path='.a:properties.path.' '.
-        \ 'body='.json_encode(body))
+        \ 'path='.a:properties.path
+  if body_expected
+    let errmsg .= ' body='.json_encode(body)
+  endif
+  call assert_report(errmsg)
 endfunction
 
 
 function s:expect_not_request(properties)
-  " NOTE: the body is generally JSON.  Should we compare this as a string
-  " or as a data structure (dictionaries etc)?
-  "
-  " For now we compare a data structure.
+  let body_expected = has_key(a:properties, 'body')
 
-  let body = has_key(a:properties, 'body') ? a:properties.body : {}
-  if type(body) == 1  " string
-    " this is a file, e.g. "data/request.json"
-    call assert_report('expect_request: data file not supported: '.body)
-    return
+  if body_expected
+    let body = a:properties.body
+
+    " If body is a string, it is the path to a json file
+    if type(body) == 1
+      let body = json_decode(join(readfile(File(body)), "\n"))
+    endif
   endif
 
-  let requests = kite#client#request_history()
-  for request in requests
+  for request in kite#client#request_history()
     if request.method == a:properties.method && request.path == a:properties.path
-      " request.body is a string, not a dictionary.
-      if type(request.body) == 1  " string
-        let rbody = json_decode(request.body)
+      if body_expected
+        if body == json_decode(request.body)
+          call assert_report('Unwanted request: '.
+                \ 'method='.a:properties.method.' '.
+                \ 'path='.a:properties.path.' '.
+                \ 'body='.json_encode(body))
+          return
+        endif
       else
-        let rbody = request.body
-      endif
-
-      if rbody == body
         call assert_report('Unwanted request: '.
               \ 'method='.a:properties.method.' '.
-              \ 'path='.a:properties.path.' '.
-              \ 'body='.json_encode(body))
-        return
+              \ 'path='.a:properties.path)
       endif
     endif
   endfor
+
   call assert_equal(1, 1)  " register success
 endfunction
 
@@ -283,7 +281,7 @@ bdelete
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
   for test in tests
-    " if test !~ 'signature_whitelisted.json' | continue | endif  " TODO remove this
+    " if test !~ 'events.json' | continue | endif  " TODO remove this
     call RunTest(test)
   endfor
 endfor
