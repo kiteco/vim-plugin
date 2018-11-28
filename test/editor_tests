@@ -13,9 +13,10 @@ VIM="${VIM:-/Applications/MacVim.app/Contents/MacOS/Vim -v}"
 
 export KITED_TEST_PORT=56624
 
-$VIM -u NONE -U NONE -N             \
-  --cmd 'set rtp+=../'              \
-  --cmd 'source ../plugin/kite.vim' \
+$VIM -u NONE -U NONE -i NONE -N \
+  --cmd 'set rtp+=../'          \
+  -S ../plugin/kite.vim         \
+  -c 'set updatetime=20'        \
   -S editor_json_tests_runner.vim
 
 esc=$(printf '\033')
