@@ -18,7 +18,8 @@ $VIM -u NONE -U NONE -N             \
   --cmd 'source ../plugin/kite.vim' \
   -S editor_json_tests_runner.vim
 
-cat messages.log
+esc=$(printf '\033')
+cat messages.log | sed "s/^.* - fail$/${esc}[31m&${esc}[0m/"
 grep -q "fail" messages.log
 status=$?
 rm messages.log
