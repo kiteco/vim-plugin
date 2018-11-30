@@ -314,4 +314,8 @@ if !empty($KITED_TEST_PORT)
           \   ).body
           \ )
   endfunction
+
+  function! kite#client#reset_request_history()
+    call s:internal_http('/testapi/request-history/reset', 500)
+  endfunction
 endif
