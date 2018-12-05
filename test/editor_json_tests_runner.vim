@@ -272,8 +272,6 @@ endfunction
 
 
 function RunTest(testfile)
-  call kite#client#reset_request_history()
-
   execute 'edit' a:testfile
   let json = json_decode(kite#utils#buffer_contents())
   bdelete
@@ -283,6 +281,8 @@ function RunTest(testfile)
   endif
 
   call Log(json.description.' ('.fnamemodify(a:testfile, ':t').'):')
+
+  call kite#client#reset_request_history()
 
   let last_buffer = bufnr('$')
 
