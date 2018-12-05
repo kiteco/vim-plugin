@@ -279,6 +279,7 @@ function RunTest(testfile)
     return
   endif
 
+  call Log('')
   call Log(json.description.' ('.fnamemodify(a:testfile, ':t').'):')
 
   call kite#client#reset_request_history()
