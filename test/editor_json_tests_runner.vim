@@ -274,7 +274,6 @@ endfunction
 function RunTest(testfile)
   execute 'edit' a:testfile
   let json = json_decode(kite#utils#buffer_contents())
-  bdelete
 
   if has_key(json, 'live_environment') && !json.live_environment
     return
@@ -283,8 +282,6 @@ function RunTest(testfile)
   call Log(json.description.' ('.fnamemodify(a:testfile, ':t').'):')
 
   call kite#client#reset_request_history()
-
-  let last_buffer = bufnr('$')
 
   for step in json.test
     call Step(step)
@@ -298,10 +295,7 @@ function RunTest(testfile)
     endif
   endfor
 
-  " Discard any files opened by the test.
-  if bufnr('$') > last_buffer
-    execute last_buffer+1.','.bufnr('$').'bdelete!'
-  endif
+  %bwipeout!
 
   let v:errors = []
 endfunction
@@ -314,7 +308,6 @@ endfunction
 
 execute 'edit' File('tests', 'default.json')
 let features = json_decode(getline(1))
-bdelete
 
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
