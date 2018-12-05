@@ -91,6 +91,7 @@ endfunction
 function s:action_move_cursor(properties)
   " a:properties.offset is 0-based.  Vim's character counts are 1-based.
   call kite#utils#goto_character(a:properties.offset + 1)
+  doautocmd CursorHold
 endfunction
 
 
