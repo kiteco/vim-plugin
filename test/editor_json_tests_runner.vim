@@ -74,13 +74,13 @@ endfunction
 
 
 function s:action_open(properties)
-  execute 'edit' File(a:properties.file)
+  execute 'edit!' File(a:properties.file)
   " ignore focus
 endfunction
 
 
 function s:action_new_file(properties)
-  execute 'edit' File(a:properties.file)
+  execute 'edit!' File(a:properties.file)
   if !empty(a:properties.content)
     call s:action_input_text({'text': a:properties.content})
     " call setline(1, a:properties.content)
@@ -89,9 +89,16 @@ endfunction
 
 
 function s:action_move_cursor(properties)
+  " Allow moving one character after the last character in the line
+  " to support Kite's tests, which can set an offset one after the
+  " last character in the line.
+  let [_virtualedit, &virtualedit] = [&virtualedit, 'onemore']
+
   " a:properties.offset is 0-based.  Vim's character counts are 1-based.
   call kite#utils#goto_character(a:properties.offset + 1)
   doautocmd CursorHold
+
+  let &virtualedit=_virtualedit
 endfunction
 
 
