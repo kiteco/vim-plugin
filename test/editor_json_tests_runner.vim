@@ -201,6 +201,9 @@ endfunction
 
 
 function s:expect_request_count(properties)
+  " Give the request time to be sent.
+  sleep 5m
+
   let matching_requests = 0
   let requests = kite#client#request_history()
   for request in requests
@@ -214,6 +217,9 @@ endfunction
 
 
 function s:expect_not_request_count(properties)
+  " Give the request time to be sent.
+  sleep 5m
+
   let matching_requests = 0
   let requests = kite#client#request_history()
   for request in requests
