@@ -266,7 +266,7 @@ endfunction
 
 function! kite#utils#buffer_contents()
   let line_ending = {"unix": "\n", "dos": "\r\n", "mac": "\r"}[&fileformat]
-  return join(getline(1, '$'), line_ending).line_ending
+  return join(getline(1, '$'), line_ending).(&eol ? line_ending : '')
 endfunction
 
 
