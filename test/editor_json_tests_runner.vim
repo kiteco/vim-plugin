@@ -109,7 +109,9 @@ function s:action_input_text(properties)
   call test_override('char_avail', 1)
 
   execute 'normal! a'.a:properties.text
-  doautocmd KiteEvents TextChangedI
+  if exists('#KiteEvents#TextChangedI')
+    doautocmd KiteEvents TextChangedI
+  endif
 
   sleep 50m  " give auto-completion time to happen
 
