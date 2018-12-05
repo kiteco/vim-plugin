@@ -284,6 +284,8 @@ function RunTest(testfile)
 
   call Log(json.description.' ('.fnamemodify(a:testfile, ':t').'):')
 
+  let last_buffer = bufnr('$')
+
   for step in json.test
     call Step(step)
 
@@ -296,10 +298,10 @@ function RunTest(testfile)
     endif
   endfor
 
-  " Discard fixture file.  This assumes the test always opened a file, which
-  " will be the current buffer.  If this is not always true, we will need to
-  " check each buffers' path before discarding.
-  bdelete!
+  " Discard any files opened by the test.
+  if bufnr('$') > last_buffer
+    execute last_buffer+1.','.bufnr('$').'bdelete!'
+  endif
 
   let v:errors = []
 endfunction
