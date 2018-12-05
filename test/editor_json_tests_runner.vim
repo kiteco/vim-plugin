@@ -135,6 +135,7 @@ function s:expect_request(properties)
     " If body is a string, it is the path to a json file
     if type(body) == 1
       let body = json_decode(join(readfile(File(body)), "\n"))
+      let body = s:replace_placeholders(body)
     endif
   endif
 
@@ -175,6 +176,7 @@ function s:expect_not_request(properties)
     " If body is a string, it is the path to a json file
     if type(body) == 1
       let body = json_decode(join(readfile(File(body)), "\n"))
+      let body = s:replace_placeholders(body)
     endif
   endif
 
