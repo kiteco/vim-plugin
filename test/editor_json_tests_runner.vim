@@ -124,6 +124,9 @@ endfunction
 
 
 function s:expect_request(properties)
+  " Give the request time to be sent.
+  sleep 5m
+
   let body_expected = has_key(a:properties, 'body')
 
   if body_expected
@@ -161,6 +164,9 @@ endfunction
 
 
 function s:expect_not_request(properties)
+  " Give the request time to be sent.
+  sleep 5m
+
   let body_expected = has_key(a:properties, 'body')
 
   if body_expected
