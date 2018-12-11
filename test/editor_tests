@@ -17,6 +17,7 @@ $VIM -u NONE -U NONE -i NONE -N \
   --cmd 'set rtp+=../'          \
   -S ../plugin/kite.vim         \
   -c 'set updatetime=20'        \
+  -c 'set nofixeol'             \
   -S editor_json_tests_runner.vim
 
 esc=$(printf '\033')

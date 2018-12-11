@@ -47,7 +47,8 @@ function! kite#bufenter()
 
   else
     call s:stop_status_timer()
-    call s:teardown_events()
+    " shouldn't be necessary because autocmds are buffer-local
+    " call s:teardown_events()
   endif
 endfunction
 

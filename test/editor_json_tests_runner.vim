@@ -74,8 +74,16 @@ endfunction
 
 
 function s:action_open(properties)
-  execute 'edit!' File(a:properties.file)
+  let f = File(a:properties.file)
+
+  execute 'edit!' f
   " ignore focus
+
+  " If a (non-binary) file is empty, vim turns on &eol after reading the file
+  " even if &fixeol is off.
+  if getfsize(f) == 0
+    set noeol
+  endif
 endfunction
 
 
@@ -170,7 +178,9 @@ function s:expect_request(properties)
     let errmsg .= ' body='.json_encode(body)
   endif
   call assert_report(errmsg)
+  " call Log('--------- actual requests ---------')
   " call Log(string(kite#client#request_history()))
+  " call Log('-----------------------------------')
 endfunction
 
 
@@ -204,6 +214,7 @@ function s:expect_not_request(properties)
         call assert_report('Unwanted request: '.
               \ 'method='.a:properties.method.' '.
               \ 'path='.a:properties.path)
+        return
       endif
     endif
   endfor
@@ -244,8 +255,8 @@ function s:expect_not_request_count(properties)
 endfunction
 
 
-function s:replace_placeholders(properties)
-  let str = json_encode(a:properties)
+function s:replace_placeholders(dict)
+  let str = json_encode(a:dict)
 
   " NOTE: assumes the current file is the one we want, i.e. we don't
   " make any effort to parse <<filepath>> in ${editors.<<filepath>>.*}.
@@ -266,7 +277,6 @@ endfunction
 
 
 function Step(dict)
-  " call Log(a:dict.step.'_'.a:dict.type.' - '.string(a:dict.properties))
   call call('<SID>'.a:dict.step.'_'.a:dict.type, [s:replace_placeholders(a:dict.properties)])
 endfunction
 
@@ -313,7 +323,7 @@ let features = json_decode(getline(1))
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
   for test in tests
-    " if test !~ 'completions_spec.json' | continue | endif  " TODO remove this
+    if test !~ 'signature_whitelisted.json' | continue | endif  " TODO remove this
     call RunTest(test)
   endfor
 endfor
@@ -334,4 +344,4 @@ write
 "
 
 
-" qall!
+qall!
