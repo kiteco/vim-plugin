@@ -133,10 +133,8 @@ endfunction
 
 
 function s:action_request_completion(properties)
-  " See https://github.com/vim/vim/blob/master/src/testdir/test_ins_complete.vim
-  " call feedkeys("i\<C-X>\<C-U>", "x")
-
   execute "normal! i\<C-X>\<C-U>"
+
   sleep 50m  " give async call time to happen
 endfunction
 
@@ -323,7 +321,7 @@ let features = json_decode(getline(1))
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
   for test in tests
-    if test !~ 'signature_whitelisted.json' | continue | endif  " TODO remove this
+    " if test !~ 'signature_whitelisted.json' | continue | endif  " TODO remove this
     call RunTest(test)
   endfor
 endfor

@@ -47,8 +47,6 @@ function! kite#bufenter()
 
   else
     call s:stop_status_timer()
-    " shouldn't be necessary because autocmds are buffer-local
-    " call s:teardown_events()
   endif
 endfunction
 
@@ -142,13 +140,6 @@ function! s:start_plan_timer()
         \   function('kite#plan#check'),
         \   {'repeat': -1}
         \ )
-endfunction
-
-
-function! s:teardown_events()
-  if exists('#KiteEvents')
-    autocmd! KiteEvents * <buffer>
-  endif
 endfunction
 
 
