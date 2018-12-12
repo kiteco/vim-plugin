@@ -60,6 +60,18 @@ function LogErrorTrace()
 endfunction
 
 
+function LogRequestHistory()
+  let requests = kite#client#request_history()
+  call Log('--------- actual requests ---------')
+  for request in requests
+    call Log('method='.request.method)
+    call Log('  path='.request.path)
+    call Log('  body='.string(request.body))
+  endfor
+  call Log('-----------------------------------')
+endfunction
+
+
 " blah_blah line 42 -> blah_blah:42
 " blah_blah[42]     -> blah_blah:42
 function s:normalise_line_number(str)
