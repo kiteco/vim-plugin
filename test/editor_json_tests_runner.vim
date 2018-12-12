@@ -314,9 +314,11 @@ endfunction
 " Run the tests
 "
 
-
-execute 'edit' File('tests', 'default.json')
-let features = json_decode(getline(1))
+let f = File('tests', 'vim.json')
+if !filereadable(f)
+  let f = File('tests', 'default.json')
+endif
+let features = json_decode(join(readfile(f), ''))
 
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
