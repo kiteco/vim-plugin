@@ -15,7 +15,7 @@
 # ./test foo - runs all tests whose names match foo
 
 
-VIM="/Applications/MacVim.app/Contents/MacOS/Vim -v"
+VIM="${VIM:=/Applications/MacVim.app/Contents/MacOS/Vim} -v"
 
 $VIM -u NONE -U NONE -N                      \
   --cmd 'set rtp+=../'                       \
