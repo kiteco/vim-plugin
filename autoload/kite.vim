@@ -1,4 +1,3 @@
-let s:supported_languages = ['python']
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
@@ -174,6 +173,6 @@ endfunction
 
 
 function! s:supported_language()
-  return index(s:supported_languages, &filetype) > -1
+  return expand('%:e') == 'py'
 endfunction
 
