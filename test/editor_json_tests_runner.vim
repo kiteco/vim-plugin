@@ -196,9 +196,7 @@ function s:expect_request(properties)
     let errmsg .= ' body='.json_encode(body)
   endif
   call assert_report(errmsg)
-  " call Log('--------- actual requests ---------')
-  " call Log(string(kite#client#request_history()))
-  " call Log('-----------------------------------')
+  call LogRequestHistory()
 endfunction
 
 
@@ -343,7 +341,7 @@ let features = json_decode(join(readfile(f), ''))
 for feature in features
   let tests = glob(File('tests', feature, '*.json'), 1, 1)
   for test in tests
-    " if test !~ 'signature_whitelisted.json' | continue | endif  " TODO remove this
+    " if test !~ 'completions_new_spec/any/all' | continue | endif  " TODO remove this
     call RunTest(test)
   endfor
 endfor
