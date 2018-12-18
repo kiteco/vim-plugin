@@ -101,6 +101,14 @@ endfunction
 
 function s:action_new_file(properties)
   execute 'edit!' File(a:properties.file)
+
+  " The tests can stipulate a new file at the path of an existing file.
+  " So delete anything that happens to be there.
+  %delete _
+
+  " The tests assume noeol behaviour.
+  set noeol
+
   if !empty(a:properties.content)
     call s:action_input_text({'text': a:properties.content})
     " call setline(1, a:properties.content)
