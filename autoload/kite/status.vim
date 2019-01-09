@@ -39,19 +39,8 @@ function! kite#status#handler(buffer, response)
 
   let json = json_decode(a:response.body)
 
-  " indexing | syncing | ready | not whitelisted | ignored | blacklisted
+  " indexing | syncing | ready
   let status = json.status
-
-  if !exists('b:kite_whitelist_checked')
-    if status ==? 'not whitelisted'
-      call kite#utils#info("Kite is not enabled for this file. Please whitelist it in Kite settings to enable Kite.")
-    endif
-    let b:kite_whitelist_checked = 1
-  endif
-
-  if index(['not whitelisted', 'blacklisted', 'ignored'], status) > -1
-    let msg = ''
-  endif
 
   if status == 'ready'
     let msg = 'Kite'
