@@ -18,6 +18,8 @@ endfunction
 
 
 function! kite#init()
+  call s:launch_kited()
+
   if &pumheight == 0
     set pumheight=10
   endif
@@ -169,6 +171,13 @@ function! s:configure_completeopt()
   set completeopt-=preview
   set completeopt+=noinsert
   set completeopt-=noselect
+endfunction
+
+
+function! s:launch_kited()
+  if kite#utils#get_setting('start_kited_at_startup', 1)
+    call kite#utils#launch_kited()
+  endif
 endfunction
 
 

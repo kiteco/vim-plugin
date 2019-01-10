@@ -18,6 +18,41 @@ let s:lib_dir    = s:plugin_dir.s:separator.'lib'
 let s:lib_subdir = s:lib_dir.s:separator.(s:os)
 
 
+if kite#utils#windows()
+  let s:settings_path = join(
+        \ [$LOCALAPPDATA, 'Kite', 'vim-plugin.json'],
+        \ s:separator)
+else
+  let s:settings_path = fnamemodify('~/.kite/vim-plugin.json', ':p')
+endif
+
+
+" Get the value for the given key.
+" If the key has not been set, returns the default value if given
+" (i.e. the optional argument) or -1 otherwise.
+function! kite#utils#get_setting(key, ...)
+  let settings = s:settings()
+  return get(settings, a:key, (a:0 ? a:1 : -1))
+endfunction
+
+" Sets the value for the key.
+function! kite#utils#set_setting(key, value)
+  let settings = s:settings()
+  let settings[a:key] = a:value
+  let json_str = json_encode(settings)
+  call writefile([json_str], s:settings_path)
+endfunction
+
+function! s:settings()
+  if filereadable(s:settings_path)
+    let json_str = join(readfile(s:settings_path), '')
+    return json_decode(json_str)
+  else
+    return {}
+  endif
+endfunction
+
+
 function! kite#utils#generate_help()
   execute 'helptags' s:doc_dir
 endfunction
@@ -52,6 +87,24 @@ function! kite#utils#kite_running()
   endif
 
   return match(split(kite#async#sync(cmd), '\n'), process) > -1
+endfunction
+
+
+function! kite#utils#launch_kited()
+  if kite#utils#kite_running()
+    return
+  endif
+
+  if !kite#utils#kite_installed()
+    return
+  endif
+
+  if kite#utils#windows()
+    " TODO
+  else
+    let path = system('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
+    call system('open -a '.path.' --args "--plugin-launch"')
+  endif
 endfunction
 
 
