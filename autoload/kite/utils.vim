@@ -69,12 +69,20 @@ endfunction
 
 
 function! kite#utils#kite_installed()
+  return !empty(s:kite_install_path())
+endfunction
+
+" Returns the kite installation path or an empty string if not installed.
+function! s:kite_install_path()
   if kite#utils#windows()
     let output = kite#async#sync('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
-    " Assume Kite is installed if the output contains 'InstallPath'
-    return match(split(output, '\n'), 'InstallPath') > -1
+    let lines = filter(split(output, '\n'), 'v:val =~ "InstallPath"')
+    if empty(lines)
+      return ''
+    endif
+    return substitute(lines[0], '\vInstallPath\s+REG_\w+\s+', '', '')
   else  " osx
-    return !empty(kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"'''))
+    return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
   endif
 endfunction
 
@@ -95,14 +103,16 @@ function! kite#utils#launch_kited()
     return
   endif
 
-  if !kite#utils#kite_installed()
+  let path = s:kite_install_path()
+
+  if empty(path)
     return
   endif
 
   if kite#utils#windows()
-    " TODO
+    let $KITE_SKIP_ONBOARDING = 1
+    call system(path)
   else
-    let path = system('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
     call system('open -a '.path.' --args "--plugin-launch"')
   endif
 endfunction
