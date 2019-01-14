@@ -1,4 +1,4 @@
-dist: trusty
+dist: Xenial
 
 before_install:
   - sudo apt-get install python-pip
