@@ -11,6 +11,7 @@ before_install:
   - export VIM="$(which vim)"
 
 script:
+  - vim --version
   - cd test && bash test
   - echo "Running tests with kited-local --------------" && $HOME/kited-test > ~/kited-test.log 2>&1 & sleep 20 && cd "test" && bash editor_tests 
 
