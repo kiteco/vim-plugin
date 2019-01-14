@@ -13,7 +13,6 @@ before_install:
   - export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
   - curl --silent --compressed --output "$HOME/kited-test" "https://s3-us-west-1.amazonaws.com/kited-test/linux/kited-test"
   - chmod u+x "$HOME/kited-test"
-  - export VIM="$(which vim)"
 
 install: |
   git config --global user.email "you@example.com"
@@ -27,6 +26,7 @@ install: |
   make install
   cd -
   export PATH=$DEPS/bin:$PATH
+  export VIM="$(which vim)"
 
 script:
   - vim --version
