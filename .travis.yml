@@ -31,5 +31,5 @@ install: |
 script:
   - vim --version
   - cd test && bash test
-  - echo "Running tests with kited-local --------------" && $HOME/kited-test > ~/kited-test.log 2>&1 & sleep 20 && cd "test" && bash editor_tests 
+  - echo "Running tests with kited-local --------------" && $HOME/kited-test & sleep 20 && bash editor_tests 
 
