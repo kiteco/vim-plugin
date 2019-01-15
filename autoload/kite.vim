@@ -4,6 +4,18 @@ let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
 
 
+function kite#enable_auto_start()
+  call kite#utils#set_setting('start_kited_at_startup', 1)
+  call s:launch_kited()
+  call kite#utils#info('Kite: auto-start enabled')
+endfunction
+
+function kite#disable_auto_start()
+  call kite#utils#set_setting('start_kited_at_startup', 0)
+  call kite#utils#info('Kite: auto-start disabled')
+endfunction
+
+
 function kite#statusline()
   if exists('b:kite_status')
     return b:kite_status
