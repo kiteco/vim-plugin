@@ -10,7 +10,6 @@ before_install:
   - pip install --user awscli
   - export PATH="$PATH:$HOME/.local/bin"
   - curl --silent -L "https://s3-us-west-1.amazonaws.com/kite-data/tensorflow/libtensorflow-cpu-linux-x86_64-1.9.0.tar.gz" | tar -C $HOME -xz
-  - export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
   - curl --silent --compressed --output "$HOME/kited-test" "https://s3-us-west-1.amazonaws.com/kited-test/linux/kited-test"
   - chmod u+x "$HOME/kited-test"
 
@@ -31,5 +30,6 @@ install: |
 script:
   - vim --version
   - cd test && bash test
+  - export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
   - echo "Running tests with kited-local --------------" && $HOME/kited-test & sleep 20 && bash editor_tests && killall kited-test
 
