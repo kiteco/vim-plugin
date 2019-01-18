@@ -31,5 +31,5 @@ script:
   - vim --version
   - cd test && bash test
   - export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
-  - echo "Running tests with kited-local --------------" && $HOME/kited-test & sleep 20 && bash editor_tests && killall kited-test
+  - echo "Running tests with kited-local --------------" && $HOME/kited-test 2>&1 > ~/kite.log & sleep 20 && bash editor_tests && killall kited-test
 
