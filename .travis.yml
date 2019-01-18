@@ -16,7 +16,7 @@ before_install:
 install: |
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
-  C_OPTS="--prefix=\"$DEPS\" --with-features=huge --disable-gui"
+  C_OPTS="--prefix=$DEPS --with-features=huge --disable-gui "
   git clone --depth 1 https://github.com/vim/vim
   cd vim
   export PATH=/usr/bin:$PATH
