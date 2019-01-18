@@ -1,4 +1,4 @@
-dist: Xenial
+dist: Trusty
 
 env:
   global:
