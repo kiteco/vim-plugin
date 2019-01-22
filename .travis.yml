@@ -27,6 +27,7 @@ install: |
   export PATH=$DEPS/bin:$PATH
   export VIM="$(which vim)"
 
+
 script:
   - vim --version
   - cd test && bash test
