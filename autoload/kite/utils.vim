@@ -28,7 +28,7 @@ function! s:shellescape(arg)
   if a:arg =~ '^[A-Za-z0-9_/.-]\+$'
     return a:arg
   elseif s:winshell()
-    return '"'.s:gsub(s:gsub(a:arg, '"', '""'), '\%', '"%"').'"'
+    return '"'.substitute(substitute(a:arg, '"', '""', 'g'), '\%', '"%"', 'g').'"'
   else
     return shellescape(a:arg)
   endif
