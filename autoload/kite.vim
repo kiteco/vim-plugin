@@ -1,4 +1,3 @@
-let s:supported_languages = ['python']
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
@@ -47,7 +46,6 @@ function! kite#bufenter()
 
   else
     call s:stop_status_timer()
-    call s:teardown_events()
   endif
 endfunction
 
@@ -144,13 +142,6 @@ function! s:start_plan_timer()
 endfunction
 
 
-function! s:teardown_events()
-  if exists('#KiteEvents')
-    autocmd! KiteEvents * <buffer>
-  endif
-endfunction
-
-
 " Configure &completeopt if and only if it has not been set already.
 "
 " Note there's no way to distinguish the option not having been set from
@@ -182,6 +173,6 @@ endfunction
 
 
 function! s:supported_language()
-  return index(s:supported_languages, &filetype) > -1
+  return expand('%:e') == 'py'
 endfunction
 

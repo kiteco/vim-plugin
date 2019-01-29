@@ -168,6 +168,54 @@ function Test_character_offset()
 endfunction
 
 
+function Test_goto_character()
+  " unix line endings
+  set ff=unix
+
+  %d _
+  normal iimport json
+  normal ojson
+  normal oimport
+
+  call kite#utils#goto_character(1)  " first line: i
+  call assert_equal(1, wordcount().cursor_chars)
+
+  call kite#utils#goto_character(8)  " first line: j
+  call assert_equal(8, wordcount().cursor_chars)
+
+  call kite#utils#goto_character(12)  " first line: newline
+  call assert_equal(11, wordcount().cursor_chars)  " first line: n
+
+  call kite#utils#goto_character(20)  " third line: p
+  call assert_equal(20, wordcount().cursor_chars)
+
+  " dos line endings
+  set ff=dos
+
+  %d _
+  normal iimport json
+  normal ojson
+  normal oimport
+
+  call kite#utils#goto_character(1)  " first line: i
+  call assert_equal(1, wordcount().cursor_chars)
+
+  call kite#utils#goto_character(8)  " first line: j
+  call assert_equal(8, wordcount().cursor_chars)
+
+  call kite#utils#goto_character(12)  " first line: newline first char
+  call assert_equal(11, wordcount().cursor_chars)  " first line: n
+  call kite#utils#goto_character(13)  " first line: newline second char
+  call assert_equal(11, wordcount().cursor_chars)  " first line: n
+
+  call kite#utils#goto_character(20)  " third line: i
+  call assert_equal(20, wordcount().cursor_chars)
+
+  " Tidy up.
+  bdelete!
+endfunction
+
+
 function Test_map_join()
   let list = [ {'x':42}, {'x': 153} ]
   let expected = '42 - 153'

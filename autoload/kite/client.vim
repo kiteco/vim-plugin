@@ -1,4 +1,4 @@
-let s:port               = 46624
+let s:port               = empty($KITED_TEST_PORT) ? 46624 : $KITED_TEST_PORT
 let s:channel_base       = 'localhost:'.s:port
 let s:base_url           = 'http://127.0.0.1:'.s:port
 let s:editor_path        = '/clientapi/editor'
@@ -305,3 +305,17 @@ function! s:open_kite_url(url)
   silent call system(cmd)
 endfunction
 
+
+if !empty($KITED_TEST_PORT)
+  function! kite#client#request_history()
+    return json_decode(
+          \   s:parse_response(
+          \     s:internal_http('/testapi/request-history', 500)
+          \   ).body
+          \ )
+  endfunction
+
+  function! kite#client#reset_request_history()
+    call s:internal_http('/testapi/request-history/reset', 500)
+  endfunction
+endif

@@ -3,18 +3,7 @@ let s:completion_counter = 0
 
 
 function! kite#completion#insertcharpre()
-  let s:should_trigger_completion = 0
-
-  if v:char =~# '\S'
-    let s:should_trigger_completion = 1
-  else
-    " Also trigger completion after a space inside fn call.
-    let line = getline('.').v:char
-    let start = col('.') - 1
-    if s:before_function_call_argument(line[:start-1])
-      let s:should_trigger_completion = 1
-    endif
-  endif
+  let s:should_trigger_completion = 1
 
   " Trigger a fresh completion after every keystroke when the popup menu
   " is visible (by calling the function which TextChangedI would call
@@ -154,8 +143,17 @@ endfunction
 " - just after a comma inside a function call; or
 " - just after an equals sign inside a function call.
 "
+" Note this differs from all the other editor plugins.  They can all show both
+" a signature popup and a completions popup at the same time, whereas Vim can
+" only show one popup.  Therefore we need to switch its purpose between
+" signature info and completions info at appropriate points inside a function
+" call's arguments.
+"
 " line - the line up to the cursor position
 function! s:before_function_call_argument(line)
+  " Other editors basically do this:
+  " return a:line =~ '\v[(][^)]*$'
+
   return a:line =~ '\v[(]([^)]+[=,])?\s*$'
 endfunction
 

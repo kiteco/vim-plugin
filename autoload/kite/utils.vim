@@ -266,7 +266,31 @@ endfunction
 
 function! kite#utils#buffer_contents()
   let line_ending = {"unix": "\n", "dos": "\r\n", "mac": "\r"}[&fileformat]
-  return join(getline(1, '$'), line_ending).line_ending
+  return join(getline(1, '$'), line_ending).(&eol ? line_ending : '')
+endfunction
+
+
+" Similar to the goto command, but for characters.
+" index is 1-based, the start of the file.
+function! kite#utils#goto_character(index)
+  call search('\m\%^\_.\{'.a:index.'}', 'es')
+
+  " The search() function above counts a newline as 1 character even if it is
+  " actually 2.  Therefore we need to adjust the cursor position when newlines
+  " are 2 characters.
+  if &ff ==# 'dos'
+    let [_whichwrap, &whichwrap] = [&whichwrap, "h,l"]
+    let delta = wordcount().cursor_chars - a:index
+    while delta != 0
+      " Cannot land on a newline character.
+      if (delta == -1 || delta == -2) && col('.') == col('$') - 1
+        break
+      endif
+      execute "normal! ".delta.(delta > 0 ? 'h' : 'l')
+      let delta = wordcount().cursor_chars - a:index
+    endwhile
+    let &whichwrap = _whichwrap
+  endif
 endfunction
 
 
