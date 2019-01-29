@@ -18,6 +18,22 @@ let s:lib_dir    = s:plugin_dir.s:separator.'lib'
 let s:lib_subdir = s:lib_dir.s:separator.(s:os)
 
 
+" From tpope/vim-fugitive
+function! s:winshell()
+  return kite#utils#windows() && &shellcmdflag !~# '^-'
+endfunction
+
+" From tpope/vim-fugitive
+function! s:shellescape(arg)
+  if a:arg =~ '^[A-Za-z0-9_/.-]\+$'
+    return a:arg
+  elseif s:winshell()
+    return '"'.s:gsub(s:gsub(a:arg, '"', '""'), '\%', '"%"').'"'
+  else
+    return shellescape(a:arg)
+  endif
+endfunction
+
 if kite#utils#windows()
   let s:settings_path = join(
         \ [$LOCALAPPDATA, 'Kite', 'vim-plugin.json'],
@@ -25,6 +41,7 @@ if kite#utils#windows()
 else
   let s:settings_path = fnamemodify('~/.kite/vim-plugin.json', ':p')
 endif
+let s:settings_path = s:shellescape(s:settings_path)
 
 
 " Get the value for the given key.
@@ -80,7 +97,7 @@ function! s:kite_install_path()
     if empty(lines)
       return ''
     endif
-    return substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', '')
+    return s:shellescape(substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', ''))
   else  " osx
     return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
   endif
