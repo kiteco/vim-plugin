@@ -80,7 +80,7 @@ function! s:kite_install_path()
     if empty(lines)
       return ''
     endif
-    return substitute(lines[0], '\vInstallPath\s+REG_\w+\s+', '', '')
+    return substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', '')
   else  " osx
     return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
   endif
