@@ -35,13 +35,14 @@ function! s:shellescape(arg)
 endfunction
 
 if kite#utils#windows()
-  let s:settings_path = join(
-        \ [$LOCALAPPDATA, 'Kite', 'vim-plugin.json'],
-        \ s:separator)
+  let s:settings_dir = join([$LOCALAPPDATA, 'Kite'], s:separator)
 else
-  let s:settings_path = fnamemodify('~/.kite/vim-plugin.json', ':p')
+  let s:settings_dir = join([$HOME, '.kite'], s:separator)
 endif
-let s:settings_path = s:shellescape(s:settings_path)
+if !isdirectory(s:settings_dir)
+  call mkdir(s:settings_dir, 'p')
+endif
+let s:settings_path = s:shellescape(s:settings_dir.s:separator.'vim-plugin.json')
 
 
 " Get the value for the given key.
