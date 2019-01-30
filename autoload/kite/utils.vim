@@ -42,7 +42,7 @@ endif
 if !isdirectory(s:settings_dir)
   call mkdir(s:settings_dir, 'p')
 endif
-let s:settings_path = s:shellescape(s:settings_dir.s:separator.'vim-plugin.json')
+let s:settings_path = s:settings_dir.s:separator.'vim-plugin.json'
 
 
 " Get the value for the given key.
