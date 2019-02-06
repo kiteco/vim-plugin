@@ -9,6 +9,7 @@ let s:user_path          = '/clientapi/user'
 let s:plan_path          = '/clientapi/plan'
 let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
+let s:settings_path      = 'kite://settings'
 let s:permissions_path   = 'kite://settings/permissions'
 
 
