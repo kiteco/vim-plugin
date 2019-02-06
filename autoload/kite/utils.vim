@@ -129,7 +129,7 @@ function! kite#utils#launch_kited()
 
   if kite#utils#windows()
     let $KITE_SKIP_ONBOARDING = 1
-    call system(s:shellescape(path))
+    silent execute "!start" s:shellescape(path)
   else
     call system('open -a '.path.' --args "--plugin-launch"')
   endif
