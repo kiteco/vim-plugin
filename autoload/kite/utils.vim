@@ -90,7 +90,7 @@ function! kite#utils#kite_installed()
   return !empty(s:kite_install_path())
 endfunction
 
-" Returns the kite installation path or an empty string if not installed.
+" Returns the kite installation path including the filename, or an empty string if not installed.
 function! s:kite_install_path()
   if kite#utils#windows()
     let output = kite#async#sync('reg query HKEY_LOCAL_MACHINE\Software\Kite\AppData /v InstallPath /s /reg:64')
@@ -98,7 +98,7 @@ function! s:kite_install_path()
     if empty(lines)
       return ''
     endif
-    return s:shellescape(substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', ''))
+    return substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', '').s:separator.'kited.exe'
   else  " osx
     return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
   endif
@@ -129,7 +129,7 @@ function! kite#utils#launch_kited()
 
   if kite#utils#windows()
     let $KITE_SKIP_ONBOARDING = 1
-    call system(path)
+    call system(s:shellescape(path))
   else
     call system('open -a '.path.' --args "--plugin-launch"')
   endif
