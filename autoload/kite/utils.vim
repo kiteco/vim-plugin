@@ -31,7 +31,7 @@ function! kite#utils#vim_version()
     let s:vim_version = full_version[0]  " e.g. NVIM v0.2.2
   else
     let [major, minor] = [v:version / 100, v:version % 100]
-    let patches = matchstr(full_version[2], '[0-9-]\+')
+    let patches = split(full_version[2], ': ')[1]
     let s:vim_version = join([major, minor, patches], '.')  " e.g. 8.1.1-582
   endif
 
