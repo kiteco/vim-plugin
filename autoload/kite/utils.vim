@@ -16,6 +16,38 @@ let s:plugin_dir = expand('<sfile>:p:h:h:h')
 let s:doc_dir    = s:plugin_dir.s:separator.'doc'
 let s:lib_dir    = s:plugin_dir.s:separator.'lib'
 let s:lib_subdir = s:lib_dir.s:separator.(s:os)
+let s:vim_version = ''
+let s:plugin_version = ''
+
+
+function! kite#utils#vim_version()
+  if !empty(s:vim_version)
+    return s:vim_version
+  endif
+
+  let full_version = split(execute('version'), '\n')
+
+  if has('nvim')
+    let s:vim_version = full_version[0]  " e.g. NVIM v0.2.2
+  else
+    let [major, minor] = [v:version / 100, v:version % 100]
+    let patches = matchstr(full_version[2], '[0-9-]\+')
+    let s:vim_version = join([major, minor, patches], '.')  " e.g. 8.1.1-582
+  endif
+
+  return s:vim_version
+endfunction
+
+
+function! kite#utils#plugin_version()
+  if !empty(s:plugin_version)
+    return s:plugin_version
+  endif
+
+  let s:plugin_version = readfile(s:plugin_dir.s:separator.'VERSION')[0]
+
+  return s:plugin_version
+endfunction
 
 
 " From tpope/vim-fugitive

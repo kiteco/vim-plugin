@@ -27,7 +27,9 @@ function! kite#events#event(action)
         \ 'filename':   filename,
         \ 'text':       text,
         \ 'action':     action,
-        \ 'selections': selections
+        \ 'selections': selections,
+        \ 'editor_version': kite#utils#vim_version(),
+        \ 'plugin_version': kite#utils#plugin_version()
         \ })
 
   let s:events_pending += 1
