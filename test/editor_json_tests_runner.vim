@@ -85,6 +85,18 @@ function s:normalise_line_number(str)
 endfunction
 
 
+" Returns truthy if all the keys and values in dict2 are
+" present in dict1.
+function s:contains(dict1, dict2)
+  for [key, value] in items(a:dict2)
+    if !has_key(a:dict1, key) || a:dict1[key] != value
+      return 0
+    endif
+  endfor
+  return 1
+endfunction
+
+
 function s:action_open(properties)
   let f = File(a:properties.file)
 
@@ -178,7 +190,7 @@ function s:expect_request(properties)
   for request in kite#client#request_history()
     if request.method == a:properties.method && request.path == a:properties.path
       if body_expected
-        if body == json_decode(request.body)
+        if s:contains(json_decode(request.body), body)
           call assert_equal(1, 1)  " register success
           return
         endif
@@ -219,7 +231,7 @@ function s:expect_not_request(properties)
   for request in kite#client#request_history()
     if request.method == a:properties.method && request.path == a:properties.path
       if body_expected
-        if body == json_decode(request.body)
+        if s:contains(json_decode(request.body), body)
           call assert_report('Unwanted request: '.
                 \ 'method='.a:properties.method.' '.
                 \ 'path='.a:properties.path.' '.
