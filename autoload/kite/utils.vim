@@ -37,8 +37,8 @@ function! kite#utils#normalise_version(version)
   else
     let [major, minor] = [v:version / 100, v:version % 100]
 
-    let patch_line = match(lines, 'Included patches: ')
-    let patches = split(lines[patch_line], ': ')[1]
+    let patch_line = match(lines, ': \d')
+    let patches = substitute(split(lines[patch_line], ': ')[1], ' ', '', 'g')
     return join([major, minor, patches], '.')  " e.g. 8.1.1-582
   endif
 endfunction

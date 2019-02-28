@@ -263,30 +263,43 @@ endfunction
 function Test_normalise_version()
   " vim
   let version_str = join([
-        \   'VIM - Vi IMproved 8.1 (2018 May 18, compiled Jan 28 2019 11:54:37)',
-        \   'Included patches: 1-822',
+        \   'VIM - Vi IMproved 8.0 (2016 Sep 12, compiled Aug 17 2018 17:24:51)',
+        \   'Included patches: 1-503, 505-680, 682-1283',
+        \   'Compiled by root@apple.com',
         \ ], "\n")
-  call assert_equal('8.1.1-822', kite#utils#normalise_version(version_str))
+  call assert_equal('8.1.1-503,505-680,682-1283', kite#utils#normalise_version(version_str))
 
   " macvim
   let version_str = join([
         \   'VIM - Vi IMproved 8.1 (2018 May 18, compiled Jan 28 2019 11:54:37)',
         \   'macOS version',
         \   'Included patches: 1-822',
+        \   'Compiled by Homebrew',
         \ ], "\n")
   call assert_equal('8.1.1-822', kite#utils#normalise_version(version_str))
-
-  " neovim
-  let version_str = join([
-        \ 'NVIM v0.2.2',
-        \ ], "\n")
-  call assert_equal('NVIM v0.2.2', kite#utils#normalise_version(version_str))
 
   " gvim
   let version_str = join([
         \   'VIM - Vi IMproved 8.1 (2018 May 18, compiled May 18 2019 18:36:07)',
         \   'MS-Windows 32-bit GUI version with OLE support',
         \   'Included patches: 1',
+        \   'Compiled by mool@tororo',
         \ ], "\n")
   call assert_equal('8.1.1', kite#utils#normalise_version(version_str))
+
+  " german
+  let version_str = join([
+        \   'VIM - Vi IMproved 8.1 (2018 May 18 kompiliert am Feb 11 2019 00:14:42)',
+        \   'MS-Windows 32 Bit GUI Version mit OLE-Unterstützung',
+        \   'Inklusive der Patches: 1-895',
+        \   'Übersetzt von appveyor@APPVYR-WIN'
+        \ ], "\n")
+  call assert_equal('8.1.1-895', kite#utils#normalise_version(version_str))
+
+  " neovim
+  let version_str = join([
+        \ 'NVIM v0.2.2',
+        \ 'Build type: Release',
+        \ ], "\n")
+  call assert_equal('NVIM v0.2.2', kite#utils#normalise_version(version_str))
 endfunction
