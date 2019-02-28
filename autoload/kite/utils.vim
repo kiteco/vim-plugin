@@ -24,20 +24,23 @@ function! kite#utils#vim_version()
   if !empty(s:vim_version)
     return s:vim_version
   endif
+  let s:vim_version = kite#utils#normalise_version(execute('version'))
+  return s:vim_version
+endfunction
 
-  let full_version = split(execute('version'), '\n')
 
-  if has('nvim')
-    let s:vim_version = full_version[0]  " e.g. NVIM v0.2.2
+function! kite#utils#normalise_version(version)
+  let lines = split(a:version, '\n')
+
+  if lines[0] =~ 'NVIM'
+    return lines[0]  " e.g. NVIM v0.2.2
   else
     let [major, minor] = [v:version / 100, v:version % 100]
 
-    let patch_line = match(full_version, 'Included patches: ')
-    let patches = split(full_version[patch_line], ': ')[1]
-    let s:vim_version = join([major, minor, patches], '.')  " e.g. 8.1.1-582
+    let patch_line = match(lines, 'Included patches: ')
+    let patches = split(lines[patch_line], ': ')[1]
+    return join([major, minor, patches], '.')  " e.g. 8.1.1-582
   endif
-
-  return s:vim_version
 endfunction
 
 
