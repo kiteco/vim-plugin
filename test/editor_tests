@@ -18,6 +18,7 @@ $VIM -u NONE -U NONE -i NONE -N \
   -S ../plugin/kite.vim         \
   -c 'set updatetime=20'        \
   -c 'set nofixeol'             \
+  -c 'set nomore'               \
   -S editor_json_tests_runner.vim
 
 esc=$(printf '\033')
