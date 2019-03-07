@@ -52,6 +52,8 @@ function! kite#completion#complete(findstart, base)
     let s:startcol = s:findstart()
     return s:startcol
   else
+    " Leave CTRL-X submode so user can invoke other completion methods.
+    call feedkeys("\<C-e>")
     call s:get_completions()
     return []
   endif
