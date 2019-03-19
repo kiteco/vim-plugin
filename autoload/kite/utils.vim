@@ -176,7 +176,7 @@ function! kite#utils#launch_kited()
   elseif kite#utils#macos()
     call system('open -a '.path.' --args "--plugin-launch"')
   else
-    silent execute '!'.s:shellescape(path).' &'
+    silent execute '!'.path.' &'
   endif
 endfunction
 
