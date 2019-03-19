@@ -11,6 +11,10 @@ function! kite#utils#windows()
   return s:os ==# 'windows'
 endfunction
 
+function! kite#utils#macos()
+  return s:os ==# 'macos'
+endfunction
+
 let s:separator  = !exists('+shellslash') || &shellslash ? '/' : '\'
 let s:plugin_dir = expand('<sfile>:p:h:h:h')
 let s:doc_dir    = s:plugin_dir.s:separator.'doc'
@@ -136,8 +140,10 @@ function! s:kite_install_path()
       return ''
     endif
     return substitute(lines[0], '\v^\s+InstallPath\s+REG_\w+\s+', '', '').s:separator.'kited.exe'
-  else  " osx
+  elseif kite#utils#macos()
     return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
+  else
+    return exepath('kited')
   endif
 endfunction
 
@@ -145,7 +151,7 @@ endfunction
 function! kite#utils#kite_running()
   if kite#utils#windows()
     let [cmd, process] = ['tasklist /FI "IMAGENAME eq kited.exe"', '^kited.exe']
-  else  " osx
+  else
     let [cmd, process] = ['ps -axco command', '^Kite$']
   endif
 
@@ -167,8 +173,10 @@ function! kite#utils#launch_kited()
   if kite#utils#windows()
     let $KITE_SKIP_ONBOARDING = 1
     silent execute "!start" s:shellescape(path)
-  else
+  elseif kite#utils#macos()
     call system('open -a '.path.' --args "--plugin-launch"')
+  else
+    silent execute '!'.s:shellescape(path).' &'
   endif
 endfunction
 
