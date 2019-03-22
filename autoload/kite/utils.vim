@@ -143,7 +143,7 @@ function! s:kite_install_path()
   elseif kite#utils#macos()
     return kite#async#sync('mdfind ''kMDItemCFBundleIdentifier = "com.kite.Kite" || kMDItemCFBundleIdentifier = "enterprise.kite.Kite"''')
   else
-    return exepath('kited')
+    return exepath('/opt/kite/kited')
   endif
 endfunction
 
