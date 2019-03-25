@@ -151,8 +151,10 @@ endfunction
 function! kite#utils#kite_running()
   if kite#utils#windows()
     let [cmd, process] = ['tasklist /FI "IMAGENAME eq kited.exe"', '^kited.exe']
-  else
+  elseif kite#utils#macos()
     let [cmd, process] = ['ps -axco command', '^Kite$']
+  else
+    let [cmd, process] = ['ps -axco command', '^kited$']
   endif
 
   return match(split(kite#async#sync(cmd), '\n'), process) > -1
