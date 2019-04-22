@@ -127,14 +127,28 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  let matches = map(json.completions, {_, c ->
-        \   {
-        \     'word': c.insert,
-        \     'abbr': c.display,
-        \     'info': c.documentation_text,
-        \     'menu': (kite#utils#present(c, 'symbol') && kite#utils#present(c.symbol, 'value') ? c.symbol.value[0].kind : '')
-        \   }
-        \ })
+  let hint_len = 0
+  for c in json.completions
+    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' ⟠': '⟠')
+    if strlen(hint) > hint_len
+      let hint_len = strlen(hint)
+    endif
+  endfor
+
+  let matches = []
+  for c in json.completions
+    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' ⟠': '⟠')
+    if strlen(hint) < hint_len
+      let hint = repeat(' ', hint_len - strlen(hint)).hint
+    endif
+    call add(matches, {
+          \     'word': c.insert,
+          \     'abbr': c.display,
+          \     'info': c.documentation_text,
+          \     'menu': hint
+          \   })
+  endfor
+
   call complete(a:startcol+1, matches)
 endfunction
 
