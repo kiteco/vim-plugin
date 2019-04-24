@@ -3,8 +3,7 @@
 if has('win64') || has('win32') || has('win32unix')
   let s:os = 'windows'
 else
-  let uname = substitute(system('uname'), '\n', '', '')  " Darwin or Linux
-  let s:os = uname ==? 'Darwin' ? 'macos' : 'linux'
+    let s:os = empty(findfile('/proc/version')) ? 'macos' : 'linux'
 endif
 
 function! kite#utils#windows()
