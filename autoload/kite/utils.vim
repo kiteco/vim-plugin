@@ -3,7 +3,7 @@
 if has('win64') || has('win32') || has('win32unix')
   let s:os = 'windows'
 else
-    let s:os = empty(findfile('/proc/version')) ? 'macos' : 'linux'
+    let s:os = empty(findfile('/sbin/launchd')) ? 'linux' : 'macos'
 endif
 
 function! kite#utils#windows()
