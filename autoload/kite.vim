@@ -2,6 +2,7 @@ let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
 let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
+let s:inited = 0
 let s:kite_auto_launched = 0
 
 
@@ -35,7 +36,11 @@ function! kite#max_file_size()
 endfunction
 
 
-function! kite#init()
+function! s:init()
+  if s:inited
+    return
+  endif
+
   if &pumheight == 0
     set pumheight=10
   endif
@@ -46,13 +51,22 @@ function! kite#init()
 
   set shortmess+=c
 
+  if kite#utils#windows()
+    " Avoid taskbar flashing on Windows when executing system() calls.
+    set noshelltemp
+  endif
+
   call s:configure_completeopt()
   call s:start_plan_timer()
+
+  let s:inited = 1
 endfunction
 
 
 function! kite#bufenter()
   if s:supported_language()
+    call s:init()
+
     call s:launch_kited()
 
     call s:setup_events()

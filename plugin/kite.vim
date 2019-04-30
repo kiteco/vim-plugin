@@ -37,13 +37,6 @@ if !(has('nvim') || has('timers'))
   finish
 endif
 
-if kite#utils#windows()
-  " Avoid taskbar flashing on Windows when executing system() calls.
-  set noshelltemp
-endif
-
-call kite#init()
-
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
