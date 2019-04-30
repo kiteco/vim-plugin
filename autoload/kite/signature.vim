@@ -186,7 +186,7 @@ endfunction
 
 
 function! kite#signature#should_show_popular_patterns()
-  return kite#plan#is_pro() && kite#utils#get_setting('show_popular_patterns', 0)
+  return kite#utils#get_setting('show_popular_patterns', 0)
 endfunction
 
 
