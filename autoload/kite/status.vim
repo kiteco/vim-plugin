@@ -41,6 +41,7 @@ function! kite#status#handler(buffer, response)
 
   " indexing | syncing | ready
   let status = json.status
+  let msg = ''
 
   if status == 'ready'
     let msg = 'Kite'
