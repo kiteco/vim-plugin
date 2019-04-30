@@ -1,6 +1,7 @@
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
+let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
 
 
 function kite#enable_auto_start()
@@ -12,6 +13,10 @@ endfunction
 function kite#disable_auto_start()
   call kite#utils#set_setting('start_kited_at_startup', 0)
   call kite#utils#info('Kite: auto-start disabled')
+endfunction
+
+function kite#symbol()
+  return s:kite_symbol
 endfunction
 
 

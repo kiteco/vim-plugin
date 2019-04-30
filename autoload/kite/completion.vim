@@ -129,7 +129,7 @@ function! kite#completion#handler(counter, startcol, response) abort
 
   let hint_len = 0
   for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' ⟠': '⟠')
+    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
     if strlen(hint) > hint_len
       let hint_len = strlen(hint)
     endif
@@ -137,7 +137,7 @@ function! kite#completion#handler(counter, startcol, response) abort
 
   let matches = []
   for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' ⟠': '⟠')
+    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
     if strlen(hint) < hint_len
       let hint = repeat(' ', hint_len - strlen(hint)).hint
     endif
