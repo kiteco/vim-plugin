@@ -464,10 +464,10 @@ endfunction
 " - becomes when wrapped:
 "
 "     dumps(obj, skipkeys, ensure_ascii, check_circular,
-"           allow_nan, cls, indent, separators, encoding,
-"           default, sort_keys, *args, **kwargs)
+"         allow_nan, cls, indent, separators, encoding,
+"         default, sort_keys, *args, **kwargs)
 "
-function! kite#utils#wrap(str, length)
+function! kite#utils#wrap(str, length, indent)
   let lines = []
 
   let str = a:str
@@ -493,7 +493,7 @@ function! kite#utils#wrap(str, length)
     call add(lines, line)
     let str = str[i+1:]
 
-    let prefix = repeat(' ', len(prefix))
+    let prefix = repeat(' ', a:indent)
   endwhile
 
   return lines

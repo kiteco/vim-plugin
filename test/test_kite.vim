@@ -233,7 +233,7 @@ function Test_wrap()
         \ '    dog)'
         \ ]
 
-  call assert_equal(expected, kite#utils#wrap(str, 20))
+  call assert_equal(expected, kite#utils#wrap(str, 20, 4))
 endfunction
 
 
