@@ -1,6 +1,7 @@
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
+let s:kite_auto_launched = 0
 
 
 function kite#enable_auto_start()
@@ -30,8 +31,6 @@ endfunction
 
 
 function! kite#init()
-  call s:launch_kited()
-
   if &pumheight == 0
     set pumheight=10
   endif
@@ -49,6 +48,8 @@ endfunction
 
 function! kite#bufenter()
   if s:supported_language()
+    call s:launch_kited()
+
     call s:setup_events()
     call s:setup_mappings()
 
@@ -187,8 +188,9 @@ endfunction
 
 
 function! s:launch_kited()
-  if kite#utils#get_setting('start_kited_at_startup', 1)
+  if !s:kite_auto_launched && kite#utils#get_setting('start_kited_at_startup', 1)
     call kite#utils#launch_kited()
+    let s:kite_auto_launched = 1
   endif
 endfunction
 
