@@ -106,7 +106,7 @@ function! kite#signature#handler(counter, startcol, response) abort
   endif
 
   " The completion popup does not wrap long lines so we wrap manually.
-  for line in kite#utils#wrap('⟠ '.function_name.'('.join(parameters, ', ').')'.return_type, wrap_width, 4)
+  for line in kite#utils#wrap(kite#symbol().' '.function_name.'('.join(parameters, ', ').')'.return_type, wrap_width, 4)
     let completion = {
           \   'word':  '',
           \   'abbr':  line,
