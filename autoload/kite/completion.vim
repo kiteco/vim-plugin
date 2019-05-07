@@ -90,7 +90,11 @@ function! s:get_completions()
         \   'filename':     filename,
         \   'editor':       'vim',
         \   'text':         s:text,
-        \   'cursor_runes': s:cursor
+        \   'position': {
+        \     'begin': s:cursor,
+        \     'end':   s:cursor
+        \   },
+        \   'placeholders': []
         \ }
 
   let json = json_encode(params)
@@ -143,9 +147,9 @@ function! kite#completion#handler(counter, startcol, response) abort
       let hint = repeat(' ', hint_len - strlen(hint)).hint
     endif
     call add(matches, {
-          \     'word': c.insert,
+          \     'word': c.snippet.text,
           \     'abbr': c.display,
-          \     'info': c.documentation_text,
+          \     'info': c.documentation.text,
           \     'menu': hint
           \   })
   endfor

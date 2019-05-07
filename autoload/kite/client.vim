@@ -90,7 +90,7 @@ endfunction
 
 
 function! kite#client#completions(json, handler)
-  let path = s:editor_path.'/completions'
+  let path = s:editor_path.'/complete'
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
