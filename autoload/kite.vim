@@ -1,5 +1,4 @@
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
-let s:plan_poll_interval = 30 * 1000  " 30sec in milliseconds
 let s:timer = -1
 let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
 let s:inited = 0
@@ -182,14 +181,6 @@ endfunction
 
 function! s:stop_status_timer()
   call timer_pause(s:timer, 1)
-endfunction
-
-
-function! s:start_plan_timer()
-  call timer_start(s:plan_poll_interval,
-        \   function('kite#plan#check'),
-        \   {'repeat': -1}
-        \ )
 endfunction
 
 
