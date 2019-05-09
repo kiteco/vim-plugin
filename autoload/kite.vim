@@ -177,23 +177,12 @@ endfunction
 
 
 " Configure &completeopt if and only if it has not been set already.
-"
-" Note there's no way to distinguish the option not having been set from
-" the option having been set by hand to the default value.  So if the user
-" sets the option by hand to the default value we will re-configure it.
-"
-" The alternative is simply to leave the option alone.
 function! s:configure_completeopt()
-  " Display the option's value.  If it has been set somewhere, there
-  " will be a second line showing the location.
   redir => output
     silent verbose set completeopt
   redir END
   let lines = len(split(output, '\n'))
-  " Don't (re-)configure option if:
-  " - (option has been set somewhere) OR
-  " - (option hasn't been set / option was set by hand AND is not the default value)
-  if lines > 1 || (lines == 1 && &completeopt !=# 'menu,preview') | return | endif
+  if lines > 1 | return | endif
 
   " completeopt is not global-local.
 
