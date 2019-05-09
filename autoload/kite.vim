@@ -36,39 +36,55 @@ function! kite#max_file_size()
 endfunction
 
 
-function! s:init()
-  if s:inited
-    return
-  endif
-
+function! s:setup_options()
+  let s:pumheight = &pumheight
   if &pumheight == 0
     set pumheight=10
   endif
 
+  let s:updatetime = &updatetime
   if &updatetime == 4000
     set updatetime=100
   endif
 
+  let s:shortmess = &shortmess
   set shortmess+=c
+
+  " Only set completeopt if it hasn't been set already.
+  let s:completeopt = &completeopt
+  redir => output
+    silent verbose set completeopt
+  redir END
+  if len(split(output, '\n')) == 1
+    set completeopt=menuone,noinsert
+  endif
 
   if kite#utils#windows()
     " Avoid taskbar flashing on Windows when executing system() calls.
+    let s:shelltemp = &shelltemp
     set noshelltemp
   endif
+endfunction
 
-  call s:configure_completeopt()
-  call s:start_plan_timer()
 
-  let s:inited = 1
+function! s:restore_options()
+  if !exists('s:pumheight') | return | endif
+
+  let &pumheight   = s:pumheight
+  let &updatetime  = s:updatetime
+  let &shortmess   = s:shortmess
+  let &completeopt = s:completeopt
+  if kite#utils#windows()
+    let &shelltemp = s:shelltemp
+  endif
 endfunction
 
 
 function! kite#bufenter()
   if s:supported_language()
-    call s:init()
-
     call s:launch_kited()
 
+    call s:setup_options()
     call s:setup_events()
     call s:setup_mappings()
 
@@ -79,6 +95,7 @@ function! kite#bufenter()
     call s:start_status_timer()
 
   else
+    call s:restore_options()
     call s:stop_status_timer()
   endif
 endfunction
@@ -173,20 +190,6 @@ function! s:start_plan_timer()
         \   function('kite#plan#check'),
         \   {'repeat': -1}
         \ )
-endfunction
-
-
-" Configure &completeopt if and only if it has not been set already.
-function! s:configure_completeopt()
-  redir => output
-    silent verbose set completeopt
-  redir END
-  let lines = len(split(output, '\n'))
-  if lines > 1 | return | endif
-
-  " completeopt is not global-local.
-
-  set completeopt=menuone,noinsert
 endfunction
 
 
