@@ -197,12 +197,7 @@ function! s:configure_completeopt()
 
   " completeopt is not global-local.
 
-  set completeopt-=menu
-  set completeopt+=menuone
-  set completeopt-=longest
-  set completeopt-=preview
-  set completeopt+=noinsert
-  set completeopt-=noselect
+  set completeopt=menuone,noinsert
 endfunction
 
 
