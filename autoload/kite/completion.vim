@@ -115,16 +115,23 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  if a:response.status != 200
-    return
-  endif
+  " FIXME
+  let json = json_decode(join(readfile('/Users/andy/code/src/kite-vim-plugin/kite-completions-dumps.json'), "\n"))
+  " " Ignore old completion results.
+  " if a:counter != s:completion_counter
+  "   return
+  " endif
 
-  " This should not happen but evidently it sometimes does (#107).
-  if empty(a:response.body)
-    return
-  endif
+  " if a:response.status != 200
+  "   return
+  " endif
 
-  let json = json_decode(a:response.body)
+  " " This should not happen but evidently it sometimes does (#107).
+  " if empty(a:response.body)
+  "   return
+  " endif
+
+  " let json = json_decode(a:response.body)
 
   " API should return 404 status when no completions but it sometimes
   " return 200 status and an empty response body, or "completions":"null".
@@ -132,29 +139,69 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  let hint_len = 0
-  for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
-    if strlen(hint) > hint_len
-      let hint_len = strlen(hint)
-    endif
-  endfor
+
+  let max_hint_length = s:max_hint_length(json.completions)
 
   let matches = []
   for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
-    if strlen(hint) < hint_len
-      let hint = repeat(' ', hint_len - strlen(hint)).hint
+    call add(matches, s:adapt(c, max_hint_length, 0))
+
+    if has_key(c, 'children')
+      for child in c.children
+        call add(matches, s:adapt(child, max_hint_length, 1))
+      endfor
     endif
-    call add(matches, {
-          \     'word': c.snippet.text,
-          \     'abbr': c.display,
-          \     'info': c.documentation.text,
-          \     'menu': hint
-          \   })
   endfor
 
   call complete(a:startcol+1, matches)
+endfunction
+
+
+function! s:adapt(completion_option, max_hint_length, nesting)
+  " By default the hint is separated from the preceding text by a single
+  " space.  We want two spaces.
+  let max = a:max_hint_length + 1
+  let hint = ' '.s:branded_hint(a:completion_option.hint)
+
+  " Right align.
+  if strdisplaywidth(hint) < max
+    let hint = repeat(' ', max - strdisplaywidth(hint)).hint
+  endif
+
+  let indent = repeat('  ', a:nesting)
+
+  return {
+        \   'word': a:completion_option.snippet.text,
+        \   'abbr': indent.a:completion_option.display,
+        \   'info': a:completion_option.documentation.text,
+        \   'menu': hint
+        \ }
+endfunction
+
+
+function! s:max_hint_length(completions)
+  let max = 0
+
+  for e in a:completions
+    let len = strdisplaywidth(s:branded_hint(e.hint))
+    if len > max
+      let max = len
+    endif
+
+    if has_key(e, 'children')
+      let len = s:max_hint_length(e.children)
+      if len > max
+        let max = len
+      endif
+    endif
+  endfor
+
+  return max
+endfunction
+
+
+function! s:branded_hint(text)
+  return empty(a:text) ? kite#symbol() : a:text.' '.kite#symbol()
 endfunction
 
 
