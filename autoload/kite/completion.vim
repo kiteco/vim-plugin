@@ -86,16 +86,25 @@ function! s:get_completions()
 
   let filename = kite#utils#filepath(0)
 
-  let params = {
-        \   'filename':     filename,
-        \   'editor':       'vim',
-        \   'text':         s:text,
-        \   'position': {
-        \     'begin': s:cursor,
-        \     'end':   s:cursor
-        \   },
-        \   'placeholders': []
-        \ }
+  if s:signature
+    let params = {
+          \   'filename':     filename,
+          \   'editor':       'vim',
+          \   'text':         s:text,
+          \   'cursor_runes': s:cursor
+          \ }
+  else
+    let params = {
+          \   'filename':     filename,
+          \   'editor':       'vim',
+          \   'text':         s:text,
+          \   'position': {
+          \     'begin': s:cursor,
+          \     'end':   s:cursor
+          \   },
+          \   'placeholders': []
+          \ }
+  endif
 
   let json = json_encode(params)
 
