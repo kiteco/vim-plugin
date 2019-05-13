@@ -124,23 +124,21 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  " FIXME
-  let json = json_decode(join(readfile('/Users/andy/code/src/kite-vim-plugin/kite-completions-dumps.json'), "\n"))
-  " " Ignore old completion results.
-  " if a:counter != s:completion_counter
-  "   return
-  " endif
+  " Ignore old completion results.
+  if a:counter != s:completion_counter
+    return
+  endif
 
-  " if a:response.status != 200
-  "   return
-  " endif
+  if a:response.status != 200
+    return
+  endif
 
-  " " This should not happen but evidently it sometimes does (#107).
-  " if empty(a:response.body)
-  "   return
-  " endif
+  " This should not happen but evidently it sometimes does (#107).
+  if empty(a:response.body)
+    return
+  endif
 
-  " let json = json_decode(a:response.body)
+  let json = json_decode(a:response.body)
 
   " API should return 404 status when no completions but it sometimes
   " return 200 status and an empty response body, or "completions":"null".
