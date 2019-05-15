@@ -49,14 +49,9 @@ function! s:setup_options()
   let s:shortmess = &shortmess
   set shortmess+=c
 
-  " Only set completeopt if it hasn't been set already.
   let s:completeopt = &completeopt
-  redir => output
-    silent verbose set completeopt
-  redir END
-  if len(split(output, '\n')) == 1
-    set completeopt=menuone,noinsert
-  endif
+  set completeopt+=menuone,noinsert
+  set completeopt-=longest
 
   if kite#utils#windows()
     " Avoid taskbar flashing on Windows when executing system() calls.
