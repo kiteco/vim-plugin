@@ -1,5 +1,7 @@
 let s:should_trigger_completion = 0
 let s:completion_counter = 0
+let s:begin = 0
+let s:end = 0
 
 
 function! kite#completion#insertcharpre()
@@ -61,11 +63,19 @@ function! kite#completion#complete(findstart, base)
 endfunction
 
 
+function! kite#completion#snippet(begin, end)
+  let s:begin = a:begin
+  let s:end = a:end
+  " call kite#completion#autocomplete()
+  call feedkeys("\<C-X>\<C-U>")
+endfunction
+
+
 function! s:findstart()
   let line = getline('.')
   let start = col('.') - 1
 
-  let s:signature = s:before_function_call_argument(line[:start-1])
+  let s:signature = s:before_function_call_argument(line[:start-1]) && s:begin == 0
 
   if !s:signature
     while start > 0 && line[start - 1] =~ '\w'
@@ -99,11 +109,13 @@ function! s:get_completions()
           \   'editor':       'vim',
           \   'text':         s:text,
           \   'position': {
-          \     'begin': s:cursor,
-          \     'end':   s:cursor
+          \     'begin': (s:begin > 0 ? s:begin : s:cursor),
+          \     'end':   (s:end   > 0 ? s:end   : s:cursor),
           \   },
           \   'placeholders': []
           \ }
+    let s:begin = 0
+    let s:end   = 0
   endif
 
   let json = json_encode(params)
@@ -177,11 +189,16 @@ function! s:adapt(completion_option, max_hint_length, nesting)
 
   let indent = repeat('  ', a:nesting)
 
+  " FIXME user_data 8.0.1493
+  " assume they are ordered; if not: sort(placeholders, {x,y -> x.begin - y.begin})
+  " let b:kite_placeholders = a:completion_option.snippet.placeholders
+
   return {
         \   'word': a:completion_option.snippet.text,
         \   'abbr': indent.a:completion_option.display,
         \   'info': a:completion_option.documentation.text,
-        \   'menu': hint
+        \   'menu': hint,
+        \   'user_data': json_encode(a:completion_option.snippet.placeholders)
         \ }
 endfunction
 

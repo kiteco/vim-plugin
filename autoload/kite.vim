@@ -106,6 +106,8 @@ function s:setup_events()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
+    autocmd CompleteDone             <buffer> call kite#snippet#complete_done()
+
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
       autocmd CursorHold,CursorHoldI <buffer> call kite#docs#docs()
     endif
@@ -159,6 +161,13 @@ function! s:setup_mappings()
   if empty(maparg('K', 'n')) && !hasmapto('(kite-docs)', 'n')
     nmap <silent> <buffer> K <Plug>(kite-docs)
   endif
+
+
+  nnoremap <C-j> :<c-u>call kite#snippet#next_placeholder()<cr>
+  nnoremap <C-k> :<c-u>call kite#snippet#previous_placeholder()<cr>
+  vnoremap <C-j> :<c-u>call kite#snippet#next_placeholder()<cr>
+  vnoremap <C-k> :<c-u>call kite#snippet#previous_placeholder()<cr>
+
 endfunction
 
 
