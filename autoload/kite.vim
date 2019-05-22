@@ -163,11 +163,15 @@ function! s:setup_mappings()
   endif
 
 
-  nnoremap <C-j> :<c-u>call kite#snippet#next_placeholder()<cr>
-  nnoremap <C-k> :<c-u>call kite#snippet#previous_placeholder()<cr>
-  vnoremap <C-j> :<c-u>call kite#snippet#next_placeholder()<cr>
-  vnoremap <C-k> :<c-u>call kite#snippet#previous_placeholder()<cr>
+  inoremap <silent> <c-j> <c-\><c-o>:call kite#snippet#next_placeholder()<cr>
+  inoremap <silent> <c-k> <c-\><c-o>:call kite#snippet#previous_placeholder()<cr>
+  snoremap <silent> <c-j> <esc>:call kite#snippet#next_placeholder()<cr>
+  snoremap <silent> <c-k> <esc>:call kite#snippet#previous_placeholder()<cr>
 
+  " snoremap <silent> <bs> <c-g>c
+  " snoremap <silent> <del> <c-g>c
+  " snoremap <silent> <c-h> <c-g>c
+  " snoremap <silent> <c-r> <c-g>"_c<c-r>
 endfunction
 
 
