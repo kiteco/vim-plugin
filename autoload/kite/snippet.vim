@@ -112,23 +112,18 @@ endfunction
 
 
 function! s:setup_maps()
-  inoremap <buffer> <silent> <c-j> <c-\><c-o>:call kite#snippet#next_placeholder()<cr>
-  inoremap <buffer> <silent> <c-k> <c-\><c-o>:call kite#snippet#previous_placeholder()<cr>
-  snoremap <buffer> <silent> <c-j> <esc>:call kite#snippet#next_placeholder()<cr>
-  snoremap <buffer> <silent> <c-k> <esc>:call kite#snippet#previous_placeholder()<cr>
-
-  " snoremap <silent> <bs> <c-g>c
-  " snoremap <silent> <del> <c-g>c
-  " snoremap <silent> <c-h> <c-g>c
-  " snoremap <silent> <c-r> <c-g>"_c<c-r>
+  inoremap <buffer> <silent> <C-j> <C-\><C-O>:call kite#snippet#next_placeholder()<CR>
+  inoremap <buffer> <silent> <C-k> <C-\><C-O>:call kite#snippet#previous_placeholder()<CR>
+  snoremap <buffer> <silent> <C-j> <Esc>:call kite#snippet#next_placeholder()<CR>
+  snoremap <buffer> <silent> <C-k> <Esc>:call kite#snippet#previous_placeholder()<CR>
 endfunction
 
 
 function! s:teardowm_maps()
-  iunmap <buffer> <c-j>
-  iunmap <buffer> <c-k>
-  sunmap <buffer> <c-j>
-  sunmap <buffer> <c-k>
+  iunmap <buffer> <C-j>
+  iunmap <buffer> <C-k>
+  sunmap <buffer> <C-j>
+  sunmap <buffer> <C-k>
 endfunction
 
 
@@ -136,11 +131,12 @@ function! s:setup_autocmds()
   augroup KiteSnippets
     autocmd! * <buffer>
 
-    autocmd CursorMovedI <buffer> call s:update_placeholder_locations() | call s:clear_placeholder_highlights() | call s:highlight_placeholders()
-    " TODO use <SID>?
-    autocmd CursorMoved,CursorMovedI <buffer> call kite#snippet#cursormoved()
-    " TODO use <SID>?
-    autocmd InsertLeave <buffer> call kite#snippet#insertleave()
+    autocmd CursorMovedI <buffer>
+          \ call s:update_placeholder_locations() |
+          \ call s:clear_placeholder_highlights() |
+          \ call s:highlight_placeholders()
+    autocmd CursorMoved,CursorMovedI <buffer> call s:cursormoved()
+    autocmd InsertLeave              <buffer> call s:insertleave()
   augroup END
 endfunction
 
@@ -158,7 +154,7 @@ function! s:teardown()
 endfunction
 
 
-function! kite#snippet#cursormoved()
+function! s:cursormoved()
   if !exists('b:kite_linenr') | return | endif
   if b:kite_linenr == line('.') | return | endif
 
@@ -166,7 +162,7 @@ function! kite#snippet#cursormoved()
 endfunction
 
 
-function! kite#snippet#insertleave()
+function! s:insertleave()
   " Modes established by experimentation.
   if mode(1) !=# 's' && mode(1) !=# 'niI'
     call s:teardown()
