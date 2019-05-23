@@ -161,17 +161,6 @@ function! s:setup_mappings()
   if empty(maparg('K', 'n')) && !hasmapto('(kite-docs)', 'n')
     nmap <silent> <buffer> K <Plug>(kite-docs)
   endif
-
-
-  inoremap <silent> <c-j> <c-\><c-o>:call kite#snippet#next_placeholder()<cr>
-  inoremap <silent> <c-k> <c-\><c-o>:call kite#snippet#previous_placeholder()<cr>
-  snoremap <silent> <c-j> <esc>:call kite#snippet#next_placeholder()<cr>
-  snoremap <silent> <c-k> <esc>:call kite#snippet#previous_placeholder()<cr>
-
-  " snoremap <silent> <bs> <c-g>c
-  " snoremap <silent> <del> <c-g>c
-  " snoremap <silent> <c-h> <c-g>c
-  " snoremap <silent> <c-r> <c-g>"_c<c-r>
 endfunction
 
 
