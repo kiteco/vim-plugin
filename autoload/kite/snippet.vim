@@ -116,10 +116,64 @@ function! s:setup_maps()
   inoremap <buffer> <silent> <C-k> <C-\><C-O>:call kite#snippet#previous_placeholder()<CR>
   snoremap <buffer> <silent> <C-j> <Esc>:call kite#snippet#next_placeholder()<CR>
   snoremap <buffer> <silent> <C-k> <Esc>:call kite#snippet#previous_placeholder()<CR>
+
+  call s:remove_smaps_for_printable_characters()
 endfunction
 
 
-function! s:teardowm_maps()
+" Many plugins use vmap for visual-mode mappings but vmap maps both
+" visual-mode and select-mode (they should use xmap instead).  Assume
+" any visual-mode mappings for printable characters are not wanted and
+" remove them (but remember them so we can restore them afterwards).
+" Similarly for map.
+"
+" :help mapmode-s
+" :help Select-mode-mapping
+function! s:remove_smaps_for_printable_characters()
+  let b:kite_maps = []
+  let printable_keycodes = ['<Space>', '<Bslash>', '<Tab>', '<C-Tab>', '<NL>', '<CR>', '<BS>']
+
+  for scope in ['<buffer>', '']
+    redir => maps | silent execute 'smap' scope | redir END
+
+    let mappings = split(maps, "\n")
+
+    if len(mappings) == 1 && mappings[0][0] !~# '[ sv]'  " No mapping found
+      continue
+    endif
+
+    " Assume smap is deliberate, vmap / map unintentional
+    for mapping in filter(mappings, 'v:val[0] =~# "[ v]"')
+      let matches = matchlist(mapping, '\v^...(\S+)\s+[*&@]?[*&@]?(.*)')
+      "                                    ^^^ ^^^    ^^^^^^^^^^^  ^^
+      "                                   mode lhs    special      rhs
+      let trigger = matches[1]
+      let rhs = matches[2]
+
+      " Allow keycodes (i.e. "<Something>") except the ones for printable characters.
+      if trigger[0] == '<' && index(printable_keycodes, trigger) == -1
+        continue
+      endif
+
+      " Disallow everything else.
+      silent! execute 'sunmap' scope trigger
+
+      call add(b:kite_maps, [scope, trigger, rhs])
+    endfor
+  endfor
+endfunction
+
+
+function! s:restore_smaps()
+  for [scope, trigger, rhs] in b:kite_maps
+    " FIXME: I don't think this works.
+    " silent! execute 'smap' scope trigger rhs
+  endfor
+  unlet! b:kite_maps
+endfunction
+
+
+function! s:teardown_maps()
   iunmap <buffer> <C-j>
   iunmap <buffer> <C-k>
   sunmap <buffer> <C-j>
@@ -148,8 +202,9 @@ endfunction
 
 function! s:teardown()
   call s:clear_placeholder_highlights()
-  call s:teardowm_maps()
+  call s:teardown_maps()
   call s:teardown_autocmds()
+  call s:restore_smaps()
   unlet! b:kite_linenr b:kite_line_length b:kite_placeholder_index b:kite_placeholders
 endfunction
 
