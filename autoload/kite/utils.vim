@@ -36,6 +36,7 @@ function! kite#utils#normalise_version(version)
   let lines = split(a:version, '\n')
 
   if lines[0] =~ 'NVIM'
+    " Or use api_info().version.
     return lines[0]  " e.g. NVIM v0.2.2
   else
     let [major, minor] = [v:version / 100, v:version % 100]
