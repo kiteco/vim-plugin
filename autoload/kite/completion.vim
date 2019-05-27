@@ -198,6 +198,7 @@ function! s:adapt(completion_option, max_hint_length, nesting)
         \   'abbr': indent.a:completion_option.display,
         \   'info': a:completion_option.documentation.text,
         \   'menu': hint,
+        \   'equal': 1,
         \   'user_data': json_encode(a:completion_option.snippet.placeholders)
         \ }
 endfunction
