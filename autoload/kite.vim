@@ -196,6 +196,9 @@ endfunction
 function! s:disable_completion_plugins()
   " coc.nvim
   let b:coc_suggest_disable = 1
+  " Alternatively:
+  " autocmd BufEnter *.python :CocDisable
+  " autocmd BufLeave *.python :CocEnable
 
   " Jedi
   if exists('*jedi#setup_completion')
