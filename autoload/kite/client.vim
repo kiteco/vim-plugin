@@ -38,7 +38,7 @@ function! kite#client#counter(json, handler)
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, a:json), a:handler)
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1), a:handler, a:json)
   endif
 endfunction
 
@@ -72,7 +72,7 @@ function! kite#client#hover(filename, hash, cursor, handler)
   if has('channel')
     call s:async(function('s:timer_get', [path, g:kite_long_timeout, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout),
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 0),
           \ function('s:parse_and_handle', [a:handler]))
   endif
 endfunction
@@ -83,19 +83,19 @@ function! kite#client#signatures(json, handler)
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, a:json),
-          \ function('s:parse_and_handle', [a:handler]))
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1),
+          \ function('s:parse_and_handle', [a:handler]), a:json)
   endif
 endfunction
 
 
 function! kite#client#completions(json, handler)
   let path = s:editor_path.'/completions'
-  if has('channel')
+  if !has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, a:json),
-          \ function('s:parse_and_handle', [a:handler]))
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1),
+          \ function('s:parse_and_handle', [a:handler]), a:json)
   endif
 endfunction
 
@@ -105,8 +105,8 @@ function! kite#client#post_event(json, handler)
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_short_timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, a:json),
-          \ function('s:parse_and_handle', [a:handler]))
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_short_timeout, 1),
+          \ function('s:parse_and_handle', [a:handler]), a:json)
   endif
 endfunction
 
@@ -182,31 +182,23 @@ endfunction
 
 " Optional argument is json to be posted
 function! s:external_http(url, timeout, ...)
+  let cmd = s:external_http_cmd(a:url, a:timeout, a:0)
   if a:0
-    let cmd = call(function('s:external_http_cmd'), [a:url, a:timeout] + a:000)
+    return system(cmd, a:1)
   else
-    let cmd = s:external_http_cmd(a:url, a:timeout)
+    return system(cmd)
   endif
-  return system(cmd)
 endif
 endfunction
 
 
-" Optional arguments:
-" - json to be posted
-function! s:external_http_cmd(endpoint, timeout, ...)
+" data argument is a boolean
+function! s:external_http_cmd(endpoint, timeout, data)
   let cmd = s:http_binary
   let cmd .= ' --timeout '.a:timeout.'ms'
-
-  if a:0 > 0
-    let cmd .= ' --post --data '
-    if kite#utils#windows()
-      let cmd .= s:win_escape_json(a:1)
-    else
-      let cmd .= s:shellescape(a:1)
-    endif
+  if a:data
+    let cmd .= ' -'
   endif
-
   let cmd .= ' '.s:shellescape(a:endpoint)
   call kite#utils#log('')
   call kite#utils#log('> '.cmd)
@@ -267,16 +259,6 @@ function! s:shellescape(str)
   let escaped = shellescape(a:str)
   let &shell = _shell
   return escaped
-endfunction
-
-
-" Only used with NeoVim on Windows.
-function! s:win_escape_json(str)
-  " Literal " -> \"
-  let a = escape(a:str, '"')
-  " Literal \\" -> \\\"  (for double quotes escaped inside json property values)
-  let b = substitute(a, '\\\\"', '\\\\\\"', 'g')
-  return '"'.b.'"'
 endfunction
 
 
