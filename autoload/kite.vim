@@ -83,6 +83,7 @@ function! kite#bufenter()
   if s:supported_language()
     call s:launch_kited()
 
+    call s:disable_completion_plugins()
     call s:setup_options()
     call s:setup_events()
     call s:setup_mappings()
@@ -188,6 +189,26 @@ function! s:launch_kited()
   if !s:kite_auto_launched && kite#utils#get_setting('start_kited_at_startup', 1)
     call kite#utils#launch_kited()
     let s:kite_auto_launched = 1
+  endif
+endfunction
+
+
+function! s:disable_completion_plugins()
+  " coc.nvim
+  let b:coc_suggest_disable = 1
+
+  " Jedi
+  if exists('*jedi#setup_completion')
+    " This may not be enough: https://github.com/davidhalter/jedi-vim/issues/614
+    let g:jedi#completions_enabled = 0
+    " Alternatively:
+    " call kite#utils#warn('please uninstall jedi-vim and restart vim/nvim')
+    " finish
+  endif
+
+  " YouCompleteMe
+  if exists('g:loaded_youcompleteme')
+    let g:ycm_filetype_blacklist.python = 1
   endif
 endfunction
 
