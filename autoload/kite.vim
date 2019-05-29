@@ -195,15 +195,19 @@ endfunction
 
 function! s:disable_completion_plugins()
   " coc.nvim
-  let b:coc_suggest_disable = 1
-  " Alternatively:
-  " autocmd BufEnter *.python :CocDisable
-  " autocmd BufLeave *.python :CocEnable
+  if exists('g:did_coc_loaded')
+    let b:coc_suggest_disable = 1
+    " Alternatively:
+    " autocmd BufEnter *.python :CocDisable
+    " autocmd BufLeave *.python :CocEnable
+    call kite#utils#warn("disabling coc.nvim's completions in this buffer")
+  endif
 
   " Jedi
   if exists('*jedi#setup_completion')
     " This may not be enough: https://github.com/davidhalter/jedi-vim/issues/614
     let g:jedi#completions_enabled = 0
+    call kite#utils#warn("disabling jedi-vim's completions")
     " Alternatively:
     " call kite#utils#warn('please uninstall jedi-vim and restart vim/nvim')
     " finish
@@ -212,6 +216,7 @@ function! s:disable_completion_plugins()
   " YouCompleteMe
   if exists('g:loaded_youcompleteme')
     let g:ycm_filetype_blacklist.python = 1
+    call kite#utils#warn("disabling YouCompleteMe's completions for python files")
   endif
 endfunction
 
