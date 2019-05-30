@@ -112,10 +112,10 @@ endfunction
 
 
 function! s:setup_maps()
-  inoremap <buffer> <silent> <C-j> <C-\><C-O>:call kite#snippet#next_placeholder()<CR>
-  inoremap <buffer> <silent> <C-k> <C-\><C-O>:call kite#snippet#previous_placeholder()<CR>
-  snoremap <buffer> <silent> <C-j> <Esc>:call kite#snippet#next_placeholder()<CR>
-  snoremap <buffer> <silent> <C-k> <Esc>:call kite#snippet#previous_placeholder()<CR>
+  inoremap <buffer> <silent> <C-J> <C-\><C-O>:call kite#snippet#next_placeholder()<CR>
+  inoremap <buffer> <silent> <C-K> <C-\><C-O>:call kite#snippet#previous_placeholder()<CR>
+  snoremap <buffer> <silent> <C-J> <Esc>:call kite#snippet#next_placeholder()<CR>
+  snoremap <buffer> <silent> <C-K> <Esc>:call kite#snippet#previous_placeholder()<CR>
 
   call s:remove_smaps_for_printable_characters()
 endfunction
@@ -174,10 +174,10 @@ endfunction
 
 
 function! s:teardown_maps()
-  iunmap <buffer> <C-j>
-  iunmap <buffer> <C-k>
-  sunmap <buffer> <C-j>
-  sunmap <buffer> <C-k>
+  iunmap <buffer> <C-J>
+  iunmap <buffer> <C-K>
+  sunmap <buffer> <C-J>
+  sunmap <buffer> <C-K>
 endfunction
 
 
