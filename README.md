@@ -70,6 +70,20 @@ set belloff+=ctrlg  " if vim beeps during completion
 ```
 
 
+#### Placeholders
+
+Some completions have placeholders which can be filled in.  These will be highlighted with the Underline highlight group.
+
+You can navigate between placeholders with `<CTRL-J>` (forward) and `<CTRL-K>` (backward), even after you have typed over the original placeholder text.
+
+To change these keys:
+
+```viml
+let g:kite_previous_placeholder = '<C-H>'
+let g:kite_next_placeholder = '<C-L>`
+```
+
+
 ### Signatures
 
 Kite can show how other people used the signature you are using.  By default this is off to save space.
