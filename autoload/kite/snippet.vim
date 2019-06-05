@@ -122,53 +122,70 @@ endfunction
 
 
 " Many plugins use vmap for visual-mode mappings but vmap maps both
-" visual-mode and select-mode (they should use xmap instead).  Assume
-" any visual-mode mappings for printable characters are not wanted and
-" remove them (but remember them so we can restore them afterwards).
-" Similarly for map.
+" visual-mode and select-mode (they should use xmap instead).  Assume any
+" visual-mode mappings for printable characters are not wanted and remove them
+" (but remember them so we can restore them afterwards).  Similarly for map.
+" Assume any select-only-mode maps are deliberate.
 "
 " :help mapmode-s
 " :help Select-mode-mapping
 function! s:remove_smaps_for_printable_characters()
   let b:kite_maps = []
-  let printable_keycodes = ['<Space>', '<Bslash>', '<Tab>', '<C-Tab>', '<NL>', '<CR>', '<BS>']
+  let printable_keycodes = [
+        \ '<Space>',
+        \ '<Bslash>',
+        \ '<Tab>',
+        \ '<C-Tab>',
+        \ '<NL>',
+        \ '<CR>',
+        \ '<BS>',
+        \ '<Leader>',
+        \ '<LocalLeader>'
+        \ ]
 
+  " https://vi.stackexchange.com/questions/7734/how-to-save-and-restore-a-mapping
+
+  " Get a list of maps active in select mode.
   for scope in ['<buffer>', '']
     redir => maps | silent execute 'smap' scope | redir END
 
     let mappings = split(maps, "\n")
 
-    if len(mappings) == 1 && mappings[0][0] !~# '[ sv]'  " No mapping found
-      continue
-    endif
+    " 'No mapping found' or localised equivalent (starts with capital letter).
+    if len(mappings) == 1 && mappings[0][0] =~ '\u' | continue | endif
 
-    " Assume smap is deliberate, vmap / map unintentional
-    for mapping in filter(mappings, 'v:val[0] =~# "[ v]"')
-      let matches = matchlist(mapping, '\v^...(\S+)\s+[*&@]?[*&@]?(.*)')
-      "                                    ^^^ ^^^    ^^^^^^^^^^^  ^^
-      "                                   mode lhs    special      rhs
-      let trigger = matches[1]
-      let rhs = matches[2]
+    " Assume select-mode maps are deliberate and ignore them.
+    call filter(mappings, 'v:val[0:2] !~# "s"')
 
-      " Allow keycodes (i.e. "<Something>") except the ones for printable characters.
-      if trigger[0] == '<' && index(printable_keycodes, trigger) == -1
-        continue
-      endif
+    for mapping in mappings
+      let lhs = matchlist(mapping, '\v^...(\S+)\s.*')[1]
+      "                                ^^^ ^^^
+      "                               mode lhs
 
-      " Disallow everything else.
-      silent! execute 'sunmap' scope trigger
+      " Ignore keycodes for non-printable characters, e.g. <Left>
+      if lhs[0] == '<' && index(printable_keycodes, lhs) == -1 | continue | endif
 
-      call add(b:kite_maps, [scope, trigger, rhs])
+      " Remember the mapping so we can restore it later.
+      call add(b:kite_maps, maparg(lhs, 's', 0, 1))
+
+      " Remove the mapping.
+      silent! execute 'sunmap' scope lhs
     endfor
   endfor
 endfunction
 
 
 function! s:restore_smaps()
-  for [scope, trigger, rhs] in b:kite_maps
-    " FIXME: I don't think this works.
-    " silent! execute 'smap' scope trigger rhs
+  for mapping in b:kite_maps
+    silent! execute mapping.mode . (mapping.noremap ? 'nore' : '') . 'map '
+          \ . (mapping.buffer  ? '<buffer> ' : '')
+          \ . (mapping.expr    ? '<expr> '   : '')
+          \ . (mapping.nowait  ? '<nowait> ' : '')
+          \ . (mapping.silent  ? '<silent> ' : '')
+          \ . mapping.lhs . ' '
+          \ . substitute(mapping.rhs, '<SID>', '<SNR>'.mapping.sid.'_', 'g')
   endfor
+
   unlet! b:kite_maps
 endfunction
 
