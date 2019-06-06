@@ -19,6 +19,7 @@ function! kite#snippet#complete_done()
   " Calculate column number of start of each placeholder.
   let inserted_text = v:completed_item.word
   let insertion_start = col('.') - strdisplaywidth(inserted_text)
+  let b:kite_insertion_end = col('.')
 
   for ph in placeholders
     let ph.col_begin = insertion_start + ph.begin
@@ -52,7 +53,16 @@ endfunction
 " Move to the placeholder at index and select its text.
 function! s:placeholder(index)
   if !exists('b:kite_placeholders') | return | endif
-  if a:index < 0 || a:index >= len(b:kite_placeholders) | return | endif
+
+  if a:index < 0 | return | endif
+
+  if a:index == len(b:kite_placeholders)
+    " go to end of original completion
+    call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
+    call feedkeys('a')
+    call s:teardown()
+    return
+  endif
 
   call s:clear_placeholder_highlights()
   call s:highlight_placeholders()
@@ -222,7 +232,7 @@ function! s:teardown()
   call s:teardown_maps()
   call s:teardown_autocmds()
   call s:restore_smaps()
-  unlet! b:kite_linenr b:kite_line_length b:kite_placeholder_index b:kite_placeholders
+  unlet! b:kite_linenr b:kite_line_length b:kite_placeholder_index b:kite_placeholders b:kite_insertion_end
 endfunction
 
 
