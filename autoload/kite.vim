@@ -31,7 +31,7 @@ endfunction
 
 
 function! kite#max_file_size()
-  return 1048576  " 1MB
+  return 76800  " 75KB
 endfunction
 
 
