@@ -37,6 +37,11 @@ if !(has('nvim') || has('timers'))
   finish
 endif
 
+" Nvim-QT
+if exists(':GuiPopupmenu') == 2
+  execute 'GuiPopupmenu 0'
+endif
+
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
