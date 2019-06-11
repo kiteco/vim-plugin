@@ -7,7 +7,7 @@ function! kite#snippet#complete_done()
     return kite#snippet#next_placeholder()
   endif
 
-  let placeholders = sort(json_decode(v:completed_item.user_data), {x,y -> x.begin - y.begin})
+  let placeholders = json_decode(v:completed_item.user_data)
   let b:kite_placeholders = placeholders
   let b:kite_linenr = line('.')
 
