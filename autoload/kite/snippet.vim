@@ -153,8 +153,6 @@ function! s:remove_smaps_for_printable_characters()
         \ '<LocalLeader>'
         \ ]
 
-  " https://vi.stackexchange.com/questions/7734/how-to-save-and-restore-a-mapping
-
   " Get a list of maps active in select mode.
   for scope in ['<buffer>', '']
     redir => maps | silent execute 'smap' scope | redir END
