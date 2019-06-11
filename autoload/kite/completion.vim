@@ -190,8 +190,6 @@ function! s:adapt(completion_option, max_hint_length, nesting)
   let indent = repeat('  ', a:nesting)
 
   " FIXME user_data 8.0.1493
-  " assume they are ordered; if not: sort(placeholders, {x,y -> x.begin - y.begin})
-  " let b:kite_placeholders = a:completion_option.snippet.placeholders
 
   return {
         \   'word': a:completion_option.snippet.text,
