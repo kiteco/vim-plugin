@@ -38,7 +38,7 @@ if !(has('nvim') || has('timers'))
 endif
 
 " Nvim-QT
-if exists(':GuiPopupmenu') == 2
+if exists('g:GuiLoaded')
   echom 'fixing nvim-qt popup menu'
   GuiPopupmenu 0
 endif
