@@ -39,6 +39,7 @@ endif
 
 " Nvim-QT
 if exists(':GuiPopupmenu') == 2
+  echom 'fixing nvim-qt popup menu'
   GuiPopupmenu 0
 endif
 
