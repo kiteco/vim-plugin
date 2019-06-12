@@ -31,6 +31,13 @@ function! kite#completion#autocomplete()
   if wordcount().bytes > kite#max_file_size() | return | endif
 
   if s:should_trigger_completion
+
+    echom 'autocomplete unmap'
+    silent! iunmap <buffer> <C-J>
+    silent! iunmap <buffer> <C-K>
+    silent! sunmap <buffer> <C-J>
+    silent! sunmap <buffer> <C-K>
+
     let s:should_trigger_completion = 0
     call feedkeys("\<C-X>\<C-U>")
   endif

@@ -1,17 +1,42 @@
+"
+"  [
+"    { index: 0, placeholders: { ... } },    <-- depth 0
+"    { index: 0, placeholders: { ... } },    <-- depth 1
+"    ...                                     <-- depth n
+"  ]
+"
+"  index - the currently active placeholder at that depth
+let b:kite_placeholder_stack = []
+
+
+function! s:pop()
+  return remove(b:kite_placeholder_stack, -1)
+endfunction
+
+function! s:peek()
+  return get(b:kite_placeholder_stack, -1)
+endfunction
+
+function! s:push(item)
+  call add(b:kite_placeholder_stack, a:item)
+endfunction
+
+
+
 function! kite#snippet#complete_done()
   if empty(v:completed_item) | return | endif
 
-  " If we have just completed a placeholder (as opposed to a 'top level'
-  " completion) move to the next placeholder.
-  if exists('b:kite_placeholders') && !empty(b:kite_placeholders)
-    return kite#snippet#next_placeholder()
+  let placeholders = json_decode(v:completed_item.user_data)
+
+  " if completion does not contain placeholders and we have just completed a placeholder
+  if empty(placeholders) && !empty(b:kite_placeholder_stack)
+    call kite#snippet#next_placeholder()
+    return
   endif
 
-  let placeholders = json_decode(v:completed_item.user_data)
-  let b:kite_placeholders = placeholders
   let b:kite_linenr = line('.')
 
-  if empty(placeholders) | return | endif
+  call s:push({'placeholders': placeholders, 'index': 0})
 
   call s:setup_maps()
   call s:setup_autocmds()
@@ -30,45 +55,68 @@ function! kite#snippet#complete_done()
 endfunction
 
 
-
+" Go to next placeholder at current level, if there is one, or first placeholder at next level otherwise.
 function! kite#snippet#next_placeholder()
-  if !exists('b:kite_placeholders')       | return | endif
-  if !exists('b:kite_placeholder_index')  | return | endif
+  " if !exists('b:kite_placeholder_stack') | return | endif
 
   call s:update_placeholder_locations()
 
-  call s:placeholder(b:kite_placeholder_index + 1)
+  call s:placeholder(s:peek().index + 1)
 endfunction
 
 
 
 function! kite#snippet#previous_placeholder()
-  if !exists('b:kite_placeholders')       | return | endif
-  if !exists('b:kite_placeholder_index')  | return | endif
+  " if !exists('b:kite_placeholder_stack') | return | endif
 
-  call s:placeholder(b:kite_placeholder_index - 1)
+  call s:placeholder(s:peek().index - 1)
 endfunction
 
 
 " Move to the placeholder at index and select its text.
 function! s:placeholder(index)
-  if !exists('b:kite_placeholders') | return | endif
+  " if empty('b:kite_placeholder_stack') | return | endif
 
-  if a:index < 0 | return | endif
+  let index = a:index
 
-  if a:index == len(b:kite_placeholders)
-    " go to end of original completion
-    call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
-    call feedkeys('a')
-    call s:teardown()
+  " FIXME if another level in stack, go to that one
+  if index < 0
+    let index = 0
+  endif
+
+  let level = s:peek()
+  let placeholders = level.placeholders
+
+  " if navigating forward from last placeholder of current level
+  if index == len(placeholders)
+    call s:pop()
+    if empty(b:kite_placeholder_stack)
+      call s:goto_initial_completion_end()
+    else
+      " we have moved to next level where the index is the placeholder we have
+      " just done; so go to subsequent index.
+      call s:placeholder(s:peek().index + 1)
+    endif
     return
   endif
 
-  call s:clear_placeholder_highlights()
-  call s:highlight_placeholders()
+  call s:clear_all_placeholder_highlights()
+  call s:highlight_current_level_placeholders()
 
-  let b:kite_placeholder_index = a:index
-  let ph = b:kite_placeholders[a:index]
+  let level.index = index
+  let ph = placeholders[index]
+  echom 'ph ' string(ph)
+
+  " debug
+  let i = 0
+  for level in b:kite_placeholder_stack
+    echom 'level' i
+    echom '  index' level.index
+    for pholder in level.placeholders
+      echom '  '.string(pholder)
+    endfor
+    let i += 1
+  endfor
 
   " store line length before placeholder gets changed by user
   let b:kite_line_length = col('$')
@@ -84,6 +132,14 @@ function! s:placeholder(index)
 endfunction
 
 
+function! s:goto_initial_completion_end()
+  " FIXME
+  call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
+  call feedkeys('a')
+  call s:teardown()
+endfunction
+
+
 " Adjust current and subsequent placeholders for the amount of text entered
 " at the placeholder we are leaving.
 function! s:update_placeholder_locations()
@@ -92,37 +148,61 @@ function! s:update_placeholder_locations()
   let line_length_delta = col('$') - b:kite_line_length
 
   " current placeholder
-  let ph = b:kite_placeholders[b:kite_placeholder_index]
+  let ph = s:peek().placeholders[s:peek().index]
   let ph.end += line_length_delta
+  let marker = ph.end
 
-  " subsequent placeholders
-  for ph in b:kite_placeholders[b:kite_placeholder_index+1:]
+  " subsequent placeholders at current level
+  for ph in s:peek().placeholders[s:peek().index+1:]
     let ph.col_begin += line_length_delta
+  endfor
+
+  " placeholders at outer levels
+  for level in b:kite_placeholder_stack[:-2]
+    for ph in level.placeholders
+      if ph.col_begin > marker
+        let ph.col_begin += line_length_delta
+      endif
+    endfor
   endfor
 
   let b:kite_line_length = col('$')
 endfunction
 
 
-function! s:highlight_placeholders()
+function! s:highlight_current_level_placeholders()
   let linenr = line('.')
-  for ph in b:kite_placeholders
+  for ph in s:peek().placeholders
     let ph.matchid = matchaddpos('Underlined', [[linenr, ph.col_begin, ph.end - ph.begin]])
   endfor
 endfunction
 
 
-function! s:clear_placeholder_highlights()
-  for ph in b:kite_placeholders
-    if has_key(ph, 'matchid')
-      call matchdelete(ph.matchid)
-    endif
+function! s:clear_all_placeholder_highlights()
+  for level in b:kite_placeholder_stack
+    for ph in level.placeholders
+      if has_key(ph, 'matchid')
+        call matchdelete(ph.matchid)
+        unlet ph.matchid
+      endif
+    endfor
   endfor
 endfunction
 
 
 function! s:setup_maps()
-  execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:call kite#snippet#next_placeholder()<CR>'
+  echom 'setup maps'
+  " FIXME don't do anything when pumvisible()
+  "
+  " when pumvisble(), and the selection has been changed with ctrl-n / ctrl-p,
+  " the mapping is interpreted differently - the rhs is written in literally
+  " but it is written in the correct place, i.e. it does execute the command
+
+  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:set nonumber<CR>'
+  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:if !pumvisible()<bar>call kite#snippet#next_placeholder()<bar>endif<CR>'
+  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-R>=pumvisible() ? "" : call kite#snippet#next_placeholder()<CR>'
+  "
+  execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:silent call kite#snippet#next_placeholder()<CR>'
   execute 'inoremap <buffer> <silent>' g:kite_previous_placeholder '<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>'
   execute 'snoremap <buffer> <silent>' g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
   execute 'snoremap <buffer> <silent>' g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
@@ -199,6 +279,7 @@ endfunction
 
 
 function! s:teardown_maps()
+  echom 'teardown maps'
   iunmap <buffer> <C-J>
   iunmap <buffer> <C-K>
   sunmap <buffer> <C-J>
@@ -212,8 +293,8 @@ function! s:setup_autocmds()
 
     autocmd CursorMovedI <buffer>
           \ call s:update_placeholder_locations() |
-          \ call s:clear_placeholder_highlights() |
-          \ call s:highlight_placeholders()
+          \ call s:clear_all_placeholder_highlights() |
+          \ call s:highlight_current_level_placeholders()
     autocmd CursorMoved,CursorMovedI <buffer> call s:cursormoved()
     autocmd InsertLeave              <buffer> call s:insertleave()
   augroup END
@@ -226,11 +307,12 @@ endfunction
 
 
 function! s:teardown()
-  call s:clear_placeholder_highlights()
+  call s:clear_all_placeholder_highlights()
   call s:teardown_maps()
   call s:teardown_autocmds()
   call s:restore_smaps()
-  unlet! b:kite_linenr b:kite_line_length b:kite_placeholder_index b:kite_placeholders b:kite_insertion_end
+  call s:pop()  " must come after s:clear_placeholder_highlights()
+  unlet! b:kite_linenr b:kite_line_length b:kite_insertion_end
 endfunction
 
 
