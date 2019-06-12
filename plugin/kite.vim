@@ -39,7 +39,7 @@ endif
 
 " Nvim-QT
 if exists(':GuiPopupmenu') == 2
-  execute 'GuiPopupmenu 0'
+  GuiPopupmenu 0
 endif
 
 augroup Kite
