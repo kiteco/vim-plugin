@@ -32,7 +32,8 @@ function! kite#completion#autocomplete()
 
   if s:should_trigger_completion
 
-    echom 'autocomplete unmap'
+    " todo DRY
+    echom 'about to autocomplete; unmap'
     silent! iunmap <buffer> <C-J>
     silent! iunmap <buffer> <C-K>
     silent! sunmap <buffer> <C-J>

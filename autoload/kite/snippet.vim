@@ -1,4 +1,4 @@
-"
+" stack:
 "  [
 "    { index: 0, placeholders: { ... } },    <-- depth 0
 "    { index: 0, placeholders: { ... } },    <-- depth 1
@@ -6,39 +6,45 @@
 "  ]
 "
 "  index - the currently active placeholder at that depth
-let b:kite_placeholder_stack = []
+let b:kite_stack = {'stack': []}
 
-
-function! s:pop()
-  return remove(b:kite_placeholder_stack, -1)
+function! b:kite_stack.pop()
+  return remove(self.stack, -1)
 endfunction
 
-function! s:peek()
-  return get(b:kite_placeholder_stack, -1)
+function! b:kite_stack.peek()
+  return get(self.stack, -1)
 endfunction
 
-function! s:push(item)
-  call add(b:kite_placeholder_stack, a:item)
+function! b:kite_stack.push(item)
+  call add(self.stack, a:item)
 endfunction
 
+function! b:kite_stack.is_empty()
+  return empty(self.stack)
+endfunction
+
+function! b:kite_stack.empty()
+  let self.stack = []
+endfunction
 
 
 function! kite#snippet#complete_done()
+  call s:setup_maps()
+
   if empty(v:completed_item) | return | endif
 
   let placeholders = json_decode(v:completed_item.user_data)
 
   " if completion does not contain placeholders and we have just completed a placeholder
-  if empty(placeholders) && !empty(b:kite_placeholder_stack)
+  if empty(placeholders) && !b:kite_stack.is_empty()
     call kite#snippet#next_placeholder()
     return
   endif
 
+  call b:kite_stack.push({'placeholders': placeholders, 'index': 0})
   let b:kite_linenr = line('.')
 
-  call s:push({'placeholders': placeholders, 'index': 0})
-
-  call s:setup_maps()
   call s:setup_autocmds()
 
   " Calculate column number of start of each placeholder.
@@ -57,26 +63,19 @@ endfunction
 
 " Go to next placeholder at current level, if there is one, or first placeholder at next level otherwise.
 function! kite#snippet#next_placeholder()
-  " if !exists('b:kite_placeholder_stack') | return | endif
-
   call s:update_placeholder_locations()
-
-  call s:placeholder(s:peek().index + 1)
+  call s:placeholder(b:kite_stack.peek().index + 1)
 endfunction
 
 
 
 function! kite#snippet#previous_placeholder()
-  " if !exists('b:kite_placeholder_stack') | return | endif
-
-  call s:placeholder(s:peek().index - 1)
+  call s:placeholder(b:kite_stack.peek().index - 1)
 endfunction
 
 
 " Move to the placeholder at index and select its text.
 function! s:placeholder(index)
-  " if empty('b:kite_placeholder_stack') | return | endif
-
   let index = a:index
 
   " FIXME if another level in stack, go to that one
@@ -84,18 +83,18 @@ function! s:placeholder(index)
     let index = 0
   endif
 
-  let level = s:peek()
+  let level = b:kite_stack.peek()
   let placeholders = level.placeholders
 
   " if navigating forward from last placeholder of current level
   if index == len(placeholders)
-    call s:pop()
-    if empty(b:kite_placeholder_stack)
+    if len(b:kite_stack.stack) == 1
       call s:goto_initial_completion_end()
     else
+      call b:kite_stack.pop()
       " we have moved to next level where the index is the placeholder we have
       " just done; so go to subsequent index.
-      call s:placeholder(s:peek().index + 1)
+      call s:placeholder(b:kite_stack.peek().index + 1)
     endif
     return
   endif
@@ -105,18 +104,8 @@ function! s:placeholder(index)
 
   let level.index = index
   let ph = placeholders[index]
-  echom 'ph ' string(ph)
 
-  " debug
-  let i = 0
-  for level in b:kite_placeholder_stack
-    echom 'level' i
-    echom '  index' level.index
-    for pholder in level.placeholders
-      echom '  '.string(pholder)
-    endfor
-    let i += 1
-  endfor
+  call s:debug_stack()
 
   " store line length before placeholder gets changed by user
   let b:kite_line_length = col('$')
@@ -133,7 +122,6 @@ endfunction
 
 
 function! s:goto_initial_completion_end()
-  " FIXME
   call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
   call feedkeys('a')
   call s:teardown()
@@ -148,17 +136,17 @@ function! s:update_placeholder_locations()
   let line_length_delta = col('$') - b:kite_line_length
 
   " current placeholder
-  let ph = s:peek().placeholders[s:peek().index]
+  let ph = b:kite_stack.peek().placeholders[b:kite_stack.peek().index]
   let ph.end += line_length_delta
   let marker = ph.end
 
   " subsequent placeholders at current level
-  for ph in s:peek().placeholders[s:peek().index+1:]
+  for ph in b:kite_stack.peek().placeholders[b:kite_stack.peek().index+1:]
     let ph.col_begin += line_length_delta
   endfor
 
   " placeholders at outer levels
-  for level in b:kite_placeholder_stack[:-2]
+  for level in b:kite_stack.stack[:-2]
     for ph in level.placeholders
       if ph.col_begin > marker
         let ph.col_begin += line_length_delta
@@ -172,14 +160,14 @@ endfunction
 
 function! s:highlight_current_level_placeholders()
   let linenr = line('.')
-  for ph in s:peek().placeholders
+  for ph in b:kite_stack.peek().placeholders
     let ph.matchid = matchaddpos('Underlined', [[linenr, ph.col_begin, ph.end - ph.begin]])
   endfor
 endfunction
 
 
 function! s:clear_all_placeholder_highlights()
-  for level in b:kite_placeholder_stack
+  for level in b:kite_stack.stack
     for ph in level.placeholders
       if has_key(ph, 'matchid')
         call matchdelete(ph.matchid)
@@ -280,10 +268,10 @@ endfunction
 
 function! s:teardown_maps()
   echom 'teardown maps'
-  iunmap <buffer> <C-J>
-  iunmap <buffer> <C-K>
-  sunmap <buffer> <C-J>
-  sunmap <buffer> <C-K>
+  silent! iunmap <buffer> <C-J>
+  silent! iunmap <buffer> <C-K>
+  silent! sunmap <buffer> <C-J>
+  silent! sunmap <buffer> <C-K>
 endfunction
 
 
@@ -306,12 +294,14 @@ function! s:teardown_autocmds()
 endfunction
 
 
+" Called to deactivate all placeholders.
 function! s:teardown()
   call s:clear_all_placeholder_highlights()
   call s:teardown_maps()
   call s:teardown_autocmds()
   call s:restore_smaps()
-  call s:pop()  " must come after s:clear_placeholder_highlights()
+  call s:debug_stack()
+  call b:kite_stack.empty()
   unlet! b:kite_linenr b:kite_line_length b:kite_insertion_end
 endfunction
 
@@ -329,4 +319,21 @@ function! s:insertleave()
   if mode(1) !=# 's' && mode(1) !=# 'niI'
     call s:teardown()
   endif
+endfunction
+
+
+function! s:debug_stack()
+  if b:kite_stack.is_empty()
+    echom 'stack empty'
+    return
+  endif
+  let i = 0
+  for level in b:kite_stack.stack
+    echom 'level' i
+    echom '  index' level.index
+    for pholder in level.placeholders
+      echom '  '.string(pholder)
+    endfor
+    let i += 1
+  endfor
 endfunction
