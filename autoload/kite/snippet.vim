@@ -40,20 +40,43 @@ function! kite#snippet#complete_done()
     return
   endif
 
-  call b:kite_stack.push({'placeholders': placeholders, 'index': 0})
   let b:kite_linenr = line('.')
 
   call s:setup_maps()
   call s:setup_autocmds()
 
-  " Calculate column number of start of each placeholder.
+  " Calculate column number (col_begin) of start of each placeholder, and placeholder length.
   let inserted_text = v:completed_item.word
   let insertion_start = col('.') - strdisplaywidth(inserted_text)
   let b:kite_insertion_end = col('.')
 
   for ph in placeholders
     let ph.col_begin = insertion_start + ph.begin
+    let ph.length = ph.end - ph.begin
+    unlet ph.begin ph.end
   endfor
+
+  """"""""""
+  " todo move this into the push() function
+  if !b:kite_stack.is_empty()
+    " current placeholder which has just been completed
+    let level = b:kite_stack.peek()
+    let ph = level.placeholders[level.index]
+    let ph_new_length = col('.') - ph.col_begin
+    let ph_length_delta = ph_new_length - ph.length
+    let ph.length = ph_new_length
+
+    " following placeholders at same level
+    for ph in level.placeholders[level.index+1:]
+      let ph.col_begin += ph_length_delta
+    endfor
+
+    " TODO outer levels
+  endif
+  """"""""""
+
+  call b:kite_stack.push({'placeholders': placeholders, 'index': 0})
+  call s:debug_stack()
 
   " Move to first placeholder.
   call s:placeholder(0)
@@ -82,11 +105,14 @@ function! s:placeholder(index)
     let index = 0
   endif
 
+  call s:debug_stack()
+
   let level = b:kite_stack.peek()
   let placeholders = level.placeholders
 
   " if navigating forward from last placeholder of current level
   if index == len(placeholders)
+    echom 'last placeholder of current level'
     if len(b:kite_stack.stack) == 1
       call s:goto_initial_completion_end()
     else
@@ -104,8 +130,6 @@ function! s:placeholder(index)
   let level.index = index
   let ph = placeholders[index]
 
-  " call s:debug_stack()
-
   " store line length before placeholder gets changed by user
   let b:kite_line_length = col('$')
 
@@ -114,7 +138,7 @@ function! s:placeholder(index)
 
   let linenr = line('.')
   call setpos("'<", [0, linenr, ph.col_begin])
-  call setpos("'>", [0, linenr, ph.col_begin + ph.end - ph.begin - (mode() == 'n' ? 1 : 0)])
+  call setpos("'>", [0, linenr, ph.col_begin + ph.length - (mode() == 'n' ? 1 : 0)])
   " normal mode -> visual mode -> select mode
   execute "normal! gv\<C-G>"
 endfunction
@@ -137,9 +161,9 @@ function! s:update_placeholder_locations()
   " current placeholder
   let level = b:kite_stack.peek()
   let ph = level.placeholders[level.index]
-  let marker = ph.col_begin + (ph.end - ph.begin)
+  let marker = ph.col_begin + ph.length
   " echom 'marker' marker
-  let ph.end += line_length_delta
+  let ph.length += line_length_delta
 
   " subsequent placeholders at current level
   let level = b:kite_stack.peek()
@@ -163,7 +187,7 @@ endfunction
 function! s:highlight_current_level_placeholders()
   let linenr = line('.')
   for ph in b:kite_stack.peek().placeholders
-    let ph.matchid = matchaddpos('Underlined', [[linenr, ph.col_begin, ph.end - ph.begin]])
+    let ph.matchid = matchaddpos('Underlined', [[linenr, ph.col_begin, ph.length]])
   endfor
 endfunction
 
