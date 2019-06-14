@@ -30,8 +30,6 @@ endfunction
 
 
 function! kite#snippet#complete_done()
-  call s:setup_maps()
-
   if empty(v:completed_item) | return | endif
 
   let placeholders = json_decode(v:completed_item.user_data)
@@ -45,6 +43,7 @@ function! kite#snippet#complete_done()
   call b:kite_stack.push({'placeholders': placeholders, 'index': 0})
   let b:kite_linenr = line('.')
 
+  call s:setup_maps()
   call s:setup_autocmds()
 
   " Calculate column number of start of each placeholder.
@@ -105,7 +104,7 @@ function! s:placeholder(index)
   let level.index = index
   let ph = placeholders[index]
 
-  call s:debug_stack()
+  " call s:debug_stack()
 
   " store line length before placeholder gets changed by user
   let b:kite_line_length = col('$')
@@ -117,7 +116,7 @@ function! s:placeholder(index)
   call setpos("'<", [0, linenr, ph.col_begin])
   call setpos("'>", [0, linenr, ph.col_begin + ph.end - ph.begin - (mode() == 'n' ? 1 : 0)])
   " normal mode -> visual mode -> select mode
-  execute "normal! gv\<c-g>"
+  execute "normal! gv\<C-G>"
 endfunction
 
 
@@ -136,12 +135,15 @@ function! s:update_placeholder_locations()
   let line_length_delta = col('$') - b:kite_line_length
 
   " current placeholder
-  let ph = b:kite_stack.peek().placeholders[b:kite_stack.peek().index]
+  let level = b:kite_stack.peek()
+  let ph = level.placeholders[level.index]
+  let marker = ph.col_begin + (ph.end - ph.begin)
+  " echom 'marker' marker
   let ph.end += line_length_delta
-  let marker = ph.end
 
   " subsequent placeholders at current level
-  for ph in b:kite_stack.peek().placeholders[b:kite_stack.peek().index+1:]
+  let level = b:kite_stack.peek()
+  for ph in level.placeholders[level.index+1:]
     let ph.col_begin += line_length_delta
   endfor
 
@@ -175,27 +177,6 @@ function! s:clear_all_placeholder_highlights()
       endif
     endfor
   endfor
-endfunction
-
-
-function! s:setup_maps()
-  echom 'setup maps'
-  " FIXME don't do anything when pumvisible()
-  "
-  " when pumvisble(), and the selection has been changed with ctrl-n / ctrl-p,
-  " the mapping is interpreted differently - the rhs is written in literally
-  " but it is written in the correct place, i.e. it does execute the command
-
-  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:set nonumber<CR>'
-  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:if !pumvisible()<bar>call kite#snippet#next_placeholder()<bar>endif<CR>'
-  " execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-R>=pumvisible() ? "" : call kite#snippet#next_placeholder()<CR>'
-  "
-  execute 'inoremap <buffer> <silent>' g:kite_next_placeholder     '<C-\><C-O>:silent call kite#snippet#next_placeholder()<CR>'
-  execute 'inoremap <buffer> <silent>' g:kite_previous_placeholder '<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>'
-  execute 'snoremap <buffer> <silent>' g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
-  execute 'snoremap <buffer> <silent>' g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
-
-  call s:remove_smaps_for_printable_characters()
 endfunction
 
 
@@ -266,12 +247,26 @@ function! s:restore_smaps()
 endfunction
 
 
-function! s:teardown_maps()
-  echom 'teardown maps'
-  silent! iunmap <buffer> <C-J>
-  silent! iunmap <buffer> <C-K>
-  silent! sunmap <buffer> <C-J>
-  silent! sunmap <buffer> <C-K>
+function! s:setup_maps()
+  execute 'inoremap <buffer> <silent> <expr>' g:kite_next_placeholder     'pumvisible() ? "<C-Y>" : "<C-\><C-O>:call kite#snippet#next_placeholder()<CR>"'
+  execute 'inoremap <buffer> <silent> <expr>' g:kite_previous_placeholder 'pumvisible() ? "<C-Y>" : "<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>"'
+  " FIXME: when the popup menu is open, <C-K> should accept the current option
+  " and navigate to previous placeholder.  But I cannot get this working well.
+  "                           select -> visual
+  " ... 'pumvisible() ? "<C-Y><C-G>:<C-U>call kite#snippet#previous_placeholder(2)<CR>" : ...'
+
+  execute 'snoremap <buffer> <silent>' g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
+  execute 'snoremap <buffer> <silent>' g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
+
+  call s:remove_smaps_for_printable_characters()
+endfunction
+
+
+function! kite#snippet#teardown_maps()
+  execute 'silent! iunmap <buffer>' g:kite_next_placeholder
+  execute 'silent! iunmap <buffer>' g:kite_previous_placeholder
+  execute 'silent! sunmap <buffer>' g:kite_next_placeholder
+  execute 'silent! sunmap <buffer>' g:kite_previous_placeholder
 endfunction
 
 
@@ -297,10 +292,10 @@ endfunction
 " Called to deactivate all placeholders.
 function! s:teardown()
   call s:clear_all_placeholder_highlights()
-  call s:teardown_maps()
+  call kite#snippet#teardown_maps()
   call s:teardown_autocmds()
   call s:restore_smaps()
-  call s:debug_stack()
+  " call s:debug_stack()
   call b:kite_stack.empty()
   unlet! b:kite_linenr b:kite_line_length b:kite_insertion_end
 endfunction
