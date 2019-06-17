@@ -91,8 +91,8 @@ endfunction
 
 
 
-function! kite#snippet#previous_placeholder()
-  call s:placeholder(b:kite_stack.peek().index - 1)
+function! kite#snippet#previous_placeholder(...)
+  call s:placeholder(b:kite_stack.peek().index - 1 - (a:0 ? a:1 : 0))
 endfunction
 
 
@@ -100,25 +100,30 @@ endfunction
 function! s:placeholder(index)
   let index = a:index
 
-  " FIXME if another level in stack, go to that one
-  if index < 0
-    let index = 0
-  endif
-
   call s:debug_stack()
 
   let level = b:kite_stack.peek()
   let placeholders = level.placeholders
 
+  if index < 0
+    " If no other levels in stack
+    if len(b:kite_stack.stack) == 1
+      " Stay with first placeholder and proceed
+      let index = 0
+    else
+      call b:kite_stack.pop()
+      call s:placeholder(b:kite_stack.peek().index - 1)
+      return
+    endif
+  endif
+
   " if navigating forward from last placeholder of current level
   if index == len(placeholders)
-    echom 'last placeholder of current level'
+    " If no other levels in stack
     if len(b:kite_stack.stack) == 1
       call s:goto_initial_completion_end()
     else
       call b:kite_stack.pop()
-      " we have moved to next level where the index is the placeholder we have
-      " just done; so go to subsequent index.
       call s:placeholder(b:kite_stack.peek().index + 1)
     endif
     return
@@ -272,13 +277,8 @@ endfunction
 
 
 function! s:setup_maps()
-  execute 'inoremap <buffer> <silent> <expr>' g:kite_next_placeholder     'pumvisible() ? "<C-Y>" : "<C-\><C-O>:call kite#snippet#next_placeholder()<CR>"'
-  execute 'inoremap <buffer> <silent> <expr>' g:kite_previous_placeholder 'pumvisible() ? "<C-Y>" : "<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>"'
-  " FIXME: when the popup menu is open, <C-K> should accept the current option
-  " and navigate to previous placeholder.  But I cannot get this working well.
-  "                           select -> visual
-  " ... 'pumvisible() ? "<C-Y><C-G>:<C-U>call kite#snippet#previous_placeholder(2)<CR>" : ...'
-
+  execute 'inoremap <buffer> <silent> <expr>' g:kite_next_placeholder     'pumvisible() ? "<C-Y>"                                                         : "<C-\><C-O>:call kite#snippet#next_placeholder()<CR>"'
+  execute 'inoremap <buffer> <silent> <expr>' g:kite_previous_placeholder 'pumvisible() ? "<C-Y><C-G>:<C-U>call kite#snippet#previous_placeholder(2)<CR>" : "<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>"'
   execute 'snoremap <buffer> <silent>' g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
   execute 'snoremap <buffer> <silent>' g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
 
