@@ -279,8 +279,8 @@ endfunction
 function! s:setup_maps()
   execute 'inoremap <buffer> <silent> <expr>' g:kite_next_placeholder     'pumvisible() ? "<C-Y>"                                                         : "<C-\><C-O>:call kite#snippet#next_placeholder()<CR>"'
   execute 'inoremap <buffer> <silent> <expr>' g:kite_previous_placeholder 'pumvisible() ? "<C-Y><C-G>:<C-U>call kite#snippet#previous_placeholder(2)<CR>" : "<C-\><C-O>:call kite#snippet#previous_placeholder()<CR>"'
-  execute 'snoremap <buffer> <silent>' g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
-  execute 'snoremap <buffer> <silent>' g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
+  execute 'snoremap <buffer> <silent>'        g:kite_next_placeholder     '<Esc>:call kite#snippet#next_placeholder()<CR>'
+  execute 'snoremap <buffer> <silent>'        g:kite_previous_placeholder '<Esc>:call kite#snippet#previous_placeholder()<CR>'
 
   call s:remove_smaps_for_printable_characters()
 endfunction
