@@ -56,8 +56,10 @@ function! kite#snippet#complete_done()
     unlet ph.begin ph.end
   endfor
 
-  """"""""""
-  " todo move this into the push() function
+  " Update placeholder locations.
+  "
+  " todo move this into the push() function?
+  " note this is very similar to s:update_placeholder_locations()
   if !b:kite_stack.is_empty()
     " current placeholder which has just been completed
     let level = b:kite_stack.peek()
@@ -81,10 +83,8 @@ function! kite#snippet#complete_done()
       endfor
     endfor
   endif
-  """"""""""
 
   call b:kite_stack.push({'placeholders': placeholders, 'index': 0})
-  call s:debug_stack()
 
   " Move to first placeholder.
   call s:placeholder(0)
@@ -107,8 +107,6 @@ endfunction
 " Move to the placeholder at index and select its text.
 function! s:placeholder(index)
   let index = a:index
-
-  call s:debug_stack()
 
   let level = b:kite_stack.peek()
   let placeholders = level.placeholders
@@ -180,7 +178,6 @@ function! s:update_placeholder_locations()
   let ph.length += line_length_delta
 
   " subsequent placeholders at current level
-  let level = b:kite_stack.peek()
   for ph in level.placeholders[level.index+1:]
     let ph.col_begin += line_length_delta
   endfor
@@ -334,7 +331,6 @@ function! s:teardown()
   call kite#snippet#teardown_maps()
   call s:teardown_autocmds()
   call s:restore_smaps()
-  " call s:debug_stack()
   call b:kite_stack.empty()
   unlet! b:kite_linenr b:kite_line_length b:kite_insertion_end
 endfunction
