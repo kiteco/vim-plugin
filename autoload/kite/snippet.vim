@@ -65,13 +65,21 @@ function! kite#snippet#complete_done()
     let ph_new_length = col('.') - ph.col_begin
     let ph_length_delta = ph_new_length - ph.length
     let ph.length = ph_new_length
+    let marker = ph.col_begin
 
     " following placeholders at same level
     for ph in level.placeholders[level.index+1:]
       let ph.col_begin += ph_length_delta
     endfor
 
-    " TODO outer levels
+    " placeholders at outer levels
+    for level in b:kite_stack.stack[:-2]
+      for ph in level.placeholders
+        if ph.col_begin > marker
+          let ph.col_begin += ph_length_delta
+        endif
+      endfor
+    endfor
   endif
   """"""""""
 
@@ -105,6 +113,9 @@ function! s:placeholder(index)
   let level = b:kite_stack.peek()
   let placeholders = level.placeholders
 
+  " Clear highlights before we pop the stack.
+  call s:clear_all_placeholder_highlights()
+
   if index < 0
     " If no other levels in stack
     if len(b:kite_stack.stack) == 1
@@ -129,7 +140,6 @@ function! s:placeholder(index)
     return
   endif
 
-  call s:clear_all_placeholder_highlights()
   call s:highlight_current_level_placeholders()
 
   let level.index = index
@@ -166,8 +176,7 @@ function! s:update_placeholder_locations()
   " current placeholder
   let level = b:kite_stack.peek()
   let ph = level.placeholders[level.index]
-  let marker = ph.col_begin + ph.length
-  " echom 'marker' marker
+  let marker = ph.col_begin
   let ph.length += line_length_delta
 
   " subsequent placeholders at current level
@@ -197,6 +206,12 @@ function! s:highlight_current_level_placeholders()
 endfunction
 
 
+" Clears highlights of placeholders in the stack.
+"
+" Note: if we need a way to clear highlights of placeholders which are no
+" longer in the stack (because they have been popped) we could use a custom
+" highlight group (e.g. KiteUnderline linked to Underline), call getmatches(),
+" and remove all matches using the custom highlight group.
 function! s:clear_all_placeholder_highlights()
   for level in b:kite_stack.stack
     for ph in level.placeholders
