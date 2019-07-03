@@ -215,7 +215,7 @@ endfunction
 
 function! kite#utils#warn(msg)
   echohl WarningMsg
-  echo 'Kite: '.a:msg
+  echom 'Kite: '.a:msg
   echohl None
   let v:warningmsg = a:msg
 endfunction
@@ -223,7 +223,7 @@ endfunction
 
 function! kite#utils#info(msg)
   echohl Question
-  echo a:msg
+  echom a:msg
   echohl None
 endfunction
 
