@@ -199,7 +199,7 @@ endfunction
 function! s:highlight_current_level_placeholders()
   let linenr = line('.')
   for ph in b:kite_stack.peek().placeholders
-    let ph.matchid = matchaddpos('Underlined', [[linenr, ph.col_begin, ph.length]])
+    let ph.matchid = matchaddpos('Special', [[linenr, ph.col_begin, ph.length]])
   endfor
 endfunction
 
