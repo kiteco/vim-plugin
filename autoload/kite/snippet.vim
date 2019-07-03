@@ -41,6 +41,7 @@ function! kite#snippet#complete_done()
   endif
 
   let b:kite_linenr = line('.')
+  let b:kite_line_length = col('$')
 
   call s:setup_maps()
   call s:setup_autocmds()
