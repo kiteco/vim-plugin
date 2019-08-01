@@ -34,10 +34,13 @@ function! kite#snippet#complete_done()
 
   let placeholders = json_decode(v:completed_item.user_data)
 
-  " if completion does not contain placeholders and we have just completed a placeholder
-  if empty(placeholders) && !b:kite_stack.is_empty()
-    call kite#snippet#next_placeholder()
-    return
+  if empty(placeholders)
+    if b:kite_stack.is_empty()
+      return
+    else
+      call kite#snippet#next_placeholder()
+      return
+    endif
   endif
 
   let b:kite_linenr = line('.')
@@ -145,7 +148,7 @@ function! s:placeholder(index)
   let ph = placeholders[index]
 
   " store line length before placeholder gets changed by user
-  let b:kite_line_length = col('$')
+  " let b:kite_line_length = col('$')
 
   " insert mode -> normal mode
   stopinsert
@@ -159,8 +162,8 @@ endfunction
 
 
 function! s:goto_initial_completion_end()
-  call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
-  call feedkeys('a')
+  " call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
+  call setpos('.', [0, b:kite_linenr, col('$')])
   call s:teardown()
 endfunction
 
@@ -197,9 +200,12 @@ endfunction
 
 
 function! s:highlight_current_level_placeholders()
+  let group = s:highlight_group_for_placeholders()
+  if empty(group) | return | endif
+
   let linenr = line('.')
   for ph in b:kite_stack.peek().placeholders
-    let ph.matchid = matchaddpos('Special', [[linenr, ph.col_begin, ph.length]])
+    let ph.matchid = matchaddpos(group, [[linenr, ph.col_begin, ph.length]])
   endfor
 endfunction
 
@@ -334,6 +340,16 @@ function! s:teardown()
   call s:restore_smaps()
   call b:kite_stack.empty()
   unlet! b:kite_linenr b:kite_line_length b:kite_insertion_end
+endfunction
+
+
+function! s:highlight_group_for_placeholders()
+  for group in ['Special', 'SpecialKey', 'Underline', 'DiffChange']
+    if hlexists(group)
+      return group
+    endif
+  endfor
+  return ''
 endfunction
 
 
