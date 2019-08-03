@@ -363,7 +363,7 @@ endfunction
 
 function! s:insertleave()
   " Modes established by experimentation.
-  if mode(1) !=# 's' && mode(1) !=# 'niI'
+  if mode(1) !=# 's' && mode(1) !=# (has('patch-8.1.0225') ? 'niI' : 'n')
     call s:teardown()
   endif
 endfunction
