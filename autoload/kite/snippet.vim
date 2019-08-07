@@ -357,6 +357,8 @@ function! s:cursormoved()
   if !exists('b:kite_linenr') | return | endif
   if b:kite_linenr == line('.') | return | endif
 
+  " TODO check whether the cursor is outside the bounds of the completion?
+
   call s:teardown()
 endfunction
 
