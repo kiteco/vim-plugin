@@ -218,6 +218,12 @@ function! s:disable_completion_plugins()
     let g:ycm_filetype_blacklist.python = 1
     call kite#utils#warn("disabling YouCompleteMe's completions for python files")
   endif
+
+  " Deoplete
+  if exists('*deoplete#disable')
+    call deoplete#disable()
+    call kite#utils#warn("disabling deoplete's completions")
+  endif
 endfunction
 
 
