@@ -37,6 +37,12 @@ let g:kite_auto_complete=0
 
 You can manually invoke the completions in insert mode with `<C-X><C-U>`.  See `:h i_CTRL-X_CTRL-U` for details.
 
+Kite's completions include snippets by default.  To opt out of the snippets, add this to your vimrc:
+
+```viml
+let g:kite_snippets=0
+```
+
 Normally you insert the currently selected completion option with `<C-y>`.  If you'd like to use `<Tab>` instead / as well, add this to your vimrc:
 
 ```viml

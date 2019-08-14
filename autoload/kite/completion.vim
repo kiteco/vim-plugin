@@ -105,6 +105,7 @@ function! s:get_completions()
           \ }
   else
     let params = {
+          \   'no_snippets':  (g:kite_snippets ? v:false : v:true),
           \   'filename':     filename,
           \   'editor':       'vim',
           \   'text':         s:text,

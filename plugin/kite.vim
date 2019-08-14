@@ -11,6 +11,10 @@ if !exists('g:kite_auto_complete')
   let g:kite_auto_complete = 1
 endif
 
+if !exists('g:kite_snippets')
+  let g:kite_snippets = 1
+endif
+
 if !exists('g:kite_previous_placeholder')
   let g:kite_previous_placeholder = '<C-K>'
 endif
