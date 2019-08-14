@@ -39,16 +39,12 @@ function! kite#status#handler(buffer, response)
 
   let json = json_decode(a:response.body)
 
-  " indexing | syncing | ready | noIndex
+  " indexing | ready | noIndex
   let status = json.status
   let msg = ''
 
   if status == 'ready'
     let msg = 'Kite'
-  endif
-
-  if status == 'syncing'
-    let msg = 'Kite: syncing'
   endif
 
   if status == 'indexing'
