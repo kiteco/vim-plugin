@@ -39,7 +39,7 @@ function! kite#status#handler(buffer, response)
 
   let json = json_decode(a:response.body)
 
-  " indexing | syncing | ready
+  " indexing | syncing | ready | noIndex
   let status = json.status
   let msg = ''
 
@@ -53,6 +53,10 @@ function! kite#status#handler(buffer, response)
 
   if status == 'indexing'
     let msg = 'Kite: indexing'
+  endif
+
+  if status == 'noIndex'
+    let msg = 'Kite: ready (unindexed)'
   endif
 
   if msg !=# getbufvar(a:buffer, 'kite_status')
