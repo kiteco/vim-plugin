@@ -351,7 +351,7 @@ endif
 let features = json_decode(join(readfile(f), ''))
 
 for feature in features
-  let tests = glob(File('tests', feature, '*.json'), 1, 1)
+  let tests = glob(File('tests', feature, '**', '*.json'), 1, 1)
   for test in tests
     " if test !~ 'completions_new_spec/any/all' | continue | endif  " TODO remove this
     call RunTest(test)
