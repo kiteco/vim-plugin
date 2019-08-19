@@ -174,6 +174,7 @@ function! kite#signature#handler(counter, startcol, response) abort
               \   'word':  '',
               \   'abbr':  indent.line,
               \   'empty': 1,
+              \   'equal': 1,
               \   'dup':   1
               \ }
         call add(completions, completion)
