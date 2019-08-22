@@ -158,6 +158,9 @@ function! s:placeholder(index)
   call setpos("'>", [0, linenr, ph.col_begin + ph.length - (mode() == 'n' ? 1 : 0)])
   " normal mode -> visual mode -> select mode
   execute "normal! gv\<C-G>"
+  if mode() ==# 'S'
+    execute "normal! \<C-O>gh"
+  endif
 endfunction
 
 
