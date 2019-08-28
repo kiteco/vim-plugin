@@ -34,7 +34,7 @@ function! kite#snippet#complete_done()
 
   let placeholders = json_decode(v:completed_item.user_data)
 
-  if empty(placeholders)
+  if empty(placeholders) || (len(placeholders) == 1 && placeholders[0].begin == placeholders[0].end)
     if b:kite_stack.is_empty()
       return
     else
