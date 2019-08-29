@@ -34,7 +34,7 @@ function! kite#snippet#complete_done()
 
   let placeholders = json_decode(v:completed_item.user_data)
 
-  if empty(placeholders) || (len(placeholders) == 1 && placeholders[0].begin == placeholders[0].end)
+  if empty(placeholders)
     if b:kite_stack.is_empty()
       return
     else
@@ -149,6 +149,11 @@ function! s:placeholder(index)
 
   " store line length before placeholder gets changed by user
   " let b:kite_line_length = col('$')
+
+  if ph.length == 0
+    execute "normal! h"
+    return
+  endif
 
   " insert mode -> normal mode
   stopinsert
