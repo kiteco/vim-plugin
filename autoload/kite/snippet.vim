@@ -150,6 +150,11 @@ function! s:placeholder(index)
   " store line length before placeholder gets changed by user
   " let b:kite_line_length = col('$')
 
+  if ph.length == 0
+    execute "normal! h"
+    return
+  endif
+
   " insert mode -> normal mode
   stopinsert
 
