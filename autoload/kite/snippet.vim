@@ -151,7 +151,7 @@ function! s:placeholder(index)
   " let b:kite_line_length = col('$')
 
   if ph.length == 0
-    execute "normal! h"
+    normal! h
     return
   endif
 
