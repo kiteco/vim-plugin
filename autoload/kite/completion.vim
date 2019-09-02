@@ -173,6 +173,13 @@ function! kite#completion#handler(counter, startcol, response) abort
     endif
   endfor
 
+  if !has('patch-8.0.1493')
+    let b:kite_completions = {}
+    for item in filter(copy(matches), 'has_key(v:val, "user_data")')
+      let b:kite_completions[item.word] = item.user_data
+    endfor
+  endif
+
   call complete(a:startcol+1, matches)
 endfunction
 
@@ -189,8 +196,6 @@ function! s:adapt(completion_option, max_hint_length, nesting)
   endif
 
   let indent = repeat('  ', a:nesting)
-
-  " FIXME user_data 8.0.1493
 
   return {
         \   'word': a:completion_option.snippet.text,
