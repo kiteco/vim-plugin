@@ -31,6 +31,7 @@ endfunction
 
 function! kite#snippet#complete_done()
   if empty(v:completed_item) | return | endif
+  if !has_key(v:completed_item, 'user_data') | return | endif
 
   let placeholders = json_decode(v:completed_item.user_data)
 
