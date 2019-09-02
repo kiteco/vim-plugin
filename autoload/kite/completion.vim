@@ -180,7 +180,9 @@ function! kite#completion#handler(counter, startcol, response) abort
     endfor
   endif
 
-  call complete(a:startcol+1, matches)
+  if mode(1) ==# 'i'
+    call complete(a:startcol+1, matches)
+  endif
 endfunction
 
 
