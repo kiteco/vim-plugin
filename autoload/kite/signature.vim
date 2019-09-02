@@ -182,7 +182,9 @@ function! kite#signature#handler(counter, startcol, response) abort
     endfor
   endif
 
-  call complete(a:startcol+1, completions)
+  if mode(1) ==# 'i'
+    call complete(a:startcol+1, completions)
+  endif
 endfunction
 
 
