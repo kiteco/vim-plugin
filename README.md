@@ -10,9 +10,9 @@ provides the frontend that interfaces with the Kite Engine, which runs 100% loca
 Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite helps you while using Vim at https://kite.com/integrations/vim/.
 
 At a high level, Kite provides you with:
-* 🧠 __[Line-of-Code Completions](https://github.com/kiteco/vim-plugin/blob/vim-plugin-readme-updates/README.md#Line-of-Code_Completions)__ powered by machine learning models trained on the entire open source code universe
-* 📝 __[Intelligent Snippets](https://github.com/kiteco/vim-plugin/blob/vim-plugin-readme-updates/README.md#Intelligent_Snippets)__ that automatically provide context-relevant code snippets for your function calls
-* 🔍 __[Instant documentation](https://github.com/kiteco/vim-plugin/blob/vim-plugin-readme-updates/README.md#Kite_Copilot)__ for the symbol underneath your cursor so you save time searching for Python docs
+* 🧠 __[Line-of-Code Completions](#Line-of-Code-Completions)__ powered by machine learning models trained on the entire open source code universe
+* 📝 __[Intelligent Snippets](#Intelligent-Snippets)__ that automatically provide context-relevant code snippets for your function calls
+* 🔍 __[Instant documentation](#Kite-Copilot-for-Python-Documentation)__ for the symbol underneath your cursor so you save time searching for Python docs
 
 
 ### Installation
