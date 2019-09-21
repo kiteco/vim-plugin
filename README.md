@@ -77,7 +77,7 @@ set belloff+=ctrlg  " if vim beeps during completion
 ```
 
 
-#### Intelligent Snippets
+### Intelligent Snippets
 
 Some completions autogenerate code snippets which can be filled in.  These will be highlighted with the Underline highlight group.
 
@@ -91,7 +91,7 @@ let g:kite_next_placeholder = '<C-L>`
 ```
 
 
-### Signatures
+#### Signatures
 
 Kite can show how other people used the signature you are using.  By default this is off to save space.
 
