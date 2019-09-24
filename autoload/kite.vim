@@ -144,16 +144,6 @@ function! s:setup_mappings()
     inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
   endif
 
-  " InsertCharPre is not fired for non-printable characters such as backspace.
-  " TextChangedI is not fired when the pop-up menu is open.  Therefore use
-  " an insert-mode mapping to force completion to re-occur when backspace is
-  " pressed while the pop-up menu is open.
-  "
-  " This can cause problems in gVim <= 8.0.1806. #123.
-  if !(kite#utils#windows() && has('gui_running') && (v:version < 800 || (v:version == 800 && !has('patch1806'))))
-    inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
-  endif
-
   if exists('g:kite_tab_complete')
     inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif

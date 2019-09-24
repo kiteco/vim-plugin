@@ -37,12 +37,6 @@ function! kite#completion#autocomplete()
 endfunction
 
 
-function! kite#completion#backspace()
-  let s:should_trigger_completion = 1
-  return "\<BS>"
-endfunction
-
-
 " Manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
   if a:findstart
