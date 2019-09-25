@@ -1,11 +1,6 @@
 # Kite Python Plugin for Vim/Neovim
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Vim. The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which runs 100% locally on your computer performing all the code analysis and machine learning (no code is sent to a cloud server).
-
-
-## Features
-
-Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite helps you while you're using Vim at https://kite.com/integrations/vim/.
+Kite is an AI-powered programming assistant that helps you write Python code inside Vim. Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite helps you while you're using Vim at https://kite.com/integrations/vim/.
 
 At a high level, Kite provides you with:
 * 🧠 __[Line-of-Code Completions](#Line-of-Code-Completions)__ powered by machine learning models trained on the entire open source code universe
@@ -25,6 +20,8 @@ Use another editor? Check out [Kite’s other editor integrations](https://kite.
 ## Installation
 
 ### Installing the Kite Engine
+
+The [Kite Engine](https://kite.com/) needs to be installed and running on your computer in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which performs all the code analysis and machine learning 100% locally on your computer (no code is sent to a cloud server).
 
 __macOS Instructions__
 1. Download the [installer](https://kite.com/download/) and open the downloaded `.dmg` file.
@@ -52,7 +49,7 @@ Once installed, the plugin will be automatically updated by Kite when necessary.
 
 ## Features
 
-Kite's Vim/Neovim plugin provides a number of features to help you code more efficiently, such as...
+Kite's Vim/Neovim plugin provides a number of features to help you code better and faster.
 
 
 ### Line-of-Code Completions
