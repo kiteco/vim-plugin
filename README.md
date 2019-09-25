@@ -1,6 +1,6 @@
 # Kite Python Plugin for Vim/Neovim
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Atom. The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which runs 100% locally on your computer performing all the code analysis and machine learning (no code is sent to a cloud server).
+Kite is an AI-powered programming assistant that helps you write Python code inside Vim. The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which runs 100% locally on your computer performing all the code analysis and machine learning (no code is sent to a cloud server).
 
 
 ## Features
