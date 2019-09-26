@@ -14,22 +14,22 @@ let s:permissions_path   = 'kite://settings/permissions'
 
 function! kite#client#docs(word)
   let url = s:docs_path.a:word
-  call s:open_kite_url(url)
+  call kite#utils#browse(url)
 endfunction
 
 
 function! kite#client#settings()
-  call s:open_kite_url(s:settings_path)
+  call kite#utils#browse(s:settings_path)
 endfunction
 
 
 function! kite#client#permissions()
-  call s:open_kite_url(s:permissions_path)
+  call kite#utils#browse(s:permissions_path)
 endfunction
 
 
 function! kite#client#copilot()
-  call s:open_kite_url(s:copilot_path)
+  call kite#utils#browse(s:copilot_path)
 endfunction
 
 
@@ -263,16 +263,6 @@ endfunction
 
 
 let s:http_binary = kite#utils#lib('kite-http')
-
-
-function! s:open_kite_url(url)
-  if kite#utils#windows()
-    let cmd = 'cmd /c start "" "'.a:url.'"'
-  else
-    let cmd = 'open "'.a:url.'"'
-  endif
-  silent call system(cmd)
-endfunction
 
 
 if !empty($KITED_TEST_PORT)
