@@ -2,6 +2,7 @@ let s:port               = empty($KITED_TEST_PORT) ? 46624 : $KITED_TEST_PORT
 let s:channel_base       = 'localhost:'.s:port
 let s:base_url           = 'http://127.0.0.1:'.s:port
 let s:editor_path        = '/clientapi/editor'
+let s:onboarding_path    = '/clientapi/plugins/onboarding_file?editor=vim'
 let s:hover_path         = '/api/buffer/vim'
 let s:docs_path          = 'kite://docs/'
 let s:status_path        = '/clientapi/status?filename='
@@ -45,6 +46,17 @@ endfunction
 
 function! kite#client#logged_in(handler)
   let path = s:user_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+  return a:handler(s:parse_response(response))
+endfunction
+
+
+function! kite#client#onboarding_file(handler)
+  let path = s:onboarding_path
   if has('channel')
     let response = s:internal_http(path, g:kite_short_timeout)
   else

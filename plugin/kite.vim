@@ -57,6 +57,7 @@ endif
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
+  autocmd VimEnter * ++nested call kite#onboarding#call()
 augroup END
 
 
