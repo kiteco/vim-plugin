@@ -64,6 +64,17 @@ function! s:winshell()
   return kite#utils#windows() && &shellcmdflag !~# '^-'
 endfunction
 
+
+function! kite#utils#browse(url)
+  if kite#utils#windows()
+    let cmd = 'cmd /c start "" "'.a:url.'"'
+  else
+    let cmd = 'open "'.a:url.'"'
+  endif
+  silent call system(cmd)
+endfunction
+
+
 " From tpope/vim-fugitive
 function! s:shellescape(arg)
   if a:arg =~ '^[A-Za-z0-9_/.-]\+$'
