@@ -122,19 +122,9 @@ function! s:setup_mappings()
   " keys is pressed.
   "
   " Note the <CR> mapping can conflict with vim-endwise because vim-endwise
-  " also maps <CR>.  There are two ways around the conflict:
-  "
-  " - Either:
+  " also maps <CR>.  To work around the conflict:
   "
   "     let g:kite_deconflict_cr = 1
-  "
-  "   This works but you will see the mapping echoed in the status line
-  "   because vim-endwise ignores the <silent> when it re-maps the map.
-  "
-  " - Or use vim-endwise's experimental abbreviations instead:
-  "
-  "     let g:endwise_abbreviations = 1
-  "     let g:endwise_no_mappings = 1
   "
   inoremap <buffer> <expr> <C-e> kite#completion#popup_exit("\<C-e>")
   inoremap <buffer> <expr> <C-y> kite#completion#popup_exit("\<C-y>")
