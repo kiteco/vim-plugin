@@ -1,5 +1,7 @@
 let s:should_trigger_completion = 0
 let s:completion_counter = 0
+let s:begin = 0
+let s:end = 0
 
 
 function! kite#completion#insertcharpre()
@@ -35,12 +37,6 @@ function! kite#completion#autocomplete()
 endfunction
 
 
-function! kite#completion#backspace()
-  let s:should_trigger_completion = 1
-  return "\<BS>"
-endfunction
-
-
 " Manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
   if a:findstart
@@ -61,11 +57,19 @@ function! kite#completion#complete(findstart, base)
 endfunction
 
 
+function! kite#completion#snippet(begin, end)
+  let s:begin = a:begin
+  let s:end = a:end
+  " call kite#completion#autocomplete()
+  call feedkeys("\<C-X>\<C-U>")
+endfunction
+
+
 function! s:findstart()
   let line = getline('.')
   let start = col('.') - 1
 
-  let s:signature = s:before_function_call_argument(line[:start-1])
+  let s:signature = s:before_function_call_argument(line[:start-1]) && s:begin == 0
 
   if !s:signature
     while start > 0 && line[start - 1] =~ '\w'
@@ -86,12 +90,28 @@ function! s:get_completions()
 
   let filename = kite#utils#filepath(0)
 
-  let params = {
-        \   'filename':     filename,
-        \   'editor':       'vim',
-        \   'text':         s:text,
-        \   'cursor_runes': s:cursor
-        \ }
+  if s:signature
+    let params = {
+          \   'filename':     filename,
+          \   'editor':       'vim',
+          \   'text':         s:text,
+          \   'cursor_runes': s:cursor
+          \ }
+  else
+    let params = {
+          \   'no_snippets':  (g:kite_snippets ? v:false : v:true),
+          \   'filename':     filename,
+          \   'editor':       'vim',
+          \   'text':         s:text,
+          \   'position': {
+          \     'begin': (s:begin > 0 ? s:begin : s:cursor),
+          \     'end':   (s:end   > 0 ? s:end   : s:cursor),
+          \   },
+          \   'placeholders': []
+          \ }
+    let s:begin = 0
+    let s:end   = 0
+  endif
 
   let json = json_encode(params)
 
@@ -105,6 +125,11 @@ endfunction
 
 function! kite#completion#handler(counter, startcol, response) abort
   call kite#utils#log('completion: '.a:response.status)
+
+  " Ignore old completion results.
+  if a:counter != s:completion_counter
+    return
+  endif
 
   " Ignore old completion results.
   if a:counter != s:completion_counter
@@ -128,29 +153,80 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  let hint_len = 0
-  for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
-    if strlen(hint) > hint_len
-      let hint_len = strlen(hint)
-    endif
-  endfor
+
+  let max_hint_length = s:max_hint_length(json.completions)
 
   let matches = []
   for c in json.completions
-    let hint = ' '.(strlen(c.hint) > 0 ? c.hint.' '.kite#symbol(): kite#symbol())
-    if strlen(hint) < hint_len
-      let hint = repeat(' ', hint_len - strlen(hint)).hint
+    call add(matches, s:adapt(c, max_hint_length, 0))
+
+    if has_key(c, 'children')
+      for child in c.children
+        call add(matches, s:adapt(child, max_hint_length, 1))
+      endfor
     endif
-    call add(matches, {
-          \     'word': c.insert,
-          \     'abbr': c.display,
-          \     'info': c.documentation_text,
-          \     'menu': hint
-          \   })
   endfor
 
-  call complete(a:startcol+1, matches)
+  if !has('patch-8.0.1493')
+    let b:kite_completions = {}
+    for item in filter(copy(matches), 'has_key(v:val, "user_data")')
+      let b:kite_completions[item.word] = item.user_data
+    endfor
+  endif
+
+  if mode(1) ==# 'i'
+    call complete(a:startcol+1, matches)
+  endif
+endfunction
+
+
+function! s:adapt(completion_option, max_hint_length, nesting)
+  " By default the hint is separated from the preceding text by a single
+  " space.  We want two spaces.
+  let max = a:max_hint_length + 1
+  let hint = ' '.s:branded_hint(a:completion_option.hint)
+
+  " Right align.
+  if strdisplaywidth(hint) < max
+    let hint = repeat(' ', max - strdisplaywidth(hint)).hint
+  endif
+
+  let indent = repeat('  ', a:nesting)
+
+  return {
+        \   'word': a:completion_option.snippet.text,
+        \   'abbr': indent.a:completion_option.display,
+        \   'info': a:completion_option.documentation.text,
+        \   'menu': hint,
+        \   'equal': 1,
+        \   'user_data': json_encode(a:completion_option.snippet.placeholders)
+        \ }
+endfunction
+
+
+function! s:max_hint_length(completions)
+  let max = 0
+
+  for e in a:completions
+    let len = strdisplaywidth(s:branded_hint(e.hint))
+    if len > max
+      let max = len
+    endif
+
+    if has_key(e, 'children')
+      let len = s:max_hint_length(e.children)
+      if len > max
+        let max = len
+      endif
+    endif
+  endfor
+
+  return max
+endfunction
+
+
+function! s:branded_hint(text)
+  return empty(a:text) ? kite#symbol() : a:text.' '.kite#symbol()
 endfunction
 
 

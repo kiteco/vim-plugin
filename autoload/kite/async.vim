@@ -36,7 +36,8 @@ function! kite#async#sync(cmd)
 endfunction
 
 
-function! kite#async#execute(cmd, handler)
+" Optional argument is data (JSON) to pass to cmd's stdin.
+function! kite#async#execute(cmd, handler, ...)
   let options = {
         \ 'stdoutbuffer': [],
         \ 'handler': a:handler,
@@ -44,15 +45,24 @@ function! kite#async#execute(cmd, handler)
   let command = s:build_command(a:cmd)
 
   if has('nvim')
-    call jobstart(command, extend(options, {
+    let jobid = jobstart(command, extend(options, {
           \ 'on_stdout': function('s:on_stdout_nvim'),
           \ 'on_exit':   function('s:on_exit_nvim')
           \ }))
+    if a:0
+      call chansend(jobid, a:1)
+      call chanclose(jobid, 'stdin')
+    endif
   else
-    call job_start(command, {
+    let job = job_start(command, {
           \ 'out_cb':       function('s:on_stdout_vim', options),
           \ 'close_cb':     function('s:on_close_vim', options)
           \ })
+    if a:0
+      let channel = job_getchannel(job)
+      call ch_sendraw(channel, a:1)
+      call ch_close_in(channel)
+    endif
   endif
 endfunction
 

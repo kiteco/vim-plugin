@@ -31,7 +31,7 @@ endfunction
 
 
 function! kite#max_file_size()
-  return 1048576  " 1MB
+  return 76800  " 75KB
 endfunction
 
 
@@ -49,14 +49,9 @@ function! s:setup_options()
   let s:shortmess = &shortmess
   set shortmess+=c
 
-  " Only set completeopt if it hasn't been set already.
   let s:completeopt = &completeopt
-  redir => output
-    silent verbose set completeopt
-  redir END
-  if len(split(output, '\n')) == 1
-    set completeopt=menuone,noinsert
-  endif
+  set completeopt+=menuone,noinsert
+  set completeopt-=longest
 
   if kite#utils#windows()
     " Avoid taskbar flashing on Windows when executing system() calls.
@@ -112,6 +107,8 @@ function s:setup_events()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
+    autocmd CompleteDone             <buffer> call kite#snippet#complete_done()
+
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
       autocmd CursorHold,CursorHoldI <buffer> call kite#docs#docs()
     endif
@@ -146,16 +143,6 @@ function! s:setup_mappings()
     inoremap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
   else
     inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
-  endif
-
-  " InsertCharPre is not fired for non-printable characters such as backspace.
-  " TextChangedI is not fired when the pop-up menu is open.  Therefore use
-  " an insert-mode mapping to force completion to re-occur when backspace is
-  " pressed while the pop-up menu is open.
-  "
-  " This can cause problems in gVim <= 8.0.1806. #123.
-  if !(kite#utils#windows() && has('gui_running') && (v:version < 800 || (v:version == 800 && !has('patch1806'))))
-    inoremap <buffer> <expr> <BS> pumvisible() ? kite#completion#backspace() : "\<BS>"
   endif
 
   if exists('g:kite_tab_complete')

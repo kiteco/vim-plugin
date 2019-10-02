@@ -11,6 +11,18 @@ if !exists('g:kite_auto_complete')
   let g:kite_auto_complete = 1
 endif
 
+if !exists('g:kite_snippets')
+  let g:kite_snippets = 1
+endif
+
+if !exists('g:kite_previous_placeholder')
+  let g:kite_previous_placeholder = '<C-K>'
+endif
+
+if !exists('g:kite_next_placeholder')
+  let g:kite_next_placeholder = '<C-J>'
+endif
+
 if !exists('g:kite_documentation_continual')
   let g:kite_documentation_continual = 0
 endif
@@ -35,6 +47,11 @@ endif
 if !(has('nvim') || has('timers'))
   call kite#utils#warn('disabled - requires nvim or vim with the +timers feature')
   finish
+endif
+
+" Nvim-QT
+if exists('g:GuiLoaded')
+  GuiPopupmenu 0
 endif
 
 augroup Kite
