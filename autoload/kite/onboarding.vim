@@ -25,7 +25,7 @@ endfunction
 
 function! kite#onboarding#handler(response) abort
   if a:response.status == 200
-    silent execute 'tabedit' s:trim(a:response.body, '"')
+    silent execute 'tabedit' json_decode(a:response.body)
     call kite#utils#set_setting(s:option, 0)
 
   else
@@ -63,12 +63,6 @@ function! s:handle_choice(index)
   elseif a:index == 2  " hide forever
     call kite#utils#set_setting(s:option, 0)
   endif
-endfunction
-
-
-" Removes any leading and trailing double quotation marks.
-function! s:trim(text, mask)
-  return substitute(substitute(a:text, '^'.a:mask, '', ''), a:mask.'$', '', '')
 endfunction
 
 
