@@ -132,16 +132,16 @@ function! s:setup_mappings()
   "
   "     let g:kite_deconflict_cr = 1
   "
-  inoremap <buffer> <expr> <C-e> kite#completion#popup_exit("\<C-e>")
-  inoremap <buffer> <expr> <C-y> kite#completion#popup_exit("\<C-y>")
+  imap <buffer> <expr> <C-e> kite#completion#popup_exit("\<C-e>")
+  imap <buffer> <expr> <C-y> kite#completion#popup_exit("\<C-y>")
   if exists('g:kite_deconflict_cr') && g:kite_deconflict_cr
-    inoremap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
+    imap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
   else
-    inoremap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
+    imap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
   endif
 
   if exists('g:kite_tab_complete')
-    inoremap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
+    imap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif
 
   if empty(maparg('K', 'n')) && !hasmapto('(kite-docs)', 'n')
