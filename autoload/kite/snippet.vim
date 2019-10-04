@@ -1,36 +1,41 @@
-" stack:
-"  [
-"    { index: 0, placeholders: { ... } },    <-- depth 0
-"    { index: 0, placeholders: { ... } },    <-- depth 1
-"    ...                                     <-- depth n
-"  ]
-"
-"  index - the currently active placeholder at that depth
-let b:kite_stack = {'stack': []}
+function! s:setup_stack()
+  if exists('b:kite_stack') | return | endif
 
-function! b:kite_stack.pop()
-  return remove(self.stack, -1)
-endfunction
+  " stack:
+  "  [
+  "    { index: 0, placeholders: { ... } },    <-- depth 0
+  "    { index: 0, placeholders: { ... } },    <-- depth 1
+  "    ...                                     <-- depth n
+  "  ]
+  "
+  "  index - the currently active placeholder at that depth
+  let b:kite_stack = {'stack': []}
 
-function! b:kite_stack.peek()
-  return get(self.stack, -1)
-endfunction
+  function! b:kite_stack.pop()
+    return remove(self.stack, -1)
+  endfunction
 
-function! b:kite_stack.push(item)
-  call add(self.stack, a:item)
-endfunction
+  function! b:kite_stack.peek()
+    return get(self.stack, -1)
+  endfunction
 
-function! b:kite_stack.is_empty()
-  return empty(self.stack)
-endfunction
+  function! b:kite_stack.push(item)
+    call add(self.stack, a:item)
+  endfunction
 
-function! b:kite_stack.empty()
-  let self.stack = []
+  function! b:kite_stack.is_empty()
+    return empty(self.stack)
+  endfunction
+
+  function! b:kite_stack.empty()
+    let self.stack = []
+  endfunction
 endfunction
 
 
 function! kite#snippet#complete_done()
   if empty(v:completed_item) | return | endif
+  call s:setup_stack()
 
   if has_key(v:completed_item, 'user_data')
     let placeholders = json_decode(v:completed_item.user_data)
