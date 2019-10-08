@@ -51,7 +51,7 @@ function! s:setup_options()
 
   let s:completeopt = &completeopt
   set completeopt+=menuone,noinsert
-  set completeopt-=longest
+  set completeopt-=longest,preview
 
   if kite#utils#windows()
     " Avoid taskbar flashing on Windows when executing system() calls.
