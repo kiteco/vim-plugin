@@ -59,7 +59,7 @@ endfunction
 
 function! s:handle_choice(index)
   if a:index == 0  " learn now
-    call kite#utils#browse('https://kite.com')
+    call kite#utils#browse('https://help.kite.com/category/47-vim-integration')
   elseif a:index == 2  " hide forever
     call kite#utils#set_setting(s:option, 0)
   endif
