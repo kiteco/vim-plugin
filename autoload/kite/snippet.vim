@@ -32,7 +32,7 @@ endfunction
 function! kite#snippet#complete_done()
   if empty(v:completed_item) | return | endif
 
-  if has_key(v:completed_item, 'user_data')
+  if has_key(v:completed_item, 'user_data') && !empty(v:completed_item.user_data)
     let placeholders = json_decode(v:completed_item.user_data)
   elseif exists('b:kite_completions') && has_key(b:kite_completions, v:completed_item.word)
     let placeholders = json_decode(b:kite_completions[v:completed_item.word])
