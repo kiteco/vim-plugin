@@ -1,6 +1,12 @@
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:timer = -1
-let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
+
+if !kite#utils#windows()
+  let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
+else
+  let s:kite_symbol = '[k]'
+endif
+
 let s:inited = 0
 let s:kite_auto_launched = 0
 
