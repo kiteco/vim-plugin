@@ -182,6 +182,6 @@ endfunction
 
 
 function! s:supported_language()
-  return expand('%:e') == 'py'
+  return &filetype == 'python'
 endfunction
 
