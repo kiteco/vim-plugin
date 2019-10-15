@@ -123,11 +123,6 @@ function! s:settings()
 endfunction
 
 
-function! kite#utils#generate_help()
-  execute 'helptags' s:doc_dir
-endfunction
-
-
 function! kite#utils#os()
   return s:os
 endfunction
