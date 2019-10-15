@@ -14,9 +14,11 @@ let s:text = [
 let s:option = 'onboarding_required'
 
 
-function! kite#onboarding#call()
-  if !kite#utils#get_setting(s:option, 1)
-    return
+function! kite#onboarding#call(force)
+  if !a:force
+    if !kite#utils#get_setting(s:option, 1)
+      return
+    endif
   endif
 
   call kite#client#onboarding_file(function('kite#onboarding#handler'))

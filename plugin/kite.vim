@@ -57,7 +57,7 @@ endif
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
-  autocmd VimEnter * nested if &filetype !~# '^git' | call kite#onboarding#call() | endif
+  autocmd VimEnter * nested if &filetype !~# '^git' | call kite#onboarding#call(0) | endif
 augroup END
 
 
@@ -67,6 +67,7 @@ command! KiteDocsAtCursor         call kite#docs#docs()
 command! KiteOpenCopilot          call kite#client#copilot()
 command! KiteGeneralSettings      call kite#client#settings()
 command! KitePermissions          call kite#client#permissions()
+command! KiteTutorial             call kite#onboarding#call(1)
 command! KiteDisableAutoStart     call kite#disable_auto_start()
 command! KiteEnableAutoStart      call kite#enable_auto_start()
 command! KiteShowPopularPatterns  call kite#signature#show_popular_patterns()
