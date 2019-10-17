@@ -154,15 +154,16 @@ function! kite#completion#handler(counter, startcol, response) abort
   endif
 
 
+  let max_display_length = s:max_display_length(json.completions, 0)
   let max_hint_length = s:max_hint_length(json.completions)
 
   let matches = []
   for c in json.completions
-    call add(matches, s:adapt(c, max_hint_length, 0))
+    call add(matches, s:adapt(c, max_display_length, max_hint_length, 0))
 
     if has_key(c, 'children')
       for child in c.children
-        call add(matches, s:adapt(child, max_hint_length, 1))
+        call add(matches, s:adapt(child, max_display_length, max_hint_length, 1))
       endfor
     endif
   endfor
@@ -180,22 +181,38 @@ function! kite#completion#handler(counter, startcol, response) abort
 endfunction
 
 
-function! s:adapt(completion_option, max_hint_length, nesting)
-  " By default the hint is separated from the preceding text by a single
-  " space.  We want two spaces.
-  let max = a:max_hint_length + 1
-  let hint = ' '.s:branded_hint(a:completion_option.hint)
+function! s:adapt(completion_option, max_display_length, max_hint_length, nesting)
+  let display = s:indent(a:nesting) . a:completion_option.display
 
-  " Right align.
-  if strdisplaywidth(hint) < max
-    let hint = repeat(' ', max - strdisplaywidth(hint)).hint
+  " Ensure a minimum separation between abbr and menu or two spaces.
+  " (Vim lines up the menus so that they are left-aligned 1 space
+  " after the longest abbr).
+  let hint = ' ' . a:completion_option.hint
+
+  " let win_width = winwidth(0) - &numberwidth - &foldcolumn - 2  " assume single sign column
+  " let max_width = win_width - col('.') - 7  " adjustment is by trial and error
+  let max_width = 75
+
+  let max_hint_width = max_width - a:max_display_length
+
+  if !kite#utils#windows()
+    let ellipsis = '...'
+  else
+    let ellipsis = '…'
   endif
 
-  let indent = repeat('  ', a:nesting)
+  if strdisplaywidth(hint) > max_hint_width
+    let hint = hint[:max_hint_width-1].ellipsis
+  else
+    let hint = repeat(' ', max_hint_width-strdisplaywidth(hint)+strdisplaywidth(ellipsis)) . hint  " left-pad with spaces to align right
+  endif
+
+  " Add the branding
+  let hint .= ' '.kite#symbol()
 
   return {
         \   'word': a:completion_option.snippet.text,
-        \   'abbr': indent.a:completion_option.display,
+        \   'abbr': display,
         \   'info': a:completion_option.documentation.text,
         \   'menu': hint,
         \   'equal': 1,
@@ -208,7 +225,7 @@ function! s:max_hint_length(completions)
   let max = 0
 
   for e in a:completions
-    let len = strdisplaywidth(s:branded_hint(e.hint))
+    let len = strdisplaywidth(e.hint)
     if len > max
       let max = len
     endif
@@ -225,8 +242,29 @@ function! s:max_hint_length(completions)
 endfunction
 
 
-function! s:branded_hint(text)
-  return empty(a:text) ? kite#symbol() : a:text.' '.kite#symbol()
+function! s:max_display_length(completions, nesting)
+  let max = 0
+
+  for e in a:completions
+    let len = strdisplaywidth(s:indent(a:nesting) . e.display)
+    if len > max
+      let max = len
+    endif
+
+    if has_key(e, 'children')
+      let len = s:max_display_length(e.children, a:nesting+1)
+      if len > max
+        let max = len
+      endif
+    endif
+  endfor
+
+  return max
+endfunction
+
+
+function! s:indent(nesting)
+  return repeat('  ', a:nesting)
 endfunction
 
 
