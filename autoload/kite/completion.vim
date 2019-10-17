@@ -195,7 +195,7 @@ function! s:adapt(completion_option, max_display_length, max_hint_length, nestin
 
   let max_hint_width = max_width - a:max_display_length
 
-  if !kite#utils#windows()
+  if kite#utils#windows()
     let ellipsis = '...'
   else
     let ellipsis = '…'
