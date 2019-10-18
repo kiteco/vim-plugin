@@ -303,3 +303,29 @@ function Test_normalise_version()
         \ ], "\n")
   call assert_equal('NVIM v0.2.2', kite#utils#normalise_version(version_str))
 endfunction
+
+
+function Test_ralign()
+  " No room
+  call assert_equal('', kite#utils#ralign('foobar', 0))
+  call assert_equal('', kite#utils#ralign('foobar', -1))
+
+  " The required length
+  call assert_equal('foobar', kite#utils#ralign('foobar', 6))
+
+  " Less than the required length
+  call assert_equal('   foobar', kite#utils#ralign('foobar', 9))
+
+  " Greater than the required length
+  if kite#utils#windows()
+    call assert_equal('fo...', kite#utils#ralign('foobar', 5))
+    call assert_equal('   ', kite#utils#ralign('foobar', 3))
+    call assert_equal('  ', kite#utils#ralign('foobar', 2))
+    call assert_equal(' ', kite#utils#ralign('foobar', 1))
+  else
+    call assert_equal('foob…', kite#utils#ralign('foobar', 5))
+    call assert_equal('fo…', kite#utils#ralign('foobar', 3))
+    call assert_equal('f…', kite#utils#ralign('foobar', 2))
+    call assert_equal(' ', kite#utils#ralign('foobar', 1))
+  endif
+endfunction

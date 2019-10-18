@@ -39,6 +39,10 @@ if !exists('g:kite_long_timeout')
   let g:kite_long_timeout = 400  " ms
 endif
 
+if !exists('g:kite_completion_max_width')
+  let g:kite_completion_max_width = 75
+endif
+
 if !(has('nvim') || has('job'))
   call kite#utils#warn('disabled - requires nvim or vim with the +job feature')
   finish

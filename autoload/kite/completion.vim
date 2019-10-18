@@ -155,15 +155,14 @@ function! kite#completion#handler(counter, startcol, response) abort
 
 
   let max_display_length = s:max_display_length(json.completions, 0)
-  let max_hint_length = s:max_hint_length(json.completions)
 
   let matches = []
   for c in json.completions
-    call add(matches, s:adapt(c, max_display_length, max_hint_length, 0))
+    call add(matches, s:adapt(c, max_display_length, 0))
 
     if has_key(c, 'children')
       for child in c.children
-        call add(matches, s:adapt(child, max_display_length, max_hint_length, 1))
+        call add(matches, s:adapt(child, max_display_length, 1))
       endfor
     endif
   endfor
@@ -181,7 +180,7 @@ function! kite#completion#handler(counter, startcol, response) abort
 endfunction
 
 
-function! s:adapt(completion_option, max_display_length, max_hint_length, nesting)
+function! s:adapt(completion_option, max_display_length, nesting)
   let display = s:indent(a:nesting) . a:completion_option.display
 
   " Ensure a minimum separation between abbr and menu or two spaces.
@@ -191,21 +190,9 @@ function! s:adapt(completion_option, max_display_length, max_hint_length, nestin
 
   " let win_width = winwidth(0) - &numberwidth - &foldcolumn - 2  " assume single sign column
   " let max_width = win_width - col('.') - 7  " adjustment is by trial and error
-  let max_width = 75
-
+  let max_width = g:kite_completion_max_width
   let max_hint_width = max_width - a:max_display_length
-
-  if kite#utils#windows()
-    let ellipsis = '...'
-  else
-    let ellipsis = '…'
-  endif
-
-  if strdisplaywidth(hint) > max_hint_width
-    let hint = hint[:max_hint_width-1].ellipsis
-  else
-    let hint = repeat(' ', max_hint_width-strdisplaywidth(hint)+strdisplaywidth(ellipsis)) . hint  " left-pad with spaces to align right
-  endif
+  let hint = kite#utils#ralign(hint, max_hint_width)
 
   " Add the branding
   let hint .= ' '.kite#symbol()
@@ -218,27 +205,6 @@ function! s:adapt(completion_option, max_display_length, max_hint_length, nestin
         \   'equal': 1,
         \   'user_data': json_encode(a:completion_option.snippet.placeholders)
         \ }
-endfunction
-
-
-function! s:max_hint_length(completions)
-  let max = 0
-
-  for e in a:completions
-    let len = strdisplaywidth(e.hint)
-    if len > max
-      let max = len
-    endif
-
-    if has_key(e, 'children')
-      let len = s:max_hint_length(e.children)
-      if len > max
-        let max = len
-      endif
-    endif
-  endfor
-
-  return max
 endfunction
 
 

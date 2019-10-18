@@ -522,6 +522,49 @@ function! kite#utils#present(dict, key)
 endfunction
 
 
+" Returns a string of the given length.
+"
+" If length is 0 or negative, returns an empty string.
+"
+" If text is less than length, it is padded with leading spaces so that it is
+" right-aligned.
+"
+" If text is greater than length, it is truncated with an ellipsis.
+" If there isn't room for an ellipsis, or room for only an ellipsis, empty spaces are used.
+function! kite#utils#ralign(text, length)
+  if a:length <= 0
+    return ''
+  endif
+
+  let text_width = strdisplaywidth(a:text)
+
+  " The required length
+  if text_width == a:length
+    return a:text
+  endif
+
+  " Less than the required length: left-pad
+  if text_width < a:length
+    return repeat(' ', a:length-text_width) . a:text
+  endif
+
+  " Greater than the required length: truncate
+
+  if kite#utils#windows()
+    let ellipsis = '...'
+  else
+    let ellipsis = '…'
+  endif
+  let ellipsis_width = strdisplaywidth(ellipsis)
+
+  if ellipsis_width >= a:length
+    return repeat(' ', a:length)
+  endif
+
+  return a:text[: a:length-ellipsis_width-1] . ellipsis
+endfunction
+
+
 function! s:chomp(str)
   return substitute(a:str, '\n$', '', '')
 endfunction
