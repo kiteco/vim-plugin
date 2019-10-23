@@ -183,7 +183,7 @@ endfunction
 function! s:adapt(completion_option, max_display_length, nesting)
   let display = s:indent(a:nesting) . a:completion_option.display
 
-  " Ensure a minimum separation between abbr and menu or two spaces.
+  " Ensure a minimum separation between abbr and menu of two spaces.
   " (Vim lines up the menus so that they are left-aligned 1 space
   " after the longest abbr).
   let hint = ' ' . a:completion_option.hint
