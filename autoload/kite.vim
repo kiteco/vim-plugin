@@ -41,6 +41,17 @@ function! kite#max_file_size()
 endfunction
 
 
+function! kite#configure_completeopt()
+  " If the user has configured completeopt, leave it alone.
+  redir => output
+    silent verbose set completeopt
+  redir END
+  if len(split(output, '\n')) > 1 | return | endif
+
+  set completeopt=menuone,noinsert
+endfunction
+
+
 function! s:setup_options()
   let s:pumheight = &pumheight
   if &pumheight == 0
@@ -54,10 +65,6 @@ function! s:setup_options()
 
   let s:shortmess = &shortmess
   set shortmess+=c
-
-  let s:completeopt = &completeopt
-  set completeopt+=menuone,noinsert
-  set completeopt-=longest,preview
 
   if kite#utils#windows()
     " Avoid taskbar flashing on Windows when executing system() calls.
@@ -73,7 +80,6 @@ function! s:restore_options()
   let &pumheight   = s:pumheight
   let &updatetime  = s:updatetime
   let &shortmess   = s:shortmess
-  let &completeopt = s:completeopt
   if kite#utils#windows()
     let &shelltemp = s:shelltemp
   endif

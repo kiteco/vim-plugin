@@ -61,6 +61,7 @@ endif
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
+  autocmd VimEnter * call kite#configure_completeopt()
   autocmd VimEnter * nested if &filetype !~# '^git' | call kite#onboarding#call(0) | endif
 augroup END
 
