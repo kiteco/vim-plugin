@@ -329,3 +329,23 @@ function Test_ralign()
     call assert_equal(' ', kite#utils#ralign('foobar', 1))
   endif
 endfunction
+
+
+function Test_truncate()
+  " Enough room
+  call assert_equal('foobar', kite#utils#truncate('foobar', 10))
+  call assert_equal('foobar', kite#utils#truncate('foobar', 6))
+
+  " Not enough room
+  if kite#utils#windows()
+    call assert_equal('fo...', kite#utils#truncate('foobar', 5))
+    call assert_equal('f...', kite#utils#truncate('foobar', 4))
+    call assert_equal('f..', kite#utils#truncate('foobar', 3))
+    call assert_equal('f.', kite#utils#truncate('foobar', 2))
+  else
+    call assert_equal('foob…', kite#utils#truncate('foobar', 5))
+    call assert_equal('foo…', kite#utils#truncate('foobar', 4))
+    call assert_equal('fo…', kite#utils#truncate('foobar', 3))
+    call assert_equal('f…', kite#utils#truncate('foobar', 2))
+  endif
+endfunction

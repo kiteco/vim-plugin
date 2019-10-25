@@ -153,16 +153,41 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-
+  " 'display' is the LHS of each option in the completion menu
   let max_display_length = s:max_display_length(json.completions, 0)
+  " 'hint' is the RHS of each option in the completion menu
+  " Add 1 for leading space we add
+  let max_hint_length = s:max_hint_length(json.completions) + 1
+
+  let win_width = winwidth(0) - &numberwidth - &foldcolumn - 2  " assume single sign column
+  let available_win_width = win_width - col('.') - 5  " adjustment by trial and error
+  let max_width = available_win_width > g:kite_completion_max_width
+        \ ? g:kite_completion_max_width : available_win_width
+
+  "               pad      LHS text        gap    RHS text       gap          kite branding           pad scrollbar
+  "                |          |             |        |            |                |                   |   |
+  let menu_width = 1 + max_display_length + 1 + max_hint_length + 1 + strdisplaywidth(kite#symbol()) + 2 + 1
+
+  if menu_width < max_width  " no truncation
+    let lhs_width = max_display_length
+    let rhs_width = max_hint_length
+
+  elseif menu_width - 1 - max_hint_length < max_width  " truncate rhs
+    let lhs_width = max_display_length
+    let rhs_width = max_width - (1 + max_display_length + 1 + strdisplaywidth(kite#symbol()) + 2 + 1)
+
+  else  " drop rhs and truncate lhs
+    let lhs_width = max_width - (1 + 1 + strdisplaywidth(kite#symbol()) + 2 + 1)
+    let rhs_width = 0
+  endif
 
   let matches = []
   for c in json.completions
-    call add(matches, s:adapt(c, max_display_length, 0))
+    call add(matches, s:adapt(c, lhs_width, rhs_width, 0))
 
     if has_key(c, 'children')
       for child in c.children
-        call add(matches, s:adapt(child, max_display_length, 1))
+        call add(matches, s:adapt(child, lhs_width, rhs_width, 1))
       endfor
     endif
   endfor
@@ -180,19 +205,15 @@ function! kite#completion#handler(counter, startcol, response) abort
 endfunction
 
 
-function! s:adapt(completion_option, max_display_length, nesting)
+function! s:adapt(completion_option, lhs_width, rhs_width, nesting)
   let display = s:indent(a:nesting) . a:completion_option.display
+  let display = kite#utils#truncate(display, a:lhs_width)
 
   " Ensure a minimum separation between abbr and menu of two spaces.
-  " (Vim lines up the menus so that they are left-aligned 1 space
-  " after the longest abbr).
+  " (Vim lines up the menus so that they are left-aligned 1 space after the longest abbr).
   let hint = ' ' . a:completion_option.hint
 
-  " let win_width = winwidth(0) - &numberwidth - &foldcolumn - 2  " assume single sign column
-  " let max_width = win_width - col('.') - 7  " adjustment is by trial and error
-  let max_width = g:kite_completion_max_width
-  let max_hint_width = max_width - a:max_display_length
-  let hint = kite#utils#ralign(hint, max_hint_width)
+  let hint = kite#utils#ralign(hint, a:rhs_width)
 
   " Add the branding
   let hint .= ' '.kite#symbol()
@@ -205,6 +226,27 @@ function! s:adapt(completion_option, max_display_length, nesting)
         \   'equal': 1,
         \   'user_data': json_encode(a:completion_option.snippet.placeholders)
         \ }
+endfunction
+
+
+function! s:max_hint_length(completions)
+  let max = 0
+
+  for e in a:completions
+    let len = strdisplaywidth(e.hint)
+    if len > max
+      let max = len
+    endif
+
+    if has_key(e, 'children')
+      let len = s:max_hint_length(e.children)
+      if len > max
+        let max = len
+      endif
+    endif
+  endfor
+
+  return max
 endfunction
 
 

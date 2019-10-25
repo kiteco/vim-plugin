@@ -565,6 +565,28 @@ function! kite#utils#ralign(text, length)
 endfunction
 
 
+function! kite#utils#truncate(text, length)
+  let text_width = strdisplaywidth(a:text)
+
+  if text_width <= a:length
+    return a:text
+  endif
+
+  if kite#utils#windows()
+    let ellipsis = '...'
+  else
+    let ellipsis = '…'
+  endif
+  let ellipsis_width = strdisplaywidth(ellipsis)
+
+  if ellipsis_width >= a:length
+    return a:text[0] . ellipsis[0: a:length-2]
+  endif
+
+  return a:text[: a:length-ellipsis_width-1] . ellipsis
+endfunction
+
+
 function! s:chomp(str)
   return substitute(a:str, '\n$', '', '')
 endfunction
