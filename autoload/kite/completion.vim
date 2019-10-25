@@ -39,6 +39,11 @@ endfunction
 
 " Manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
+  let copts = split(&completeopt, ',')
+  if index(copts, 'longest')  != -1 | call kite#utils#warn("completeopt must not contain 'longest'") | return -3 | endif
+  if index(copts, 'menuone')  == -1 | call kite#utils#warn("completeopt must contain 'menuone'")     | return -3 | endif
+  if index(copts, 'noinsert') == -1 | call kite#utils#warn("completeopt must contain 'noinsert'")    | return -3 | endif
+
   if a:findstart
     " Store the buffer contents and cursor position here because when Vim
     " calls this function the second time (with a:findstart == 0) Vim has
