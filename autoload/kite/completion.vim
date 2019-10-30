@@ -159,7 +159,7 @@ function! kite#completion#handler(counter, startcol, response) abort
   " Add 1 for leading space we add
   let max_hint_length = s:max_hint_length(json.completions) + 1
 
-  let available_win_width = s:winwidth() - col('.')
+  let available_win_width = s:winwidth() - a:startcol
   let max_width = available_win_width > g:kite_completion_max_width
         \ ? g:kite_completion_max_width : available_win_width
 
