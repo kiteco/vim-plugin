@@ -19,6 +19,7 @@ $VIM -u NONE -U NONE -i NONE -N \
   -c 'set updatetime=20'        \
   -c 'set nofixeol'             \
   -c 'set nomore'               \
+  -c 'doautocmd VimEnter'       \
   -S editor_json_tests_runner.vim
 
 esc=$(printf '\033')
