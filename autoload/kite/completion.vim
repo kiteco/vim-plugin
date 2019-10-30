@@ -159,8 +159,7 @@ function! kite#completion#handler(counter, startcol, response) abort
   " Add 1 for leading space we add
   let max_hint_length = s:max_hint_length(json.completions) + 1
 
-  let win_width = winwidth(0) - &numberwidth - &foldcolumn - 2  " assume single sign column
-  let available_win_width = win_width - col('.') - 5  " adjustment by trial and error
+  let available_win_width = s:winwidth() - col('.')
   let max_width = available_win_width > g:kite_completion_max_width
         \ ? g:kite_completion_max_width : available_win_width
 
@@ -294,5 +293,32 @@ function! s:before_function_call_argument(line)
   " return a:line =~ '\v[(][^)]*$'
 
   return a:line =~ '\v[(]([^)]+[=,])?\s*$'
+endfunction
+
+
+" Returns the width of the part of the current window which holds the buffer contents.
+function! s:winwidth()
+  let w = winwidth(0)
+
+  if &number
+    let w -= &numberwidth
+  endif
+
+  let w -= &foldcolumn
+
+  if &signcolumn == 'yes' || (&signcolumn == 'auto' && s:signs_in_buffer())
+    " TODO: neovim multiple sign columns
+    let w -= 2
+  endif
+
+  return w
+endfunction
+
+
+" Returns 1 if the current buffer has any signs, 0 otherwise.
+function! s:signs_in_buffer()
+  let bufinfo = getbufinfo(bufnr(''))[0]
+  let signs = has_key(bufinfo, 'signs') ? bufinfo.signs : []
+  return !empty(signs)
 endfunction
 
