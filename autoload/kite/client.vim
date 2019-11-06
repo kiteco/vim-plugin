@@ -279,11 +279,17 @@ let s:http_binary = kite#utils#lib('kite-http')
 
 if !empty($KITED_TEST_PORT)
   function! kite#client#request_history()
-    return json_decode(
+    let ret = json_decode(
           \   s:parse_response(
           \     s:internal_http('/testapi/request-history', 500)
           \   ).body
           \ )
+
+    if type(ret) != type([])
+      throw '/testapi/request-history did not return a list (type '.type(ret).')'
+    endif
+
+    return ret
   endfunction
 
   function! kite#client#reset_request_history()
