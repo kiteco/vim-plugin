@@ -184,6 +184,7 @@ endfunction
 function! s:goto_initial_completion_end()
   " call setpos('.', [0, b:kite_linenr, b:kite_insertion_end + col('$') - b:kite_line_length - 1])
   call setpos('.', [0, b:kite_linenr, col('$')])
+  startinsert!
   call s:teardown()
 endfunction
 
