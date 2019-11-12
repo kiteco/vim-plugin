@@ -182,6 +182,6 @@ endfunction
 
 
 function! s:supported_language()
-  return expand('%:e') == 'py'
+  return index(['py', 'go'], expand('%:e')) >= 0
 endfunction
 
