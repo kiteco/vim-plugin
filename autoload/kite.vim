@@ -118,8 +118,12 @@ function s:setup_events()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
-    autocmd CompleteDone             <buffer> call kite#completion#expand_newlines()
-    autocmd CompleteDone             <buffer> call kite#snippet#complete_done()
+    if &ft == 'go'
+      autocmd CompleteDone           <buffer> call kite#completion#expand_newlines()
+    endif
+    if &ft == 'python'
+      autocmd CompleteDone           <buffer> call kite#snippet#complete_done()
+    endif
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
       autocmd CursorHold,CursorHoldI <buffer> call kite#docs#docs()
