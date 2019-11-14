@@ -4,6 +4,19 @@ let s:begin = 0
 let s:end = 0
 
 
+function! kite#completion#expand_newlines()
+  if empty(v:completed_item) | return | endif
+  if match(v:completed_item.word, '\n') == -1 | return | endif
+
+  let parts = split(getline('.'), '\n', 1)
+  delete _
+  call append(line('.')-1, parts)
+  -1
+  " startinsert! doesn't seem to work with: package main^@import ""^@
+  call feedkeys("\<Esc>A")
+endfunction
+
+
 function! kite#completion#insertcharpre()
   let s:should_trigger_completion = 1
 
