@@ -105,6 +105,7 @@ function! s:get_completions()
   else
     let params = {
           \   'no_snippets':  (g:kite_snippets ? v:false : v:true),
+          \   'no_unicode':   (kite#utils#windows() ? v:true : v:false),
           \   'filename':     filename,
           \   'editor':       'vim',
           \   'text':         s:text,
