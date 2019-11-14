@@ -118,6 +118,7 @@ function s:setup_events()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
+    autocmd CompleteDone             <buffer> call kite#completion#expand_newlines()
     autocmd CompleteDone             <buffer> call kite#snippet#complete_done()
 
     if exists('g:kite_documentation_continual') && g:kite_documentation_continual
