@@ -384,9 +384,9 @@ endfunction
 function! s:completeopt_suitable()
   let copts = split(&completeopt, ',')
 
-  if index(copts, 'longest')  != -1 | call kite#utils#warn("completeopt must not contain 'longest'") | return 0 | endif
-  if index(copts, 'menuone')  == -1 | call kite#utils#warn("completeopt must contain 'menuone'")     | return 0 | endif
-  if index(copts, 'noinsert') == -1 | call kite#utils#warn("completeopt must contain 'noinsert'")    | return 0 | endif
+  if index(copts, 'longest')  != -1 | call s:popup_warn("completeopt must not contain 'longest'") | return 0 | endif
+  if index(copts, 'menuone')  == -1 | call s:popup_warn("completeopt must contain 'menuone'")     | return 0 | endif
+  if index(copts, 'noinsert') == -1 | call s:popup_warn("completeopt must contain 'noinsert'")    | return 0 | endif
 
   return 1
 endfunction
@@ -399,4 +399,54 @@ endfunction
 " which ensures the keys are processed immediately.
 function s:feedkeys(keys)
   call feedkeys(a:keys, 'i')
+endfunction
+
+
+function! s:popup_warn(msg)
+  if exists('*popup_notification')
+    call popup_notification(a:msg, {
+          \   'pos':   'botleft',
+          \   'line':  'cursor-1',
+          \   'col':   'cursor',
+          \   'moved': 'any',
+          \   'time':  2000
+          \ })
+  elseif exists('*nvim_open_win')
+    let lines = s:border(a:msg)
+    let buf = nvim_create_buf(v:false, v:true)
+    call nvim_buf_set_lines(buf, 0, -1, v:true, lines)
+    let winid = nvim_open_win(buf, v:false, {
+          \   'relative': 'cursor',
+          \   'anchor':   'SW',
+          \   'row':      0,
+          \   'col':      0,
+          \   'width':    strdisplaywidth(lines[0]),
+          \   'height':   len(lines),
+          \   'focusable': v:false,
+          \   'style':    'minimal'
+          \ })
+    call nvim_win_set_option(winid, 'winhighlight', 'Normal:WarningMsg')
+    call timer_start(2000, {-> execute("call nvim_win_close(".winid.", v:true)")})
+  else
+    call kite#utils#warn(a:msg)
+  endif
+endfunction
+
+
+" Converts:
+"
+"   A quick brown fox.
+"
+" Into:
+"
+"   +--------------------+
+"   | A quick brown fox. |
+"   +--------------------+
+"
+function! s:border(text)
+  return [
+        \ '+'.repeat('-', strdisplaywidth(a:text)+2).'+',
+        \ '| '.a:text.' |',
+        \ '+'.repeat('-', strdisplaywidth(a:text)+2).'+'
+        \ ]
 endfunction
