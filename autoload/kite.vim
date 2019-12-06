@@ -119,6 +119,8 @@ function s:setup_events()
     autocmd InsertCharPre            <buffer> call kite#completion#insertcharpre()
     autocmd TextChangedI             <buffer> call kite#completion#autocomplete()
 
+    autocmd CompleteDone             <buffer> call kite#completion#replace_range()
+
     if &ft == 'go'
       autocmd CompleteDone           <buffer> call kite#completion#expand_newlines()
     endif
