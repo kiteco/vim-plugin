@@ -4,6 +4,51 @@ let s:begin = 0
 let s:end = 0
 
 
+function! kite#completion#replace_range()
+  if empty(v:completed_item) | return | endif
+  if !exists('s:startcol') | return | endif
+  let startcol = s:startcol
+  unlet s:startcol
+
+  if has_key(v:completed_item, 'user_data') && !empty(v:completed_item.user_data)
+    let range = json_decode(v:completed_item.user_data).range
+    let placeholders = json_decode(v:completed_item.user_data).placeholders
+  elseif exists('b:kite_completions') && has_key(b:kite_completions, v:completed_item.word)
+    let range = json_decode(b:kite_completions[v:completed_item.word]).range
+    let placeholders = json_decode(b:kite_completions[v:completed_item.word]).placeholders
+  else
+    return
+  endif
+
+  " The range seems to be wrong when placeholders are involved so stop here.
+  if !empty(placeholders) | return | endif
+
+  let col = col('.')
+  let _col = col
+
+  " end of range: delete from cursor postion to (range.end + len(v:completed_item.word)
+  let n = range.end + len(v:completed_item.word) - kite#utils#character_offset()
+  if n > 0
+    execute 'normal! "_'.n.'x'
+    let col -= n
+  endif
+
+  " start of range: delete from replace.begin to startcol
+  call kite#utils#goto_character(range.begin + 1)
+  let n = startcol - col('.')
+  if n > 0
+    execute 'normal! "_'.n.'x'
+    let col -= n
+  endif
+
+  " restore cursor position
+  if _col != col
+    execute 'normal!' (col+1).'|'
+    call feedkeys("\<Esc>la")
+  endif
+endfunction
+
+
 function! kite#completion#expand_newlines()
   if empty(v:completed_item) | return | endif
   if match(v:completed_item.word, '\n') == -1 | return | endif
@@ -218,6 +263,7 @@ function! kite#completion#handler(counter, startcol, response) abort
   endif
 
   if mode(1) ==# 'i'
+    let s:startcol = a:startcol+1
     call complete(a:startcol+1, matches)
   endif
 endfunction
@@ -242,7 +288,7 @@ function! s:adapt(completion_option, lhs_width, rhs_width, nesting)
         \   'info': a:completion_option.documentation.text,
         \   'menu': hint,
         \   'equal': 1,
-        \   'user_data': json_encode(a:completion_option.snippet.placeholders)
+        \   'user_data': json_encode({'placeholders': a:completion_option.snippet.placeholders, 'range': a:completion_option.replace})
         \ }
 endfunction
 

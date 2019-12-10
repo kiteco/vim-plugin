@@ -38,9 +38,9 @@ function! kite#snippet#complete_done()
   call s:setup_stack()
 
   if has_key(v:completed_item, 'user_data') && !empty(v:completed_item.user_data)
-    let placeholders = json_decode(v:completed_item.user_data)
+    let placeholders = json_decode(v:completed_item.user_data).placeholders
   elseif exists('b:kite_completions') && has_key(b:kite_completions, v:completed_item.word)
-    let placeholders = json_decode(b:kite_completions[v:completed_item.word])
+    let placeholders = json_decode(b:kite_completions[v:completed_item.word]).placeholders
     let b:kite_completions = {}
   else
     return
