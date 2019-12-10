@@ -24,6 +24,7 @@ function! kite#completion#replace_range()
   if !empty(placeholders) | return | endif
 
   let col = col('.')
+  let _col = col
 
   " end of range
   let n = range.end - s:offset_before_completion
@@ -33,16 +34,19 @@ function! kite#completion#replace_range()
   endif
 
   " start of range
-  call kite#utils#goto_character(range.begin + 1)
-  let n = startcol - col('.')
+  let range_begin_col = col('.') - (kite#utils#character_offset() - range.begin)
+  let n = startcol - range_begin_col
   if n > 0
+    call kite#utils#goto_character(range.begin + 1)
     execute 'normal! "_'.n.'x'
     let col -= n
   endif
 
   " restore cursor position
-  execute 'normal!' (col+1).'|'
-  call feedkeys("\<Esc>la")
+  if col != _col
+    execute 'normal!' (col+1).'|'
+    call feedkeys("\<Esc>la")
+  endif
 endfunction
 
 
