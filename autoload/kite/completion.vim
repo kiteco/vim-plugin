@@ -29,6 +29,7 @@ function! kite#completion#replace_range()
   let n = range.end - s:offset_before_completion
   if n > 0
     execute 'normal! "_'.n.'x'
+    let col -= n
   endif
 
   " start of range
@@ -36,6 +37,7 @@ function! kite#completion#replace_range()
   let n = startcol - col('.')
   if n > 0
     execute 'normal! "_'.n.'x'
+    let col -= n
   endif
 
   " restore cursor position
