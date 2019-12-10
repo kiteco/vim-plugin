@@ -24,28 +24,23 @@ function! kite#completion#replace_range()
   if !empty(placeholders) | return | endif
 
   let col = col('.')
-  let _col = col
 
-  " end of range: delete from cursor postion to (range.end + len(v:completed_item.word)
-  let n = range.end + len(v:completed_item.word) - kite#utils#character_offset()
+  " end of range
+  let n = range.end - s:offset_before_completion
   if n > 0
     execute 'normal! "_'.n.'x'
-    let col -= n
   endif
 
-  " start of range: delete from replace.begin to startcol
+  " start of range
   call kite#utils#goto_character(range.begin + 1)
   let n = startcol - col('.')
   if n > 0
     execute 'normal! "_'.n.'x'
-    let col -= n
   endif
 
   " restore cursor position
-  if _col != col
-    execute 'normal!' (col+1).'|'
-    call feedkeys("\<Esc>la")
-  endif
+  execute 'normal!' (col+1).'|'
+  call feedkeys("\<Esc>la")
 endfunction
 
 
@@ -264,6 +259,7 @@ function! kite#completion#handler(counter, startcol, response) abort
 
   if mode(1) ==# 'i'
     let s:startcol = a:startcol+1
+    let s:offset_before_completion = kite#utils#character_offset()
     call complete(a:startcol+1, matches)
   endif
 endfunction
