@@ -41,6 +41,6 @@ endfunction
 function! kite#events#handler(bufnr, response)
   let s:events_pending -= 1
 
-  call setbufvar(a:bufnr, 'kite_skip', a:response.status == 403)
+  call setbufvar(a:bufnr, 'kite_skip', (a:response.status == 0 || a:response.status == 403))
 endfunction
 
