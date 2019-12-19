@@ -98,12 +98,12 @@ endfunction
 
 " Manual invocation calls this method.
 function! kite#completion#complete(findstart, base)
-  if !s:completeopt_suitable()
-    let g:kite_auto_complete = 0
-    return -3
-  endif
-
   if a:findstart
+    if !s:completeopt_suitable()
+      let g:kite_auto_complete = 0
+      return -3
+    endif
+
     " Store the buffer contents and cursor position here because when Vim
     " calls this function the second time (with a:findstart == 0) Vim has
     " already deleted the text between `start` and the cursor position.
