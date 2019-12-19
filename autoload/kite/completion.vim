@@ -45,7 +45,7 @@ function! kite#completion#replace_range()
   " restore cursor position
   if col != _col
     execute 'normal!' (col+1).'|'
-    call feedkeys("\<Esc>la")
+    call s:feedkeys("\<Esc>la")
   endif
 endfunction
 
@@ -59,7 +59,7 @@ function! kite#completion#expand_newlines()
   call append(line('.')-1, parts)
   -1
   " startinsert! doesn't seem to work with: package main^@import ""^@
-  call feedkeys("\<Esc>A")
+  call s:feedkeys("\<Esc>A")
 endfunction
 
 
@@ -91,7 +91,7 @@ function! kite#completion#autocomplete()
 
   if s:should_trigger_completion
     let s:should_trigger_completion = 0
-    call feedkeys("\<C-X>\<C-U>")
+    call s:feedkeys("\<C-X>\<C-U>")
   endif
 endfunction
 
@@ -114,7 +114,7 @@ function! kite#completion#complete(findstart, base)
     return s:startcol
   else
     " Leave CTRL-X submode so user can invoke other completion methods.
-    call feedkeys("\<C-e>")
+    call s:feedkeys("\<C-e>")
     call s:get_completions()
     if has('patch-8.1.0716')
       return v:none
@@ -389,4 +389,14 @@ function! s:completeopt_suitable()
   if index(copts, 'noinsert') == -1 | call kite#utils#warn("completeopt must contain 'noinsert'")    | return 0 | endif
 
   return 1
+endfunction
+
+
+" feedkeys() by default adds keys to the end of the typeahead buffer.  Any
+" keys already in the buffer will be processed first and may change Vim's
+" state, making the queued keys no longer appropriate (e.g. an insert mode key
+" combo being applied in normal mode).  To avoid this we use the 'i' flag
+" which ensures the keys are processed immediately.
+function s:feedkeys(keys)
+  call feedkeys(a:keys, 'i')
 endfunction
