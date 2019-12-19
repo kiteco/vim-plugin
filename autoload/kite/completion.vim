@@ -125,14 +125,6 @@ function! kite#completion#complete(findstart, base)
 endfunction
 
 
-function! kite#completion#snippet(begin, end)
-  let s:begin = a:begin
-  let s:end = a:end
-  " call kite#completion#autocomplete()
-  call feedkeys("\<C-X>\<C-U>")
-endfunction
-
-
 function! s:findstart()
   let line = getline('.')
   let start = col('.') - 1
