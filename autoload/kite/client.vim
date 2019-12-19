@@ -227,16 +227,16 @@ endfunction
 "
 " lines - either a list (from async commands) or a string (from sync)
 function! s:parse_response(lines)
+  if empty(a:lines)
+    return {'status': 0, 'body': ''}
+  endif
+
   if type(a:lines) == v:t_string
     let lines = split(a:lines, '\r\?\n', 1)
   else
     let lines = a:lines
   endif
   call kite#utils#log(map(copy(lines), '"< ".v:val'))
-
-  if empty(a:lines)
-    return {'status': 0, 'body': ''}
-  endif
 
   if type(a:lines) == v:t_string
     let lines = split(a:lines, '\r\?\n')
