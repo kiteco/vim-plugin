@@ -116,7 +116,11 @@ function! kite#completion#complete(findstart, base)
     " Leave CTRL-X submode so user can invoke other completion methods.
     call feedkeys("\<C-e>")
     call s:get_completions()
-    return []
+    if has('patch-8.1.0716')
+      return v:none
+    else
+      return []
+    endif
   endif
 endfunction
 
