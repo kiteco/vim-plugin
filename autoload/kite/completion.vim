@@ -192,11 +192,6 @@ function! kite#completion#handler(counter, startcol, response) abort
     return
   endif
 
-  " Ignore old completion results.
-  if a:counter != s:completion_counter
-    return
-  endif
-
   if a:response.status != 200
     return
   endif
