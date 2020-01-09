@@ -267,7 +267,7 @@ function Test_normalise_version()
         \   'Included patches: 1-503, 505-680, 682-1283',
         \   'Compiled by root@apple.com',
         \ ], "\n")
-  call assert_equal('8.1.1-503,505-680,682-1283', kite#utils#normalise_version(version_str))
+  call assert_equal('8.0.1-503,505-680,682-1283', kite#utils#normalise_version(version_str))
 
   " macvim
   let version_str = join([

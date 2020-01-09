@@ -39,7 +39,7 @@ function! kite#utils#normalise_version(version)
     " Or use api_info().version.
     return lines[0]  " e.g. NVIM v0.2.2
   else
-    let [major, minor] = [v:version / 100, v:version % 100]
+    let [major, minor] = matchlist(lines[0], '\v(\d)\.(\d+)')[1:2]
 
     let patch_line = match(lines, ': \d')
     let patches = substitute(split(lines[patch_line], ': ')[1], ' ', '', 'g')
