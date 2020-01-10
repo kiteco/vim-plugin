@@ -6,6 +6,7 @@ let s:onboarding_path    = '/clientapi/plugins/onboarding_file?editor=vim'
 let s:hover_path         = '/api/buffer/vim'
 let s:docs_path          = 'kite://docs/'
 let s:status_path        = '/clientapi/status?filename='
+let s:languages_path     = '/clientapi/languages'
 let s:user_path          = '/clientapi/user'
 let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
@@ -68,6 +69,17 @@ endfunction
 
 function! kite#client#status(filename, handler)
   let path = s:status_path.kite#utils#url_encode(a:filename)
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+  return a:handler(s:parse_response(response))
+endfunction
+
+
+function! kite#client#languages(handler)
+  let path = s:languages_path
   if has('channel')
     let response = s:internal_http(path, g:kite_short_timeout)
   else
