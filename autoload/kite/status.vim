@@ -7,14 +7,19 @@ function! kite#status#status(...)
   let buf = bufnr('')
   let msg = 'NOT SET'
 
-  if !kite#utils#logged_in()
-    let msg = 'Kite: not logged in'
-    if !kite#utils#kite_installed()
-      let msg = 'Kite: not installed'
-    elseif !kite#utils#kite_running()
-      let msg = 'Kite: not running'
+  " Check kited status (logged-in / installed / running) every 10 file status checks.
+  let counter = getbufvar(buf, 'kite_status_counter', 0)
+  if counter == 0
+    if !kite#utils#logged_in()
+      let msg = 'Kite: not logged in'
+      if !kite#utils#kite_installed()
+        let msg = 'Kite: not installed'
+      elseif !kite#utils#kite_running()
+        let msg = 'Kite: not running'
+      endif
     endif
   endif
+  call setbufvar(buf, 'kite_status_counter', (counter + 1) % 10)
 
   if wordcount().bytes > kite#max_file_size()
     let msg = 'Kite: file too large'
