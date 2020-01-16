@@ -2,7 +2,15 @@ let s:languages_supported_by_kited = []
 
 " Returns true if the current buffer's language is supported by this plugin, false otherwise.
 function! kite#languages#supported_by_plugin()
-  return (&filetype == 'python' && expand('%:e') != 'pyi') || &filetype == 'go'
+  if &filetype == 'python' && expand('%:e') != 'pyi' && index(g:kite_supported_languages, 'python') != -1
+    return 1
+  endif
+
+  if &filetype == 'go' && index(g:kite_supported_languages, 'go') != -1
+    return 1
+  endif
+
+  return 0
 endfunction
 
 
