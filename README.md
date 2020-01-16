@@ -44,6 +44,22 @@ Alternatively, you can follow the instructions in the [DEVELOPMENT.md](https://g
 
 Once installed, the plugin will be automatically updated by Kite when necessary.
 
+### Configuring supported languages
+
+Kite supports Python (on by default) and Golang (off by default).
+
+To turn off Python support, set the `g:kite_supported_languages` list in your vimrc:
+
+```viml
+let g:kite_supported_languages = []
+```
+
+To turn on Golang support, ensure the Kite Engine has Golang enabled and then set the `g:kite_supported_languages` list in your vimrc:
+
+```viml
+let g:kite_supported_languages = ['python', 'go']
+```
+
 [Learn more about why Kite is the best autocomplete for Vim.](https://kite.com/integrations/vim/)
 
 
