@@ -386,7 +386,7 @@ endfunction
 
 function! s:insertleave()
   " Modes established by experimentation.
-  if mode(1) !=# 's' && mode(1) !=# (has('patch-8.1.0225') ? 'niI' : 'n')
+  if mode(1) !=# 's' && mode(1) !=# ((has('patch-8.1.0225') || has('nvim-0.4.0')) ? 'niI' : 'n')
     call s:teardown()
   endif
 endfunction
