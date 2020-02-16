@@ -89,7 +89,7 @@ endfunction
 if kite#utils#windows()
   let s:settings_dir = join([$LOCALAPPDATA, 'Kite'], s:separator)
 else
-  let s:settings_dir = join([$HOME, '.kite'], s:separator)
+  let s:settings_dir = expand('~/.kite')
 endif
 if !isdirectory(s:settings_dir)
   call mkdir(s:settings_dir, 'p')
@@ -153,7 +153,7 @@ function! s:kite_install_path()
     if !empty(path)
       return path
     endif
-    let path = exepath($HOME.'/.local/share/kite/kited')
+    let path = exepath(expand('~/.local/share/kite/kited'))
     if !empty(path)
       return path
     endif
