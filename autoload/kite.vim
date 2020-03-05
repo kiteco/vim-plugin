@@ -116,7 +116,7 @@ function s:setup_events()
   augroup KiteEvents
     autocmd! * <buffer>
 
-    autocmd CursorHold               <buffer> call kite#events#event('selection')
+    autocmd CursorHold,CursorHoldI   <buffer> call kite#events#event('selection')
     autocmd TextChanged,TextChangedI <buffer> call kite#events#event('edit')
     autocmd FocusGained              <buffer> call kite#events#event('focus')
 
