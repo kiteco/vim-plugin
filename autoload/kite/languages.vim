@@ -10,6 +10,10 @@ function! kite#languages#supported_by_plugin()
     return 1
   endif
 
+  if &filetype == 'javascript' && index(g:kite_supported_languages, 'javascript') != -1
+    return 1
+  endif
+
   return 0
 endfunction
 
