@@ -22,7 +22,7 @@ filetype on
 
 
 if !exists('g:kite_supported_languages')
-  let g:kite_supported_languages = ['python']
+  let g:kite_supported_languages = ['python', 'javascript']
 endif
 
 if !exists('g:kite_auto_complete')
