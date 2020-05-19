@@ -214,7 +214,7 @@ function! s:disable_completion_plugins()
   endif
 
   " YouCompleteMe
-  if exists('g:loaded_youcompleteme')
+  if exists('g:loaded_youcompleteme') && !exists('g:ycm_filetype_blacklist.python')
     let g:ycm_filetype_blacklist.python = 1
     call kite#utils#warn("disabling YouCompleteMe's completions for python files")
   endif
