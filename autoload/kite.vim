@@ -78,6 +78,7 @@ function! s:restore_options()
   if !exists('s:pumheight') | return | endif
 
   let &pumheight   = s:pumheight
+  unlet s:pumheight
   let &updatetime  = s:updatetime
   let &shortmess   = s:shortmess
   if kite#utils#windows()
