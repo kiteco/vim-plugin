@@ -33,6 +33,12 @@ function! kite#status#status(...)
     return
   endif
 
+  " If previously Kite wasn't logged in / installed / running, and now it is,
+  " trigger BufEnter to activate completion etc.
+  if index(['Kite: not logged in', 'Kite: not installed', 'Kite: not running'], getbufvar(buf, 'kite_status')) != -1
+    doautocmd <nomodeline> Kite BufEnter
+  endif
+
   let filename = kite#utils#filepath(0)
   call kite#client#status(filename, function('kite#status#handler', [buf]))
 endfunction
