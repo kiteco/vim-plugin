@@ -91,6 +91,12 @@ function! kite#bufenter()
   if kite#languages#supported_by_plugin()
     call s:launch_kited()
 
+    if !kite#utils#kite_running()
+      call kite#status#status()
+      call s:start_status_timer()
+      return
+    endif
+
     if kite#languages#supported_by_kited()
       call s:disable_completion_plugins()
       call s:setup_options()
