@@ -1,5 +1,6 @@
 let s:status_poll_interval = 5 * 1000  " 5sec in milliseconds
 let s:timer = -1
+let s:watch_timer = -1
 
 if !kite#utils#windows()
   let s:kite_symbol = nr2char(printf('%d', '0x27E0'))
@@ -94,8 +95,12 @@ function! kite#bufenter()
     if !kite#utils#kite_running()
       call kite#status#status()
       call s:start_status_timer()
+
+      call s:start_watching_for_kited()
       return
     endif
+
+    call s:stop_watching_for_kited()
 
     if kite#languages#supported_by_kited()
       call s:disable_completion_plugins()
@@ -197,6 +202,28 @@ function! s:launch_kited()
     call kite#utils#launch_kited()
     let s:kite_auto_launched = 1
   endif
+endfunction
+
+
+function! s:start_watching_for_kited()
+  if s:watch_timer == -1
+    let s:watch_timer = timer_start(s:status_poll_interval,
+          \   function('kite#activate_when_ready'),
+          \   {'repeat': -1}
+          \ )
+  else
+    call timer_pause(s:watch_timer, 0)  " unpause
+  endif
+endfunction
+
+function! kite#activate_when_ready(...)
+  if kite#utils#kite_running()
+    call kite#bufenter()
+  endif
+endfunction
+
+function! s:stop_watching_for_kited()
+  call timer_pause(s:watch_timer, 1)
 endfunction
 
 
