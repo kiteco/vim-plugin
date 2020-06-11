@@ -168,7 +168,8 @@ function! kite#utils#kite_running()
   elseif kite#utils#macos()
     let [cmd, process] = ['ps -axco command', '^Kite$']
   else
-    let [cmd, process] = ['ps -axco command', '^kited$']
+    let process_name = empty($KITED_TEST_PORT) ? 'kited' : 'kited-test'
+    let [cmd, process] = ['ps -axco command', '^'.process_name.'$']
   endif
 
   return match(split(kite#async#sync(cmd), '\n'), process) > -1
