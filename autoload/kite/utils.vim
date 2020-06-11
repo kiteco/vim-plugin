@@ -197,16 +197,6 @@ function! kite#utils#launch_kited()
 endfunction
 
 
-" Optional argument is response dictionary (from kite#client#parse_response).
-function! kite#utils#logged_in(...)
-  if a:0
-    return a:1.status == 200
-  else
-    return kite#client#logged_in(function('kite#utils#logged_in'))
-  endif
-endfunction
-
-
 " msg - a list or a string
 function! kite#utils#log(msg)
   if g:kite_log

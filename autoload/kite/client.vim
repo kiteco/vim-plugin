@@ -7,7 +7,6 @@ let s:hover_path         = '/api/buffer/vim'
 let s:docs_path          = 'kite://docs/'
 let s:status_path        = '/clientapi/status?filename='
 let s:languages_path     = '/clientapi/languages'
-let s:user_path          = '/clientapi/user'
 let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
 let s:settings_path      = 'kite://settings'
@@ -42,17 +41,6 @@ function! kite#client#counter(json, handler)
   else
     call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1), a:handler, a:json)
   endif
-endfunction
-
-
-function! kite#client#logged_in(handler)
-  let path = s:user_path
-  if has('channel')
-    let response = s:internal_http(path, g:kite_short_timeout)
-  else
-    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
-  endif
-  return a:handler(s:parse_response(response))
 endfunction
 
 
