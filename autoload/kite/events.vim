@@ -20,7 +20,7 @@ function! kite#events#event(action)
   if [sel_start, sel_end] == [-1, -1]
     return
   endif
-  let selections = [{ 'start': sel_start, 'end': sel_end }]
+  let selections = [{ 'start': sel_start, 'end': sel_end, 'encoding': 'utf-32' }]
 
   let json = json_encode({
         \ 'source':     'vim',

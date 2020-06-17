@@ -155,7 +155,8 @@ function! s:get_completions()
           \   'filename':     filename,
           \   'editor':       'vim',
           \   'text':         s:text,
-          \   'cursor_runes': s:cursor
+          \   'cursor_runes': s:cursor,
+          \   'offset_encoding': 'utf-32'
           \ }
   else
     let params = {
@@ -168,6 +169,7 @@ function! s:get_completions()
           \     'begin': (s:begin > 0 ? s:begin : s:cursor),
           \     'end':   (s:end   > 0 ? s:end   : s:cursor),
           \   },
+          \   'offset_encoding': 'utf-32',
           \   'placeholders': []
           \ }
     let s:begin = 0
