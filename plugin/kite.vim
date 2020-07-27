@@ -95,4 +95,5 @@ command! KiteDisableAutoStart     call kite#disable_auto_start()
 command! KiteEnableAutoStart      call kite#enable_auto_start()
 command! KiteShowPopularPatterns  call kite#signature#show_popular_patterns()
 command! KiteHidePopularPatterns  call kite#signature#hide_popular_patterns()
+command! KiteGotoDefinition       call kite#hover#goto_definition()
 
