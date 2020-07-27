@@ -10,6 +10,18 @@ function! kite#hover#hover()
 endfunction
 
 
+function! kite#hover#goto_definition()
+  if exists('b:kite_skip') && b:kite_skip | return | endif
+  if wordcount().bytes > kite#max_file_size() | return | endif
+
+  let filename = kite#utils#filepath(1)
+  let hash = kite#utils#buffer_md5()
+  let cursor = kite#utils#cursor_characters()
+
+  call kite#client#hover(filename, hash, cursor, function('kite#hover#goto_definition_handler'))
+endfunction
+
+
 function! kite#hover#handler(response)
   if a:response.status == 200
     let json = json_decode(a:response.body)
@@ -26,3 +38,21 @@ function! kite#hover#handler(response)
   endif
 endfunction
 
+
+function! kite#hover#goto_definition_handler(response)
+  if a:response.status != 200
+    call kite#utils#warn('unable to find a definition.')
+    return
+  endif
+
+  let json = json_decode(a:response.body)
+  let definition = json.report.definition
+
+  if definition == v:null
+    call kite#utils#warn('unable to find a definition.')
+    return
+  endif
+
+  let [filename, lnum] = [definition.filename, definition.line]
+  execute 'edit' filename.':'.lnum
+endfunction
