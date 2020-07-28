@@ -53,6 +53,6 @@ function! kite#hover#goto_definition_handler(response)
     return
   endif
 
-  let [filename, lnum] = [definition.filename, definition.line]
-  execute 'edit' filename.':'.lnum
+  execute 'edit' definition.filename
+  execute definition.line
 endfunction
