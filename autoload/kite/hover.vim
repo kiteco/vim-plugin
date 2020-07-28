@@ -48,7 +48,7 @@ function! kite#hover#goto_definition_handler(response)
   let json = json_decode(a:response.body)
   let definition = json.report.definition
 
-  if definition == v:null
+  if type(definition) != type({})
     call kite#utils#warn('unable to find a definition.')
     return
   endif
