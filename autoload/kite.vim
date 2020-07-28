@@ -177,6 +177,10 @@ function! s:setup_mappings()
   if empty(maparg('K', 'n')) && !hasmapto('(kite-docs)', 'n')
     nmap <silent> <buffer> K <Plug>(kite-docs)
   endif
+
+  if empty(maparg('<C-]>', 'n'))
+    nmap <silent> <buffer> <C-]> :KiteGotoDefinition<CR>
+  endif
 endfunction
 
 
