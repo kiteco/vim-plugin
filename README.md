@@ -161,6 +161,11 @@ let g:kite_documentation_continual=1
 ```
 
 
+### Goto Definition
+
+Use `<C-]>` or `:KiteGotoDefinition` to jump to a method's definition.
+
+
 ### Commands
 
 - `KiteDocsAtCursor` - show documentation for the keyword under the cursor.
@@ -170,6 +175,7 @@ let g:kite_documentation_continual=1
 - `KiteTutorial` - show a tutorial for how to use Kite with Vim.
 - `KiteEnableAutoStart` - start Kite automatically when Vim starts.
 - `KiteDisableAutoStart` - do not start Kite automatically when Vim starts.
+- `KiteGotoDefinition` - jump to a method's definition.
 
 
 

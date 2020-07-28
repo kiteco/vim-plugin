@@ -19,7 +19,11 @@ documentation about the identifier. In addition to documentation, Kite also
 provides information about where you've used the identifier in your codebase,
 as well as curated code examples showing you how to use the identifier.
 
-3. Copilot integration
+3. Goto Definition
+
+Press |C-]| to jump to a method's defintion.
+
+4. Copilot integration
 
 While you code in VIM, the Copilot will automatically show you information
 about the code that you're currently working with. To open the Copilot, click
