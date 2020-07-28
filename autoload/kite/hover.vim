@@ -53,7 +53,9 @@ function! kite#hover#goto_definition_handler(response)
     return
   endif
 
-  execute 'edit' definition.filename
+  if definition.filename !=# expand('%:p')
+    execute 'edit' definition.filename
+  end
   execute definition.line
   normal! zz
 endfunction
