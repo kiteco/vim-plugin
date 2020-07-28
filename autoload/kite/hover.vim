@@ -55,4 +55,5 @@ function! kite#hover#goto_definition_handler(response)
 
   execute 'edit' definition.filename
   execute definition.line
+  normal! zz
 endfunction
