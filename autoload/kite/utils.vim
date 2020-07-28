@@ -42,7 +42,11 @@ function! kite#utils#normalise_version(version)
     let [major, minor] = matchlist(lines[0], '\v(\d)\.(\d+)')[1:2]
 
     let patch_line = match(lines, ': \d')
-    let patches = substitute(split(lines[patch_line], ': ')[1], ' ', '', 'g')
+    if patch_line == -1
+      let patches = '0'
+    else
+      let patches = substitute(split(lines[patch_line], ': ')[1], ' ', '', 'g')
+    endif
     return join([major, minor, patches], '.')  " e.g. 8.1.1-582
   endif
 endfunction

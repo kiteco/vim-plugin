@@ -287,6 +287,14 @@ function Test_normalise_version()
         \ ], "\n")
   call assert_equal('8.1.1', kite#utils#normalise_version(version_str))
 
+  " windows
+  let version_str = join([
+        \ 'VIM - Vi IMproved 8.2 (2019 Dec 12, compiled Dec 12 2019 13:19:27)',
+        \ 'MS-Windows 32-bit console version',
+        \ 'Compiled by mool@tororo',
+        \ ], "\n")
+  call assert_equal('8.2.0', kite#utils#normalise_version(version_str))
+
   " german
   let version_str = join([
         \   'VIM - Vi IMproved 8.1 (2018 May 18 kompiliert am Feb 11 2019 00:14:42)',
