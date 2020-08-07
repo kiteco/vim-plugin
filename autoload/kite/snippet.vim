@@ -46,6 +46,10 @@ function! kite#snippet#complete_done()
     return
   endif
 
+  " Send the edit event.  Normally this is sent automatically on TextChanged(I).
+  " But for some reason this doesn't fire when a completion has a snippet placeholder.
+  call kite#events#event('edit')
+
   if empty(placeholders)
     if b:kite_stack.is_empty()
       return
