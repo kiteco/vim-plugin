@@ -3,8 +3,8 @@ if exists('g:loaded_kite') || &cp
 endif
 
 if has('nvim')
-  if !has('nvim-0.2')
-    echoerr 'Kite requires Neovim 0.2 or greater'
+  if !has('nvim-0.3')
+    echoerr 'Kite requires Neovim 0.3 or greater'
     finish
   endif
 else
