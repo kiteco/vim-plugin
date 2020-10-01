@@ -38,7 +38,8 @@ endfunction
 
 
 function! kite#max_file_size()
-  return 76800  " 75KB
+  " Fallback to 1MB
+  return get(b:, 'kite_max_file_size', 1048576)
 endfunction
 
 
@@ -107,6 +108,7 @@ function! kite#bufenter()
       call s:setup_options()
       call s:setup_events()
       call s:setup_mappings()
+      call s:set_max_file_size()
 
       setlocal completefunc=kite#completion#complete
 
@@ -180,6 +182,14 @@ function! s:setup_mappings()
 
   if empty(maparg('<C-]>', 'n'))
     nmap <silent> <buffer> <C-]> :KiteGotoDefinition<CR>
+  endif
+endfunction
+
+
+function! s:set_max_file_size()
+  let max_file_size = kite#client#max_file_size()
+  if max_file_size != -1
+    let b:kite_max_file_size = max_file_size
   endif
 endfunction
 
