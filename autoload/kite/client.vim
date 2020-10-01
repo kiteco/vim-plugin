@@ -11,6 +11,7 @@ let s:copilot_path       = 'kite://home'
 let s:counter_path       = '/clientapi/metrics/counters'
 let s:settings_path      = 'kite://settings'
 let s:permissions_path   = 'kite://settings/permissions'
+let s:max_file_size_path = '/clientapi/settings/max_file_size_kb'
 
 
 function! kite#client#docs(word)
@@ -74,6 +75,23 @@ function! kite#client#languages(handler)
     let response = s:external_http(s:base_url.path, g:kite_short_timeout)
   endif
   return a:handler(s:parse_response(response))
+endfunction
+
+
+" Returns max file size in bytes, or -1 if not available.
+function! kite#client#max_file_size()
+  let path = s:max_file_size_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+  let result = s:parse_response(response)
+  if result.status == 200
+    return result.body / 1024
+  else
+    return -1
+  endif
 endfunction
 
 
