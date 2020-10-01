@@ -6,7 +6,7 @@ function! kite#languages#supported_by_plugin()
     return 1
   endif
 
-  for lang in ['go', 'javascript']
+  for lang in ['go', 'javascript', 'vue', 'typescript', 'css', 'html', 'less', 'c', 'scala', 'java', 'kotlin']
     if s:supported_filetype(lang)
       return 1
     endif
