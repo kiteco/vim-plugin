@@ -2,17 +2,15 @@ let s:languages_supported_by_kited = []
 
 " Returns true if the current buffer's language is supported by this plugin, false otherwise.
 function! kite#languages#supported_by_plugin()
-  if &filetype == 'python' && expand('%:e') != 'pyi' && index(g:kite_supported_languages, 'python') != -1
+  if s:supported_filetype('python') && expand('%:e') != 'pyi'
     return 1
   endif
 
-  if &filetype == 'go' && index(g:kite_supported_languages, 'go') != -1
-    return 1
-  endif
-
-  if &filetype == 'javascript' && index(g:kite_supported_languages, 'javascript') != -1
-    return 1
-  endif
+  for lang in ['go', 'javascript', 'vue', 'typescript', 'css', 'html', 'less', 'c', 'scala', 'java', 'kotlin']
+    if s:supported_filetype(lang)
+      return 1
+    endif
+  endfor
 
   return 0
 endfunction
@@ -33,4 +31,9 @@ function! kite#languages#handler(response)
   if a:response.status != 200 | return [] | endif
 
   return json_decode(a:response.body)
+endfunction
+
+
+function s:supported_filetype(name)
+  return &filetype == a:name && index(g:kite_supported_languages, a:name) != -1
 endfunction
