@@ -42,20 +42,11 @@ function! kite#status#handler(buffer, response)
 
   let json = json_decode(a:response.body)
 
-  " indexing | ready | noIndex
-  let status = json.status
   let msg = ''
 
-  if status == 'ready'
-    let msg = 'Kite'
-  endif
-
-  if status == 'indexing'
-    let msg = 'Kite: indexing'
-  endif
-
-  if status == 'noIndex'
-    let msg = 'Kite: ready (unindexed)'
+  let suffix = get(json, 'short', 'FIELD MISSING')
+  if suffix !=# 'FIELD MISSING'
+    let msg = join(['Kite: ', suffix], '')
   endif
 
   if msg !=# getbufvar(a:buffer, 'kite_status')
