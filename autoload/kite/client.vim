@@ -88,7 +88,7 @@ function! kite#client#max_file_size()
   endif
   let result = s:parse_response(response)
   if result.status == 200
-    return result.body / 1024
+    return result.body * 1024
   else
     return -1
   endif
