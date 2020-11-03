@@ -50,6 +50,8 @@ function! kite#languages#handler(response)
 endfunction
 
 
+" Returns true if a:name is both the current buffer's filetype and in the
+" g:kite_supported_languages list, false otherwise.
 function s:supported_filetype(name)
   return &filetype == a:name && index(g:kite_supported_languages, a:name) != -1
 endfunction
