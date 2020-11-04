@@ -12,6 +12,7 @@ let s:counter_path       = '/clientapi/metrics/counters'
 let s:settings_path      = 'kite://settings'
 let s:permissions_path   = 'kite://settings/permissions'
 let s:max_file_size_path = '/clientapi/settings/max_file_size_kb'
+let s:codenav_path       = '/codenav/editor/related'
 
 
 function! kite#client#docs(word)
@@ -51,6 +52,17 @@ function! kite#client#onboarding_file(handler)
     let response = s:internal_http(path, g:kite_short_timeout)
   else
     let response = s:external_http(s:base_url.path, g:kite_short_timeout)
+  endif
+  return a:handler(s:parse_response(response))
+endfunction
+
+
+function! kite#client#request_related(json, handler)
+  let path = s:codenav_path
+  if has('channel')
+    let response = s:internal_http(path, g:kite_short_timeout, a:json)
+  else
+    let response = s:external_http(s:base_url.path, g:kite_short_timeout, a:json)
   endif
   return a:handler(s:parse_response(response))
 endfunction
