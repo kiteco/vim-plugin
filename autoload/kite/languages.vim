@@ -32,9 +32,8 @@ function! kite#languages#supported_by_plugin()
     return 0
   endif
 
-  " Return false if the user has configured the languages they want completions for
-  " and the buffer's language is not one of them.
-  if exists('g:kite_supported_languages') && index(g:kite_supported_languages, &filetype) == -1
+  " Return false if the buffer's language is not one for which we want Kite completions.
+  if index(g:kite_supported_languages, &filetype) == -1
     return 0
   endif
 
