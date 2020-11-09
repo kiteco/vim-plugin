@@ -57,17 +57,6 @@ function! kite#client#onboarding_file(handler)
 endfunction
 
 
-function! kite#client#request_related(json, handler)
-  let path = s:codenav_path
-  if has('channel')
-    let response = s:internal_http(path, g:kite_short_timeout, a:json)
-  else
-    let response = s:external_http(s:base_url.path, g:kite_short_timeout, a:json)
-  endif
-  return a:handler(s:parse_response(response))
-endfunction
-
-
 function! kite#client#status(filename, handler)
   let path = s:status_path.kite#utils#url_encode(a:filename)
   if has('channel')
@@ -133,6 +122,17 @@ endfunction
 
 function! kite#client#completions(json, handler)
   let path = s:editor_path.'/complete'
+  if has('channel')
+    call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
+  else
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1),
+          \ function('s:parse_and_handle', [a:handler]), a:json)
+  endif
+endfunction
+
+
+function! kite#client#request_related(json, handler)
+  let path = s:codenav_path
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
