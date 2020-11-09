@@ -35,6 +35,8 @@ function! kite#codenav#handler(response) abort
       call kite#utils#warn("Kite is not done indexing your project yet.")
     elseif err == 'ErrPathNotInSupportedProject'
       call kite#utils#warn("Code finder only works in Git projects.")
+    else
+      call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
     endif
   endif
 endfunction
