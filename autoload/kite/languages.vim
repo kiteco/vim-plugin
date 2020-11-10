@@ -32,7 +32,7 @@ function! kite#languages#supported_by_plugin()
     return 0
   endif
 
-  if g:kite_supported_languages == ['ALL']
+  if g:kite_supported_languages == ['*']
     return 1
   endif
 

@@ -53,7 +53,7 @@ Kite supports 12 languages and counting.  By default only Python is enabled.  Yo
 let g:kite_supported_languages = ['python', 'javascript', 'go']
 
 " All the languages Kite supports
-let g:kite_supported_languages = ['ALL']
+let g:kite_supported_languages = ['*']
 
 " Turn off Kite
 let g:kite_supported_languages = []
