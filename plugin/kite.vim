@@ -86,14 +86,15 @@ augroup END
 
 nnoremap <silent> <Plug>(kite-docs) :call kite#docs#docs()<CR>
 
-command! KiteDocsAtCursor         call kite#docs#docs()
-command! KiteOpenCopilot          call kite#client#copilot()
-command! KiteGeneralSettings      call kite#client#settings()
-command! KitePermissions          call kite#client#permissions()
-command! KiteTutorial             call kite#onboarding#call(1)
-command! KiteDisableAutoStart     call kite#disable_auto_start()
-command! KiteEnableAutoStart      call kite#enable_auto_start()
-command! KiteShowPopularPatterns  call kite#signature#show_popular_patterns()
-command! KiteHidePopularPatterns  call kite#signature#hide_popular_patterns()
-command! KiteGotoDefinition       call kite#hover#goto_definition()
-
+command! KiteDocsAtCursor                        call kite#docs#docs()
+command! KiteOpenCopilot                         call kite#client#copilot()
+command! KiteGeneralSettings                     call kite#client#settings()
+command! KitePermissions                         call kite#client#permissions()
+command! KiteTutorial                            call kite#onboarding#call(1)
+command! KiteDisableAutoStart                    call kite#disable_auto_start()
+command! KiteEnableAutoStart                     call kite#enable_auto_start()
+command! KiteShowPopularPatterns                 call kite#signature#show_popular_patterns()
+command! KiteHidePopularPatterns                 call kite#signature#hide_popular_patterns()
+command! KiteGotoDefinition                      call kite#hover#goto_definition()
+command! KiteFindRelatedCodeFromFileExperimental call kite#codenav#from_file()
+command! KiteFindRelatedCodeFromLineExperimental call kite#codenav#from_line()

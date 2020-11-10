@@ -12,6 +12,7 @@ let s:counter_path       = '/clientapi/metrics/counters'
 let s:settings_path      = 'kite://settings'
 let s:permissions_path   = 'kite://settings/permissions'
 let s:max_file_size_path = '/clientapi/settings/max_file_size_kb'
+let s:codenav_path       = '/codenav/editor/related'
 
 
 function! kite#client#docs(word)
@@ -121,6 +122,17 @@ endfunction
 
 function! kite#client#completions(json, handler)
   let path = s:editor_path.'/complete'
+  if has('channel')
+    call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
+  else
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1),
+          \ function('s:parse_and_handle', [a:handler]), a:json)
+  endif
+endfunction
+
+
+function! kite#client#request_related(json, handler)
+  let path = s:codenav_path
   if has('channel')
     call s:async(function('s:timer_post', [path, g:kite_long_timeout, a:json, a:handler]))
   else
