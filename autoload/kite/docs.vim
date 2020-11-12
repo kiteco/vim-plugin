@@ -1,4 +1,9 @@
 function! kite#docs#docs()
+  if &filetype != 'python'
+    call kite#utils#warn('Docs are only available for Python')
+    return
+  endif
+
   if empty(expand('<cword>')) | return | endif
 
   let b:kite_id = ''

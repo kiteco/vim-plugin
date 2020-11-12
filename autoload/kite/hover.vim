@@ -11,6 +11,11 @@ endfunction
 
 
 function! kite#hover#goto_definition()
+  if &filetype != 'python'
+    call kite#utils#warn('Go to definition is only available for Python')
+    return
+  endif
+
   if exists('b:kite_skip') && b:kite_skip | return | endif
   if wordcount().bytes > kite#max_file_size() | return | endif
 
