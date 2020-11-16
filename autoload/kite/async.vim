@@ -12,20 +12,21 @@ function! s:async_sync_output(async_sync_id, output)
     " Ensure empty list becomes an empty string.
     let output = join(a:output, "\n")
   else
+    " Assume this is a string
     let output = a:output
   endif
-  let s:async_sync_outputs[a:async_sync_id] = output
+  let s:async_sync_outputs[a:async_sync_id] = output  " job can now be garbage collected
 endfunction
 
 
 " Executes `cmd` asynchronously but looks synchronous to the caller.
 function! kite#async#sync(cmd)
   let async_sync_id = s:next_async_sync_id()
-  let s:async_sync_outputs[async_sync_id] = 'PENDING'
+  let job_handle = kite#async#execute(a:cmd, function('s:async_sync_output', [async_sync_id]))
+  let s:async_sync_outputs[async_sync_id] = job_handle
+  let job_type = type(job_handle)  " Assume not a string
 
-  call kite#async#execute(a:cmd, function('s:async_sync_output', [async_sync_id]))
-
-  while s:async_sync_outputs[async_sync_id] ==# 'PENDING'
+  while type(s:async_sync_outputs[async_sync_id]) == job_type
     sleep 5m
   endwhile
 
@@ -37,6 +38,7 @@ endfunction
 
 
 " Optional argument is data (JSON) to pass to cmd's stdin.
+" Returns the job / job id.
 function! kite#async#execute(cmd, handler, ...)
   let options = {
         \ 'stdoutbuffer': [],
@@ -53,16 +55,18 @@ function! kite#async#execute(cmd, handler, ...)
       call chansend(jobid, a:1)
       call chanclose(jobid, 'stdin')
     endif
+    return jobid
   else
     let job = job_start(command, {
           \ 'out_cb':       function('s:on_stdout_vim', options),
-          \ 'close_cb':     function('s:on_close_vim', options)
+          \ 'exit_cb':      function('s:on_exit_vim', options)
           \ })
     if a:0
       let channel = job_getchannel(job)
       call ch_sendraw(channel, a:1)
       call ch_close_in(channel)
     endif
+    return job
   endif
 endfunction
 
@@ -93,11 +97,12 @@ function! s:on_stdout_vim(_channel, data) dict
   call add(self.stdoutbuffer, a:data)
 endfunction
 
-
-function! s:on_close_vim(channel) dict
+function! s:on_exit_vim(job, exit_status) dict
+  " Allow time for any buffered data to trigger out_cb.
+  " 5m is an educated guess.
+  sleep 5m
   call self.handler(self.stdoutbuffer)
 endfunction
-
 
 function! s:on_stdout_nvim(_job_id, data, event) dict
   if empty(self.stdoutbuffer)
