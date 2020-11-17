@@ -91,12 +91,22 @@ Normally you insert the currently selected completion option with `<C-y>`.  If y
 let g:kite_tab_complete=1
 ```
 
-Every time you enter a Python buffer the plugin updates `completeopt` as follows:
+For any kind of completion you must set 'completopt' as follows:
 
 ```viml
-set completeopt+=menuone   " show the popup menu even when there is only 1 match
-set completeopt+=noinsert  " don't insert any text until user chooses a match
-set completeopt-=longest   " don't insert the longest common text
+set completeopt+=menuone
+```
+
+For automatic completion, you also need either:
+
+```viml
+set completeopt+=noselect
+```
+
+or:
+
+```viml
+set completeopt+=noinsert
 ```
 
 To see documentation in the preview window for each completion option, copy all the lines above into your vimrc and change the preview line to:
