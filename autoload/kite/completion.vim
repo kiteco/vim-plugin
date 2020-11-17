@@ -76,14 +76,6 @@ function! kite#completion#insertcharpre()
 endfunction
 
 
-function! kite#completion#popup_exit(key)
-  if pumvisible()
-    let s:should_trigger_completion = 0
-  endif
-  return a:key
-endfunction
-
-
 function! kite#completion#autocomplete()
   if !g:kite_auto_complete | return | endif
   if exists('b:kite_skip') && b:kite_skip | return | endif

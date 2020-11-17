@@ -154,24 +154,6 @@ endfunction
 
 
 function! s:setup_mappings()
-  " When the pop-up menu is closed with <C-e>, <C-y>, or <CR>,
-  " the TextChangedI event is fired again, which re-opens the
-  " pop-up menu.  To avoid this, we set a flag when one of those
-  " keys is pressed.
-  "
-  " Note the <CR> mapping can conflict with vim-endwise because vim-endwise
-  " also maps <CR>.  To work around the conflict:
-  "
-  "     let g:kite_deconflict_cr = 1
-  "
-  imap <buffer> <expr> <C-e> kite#completion#popup_exit("\<C-e>")
-  imap <buffer> <expr> <C-y> kite#completion#popup_exit("\<C-y>")
-  if exists('g:kite_deconflict_cr') && g:kite_deconflict_cr
-    imap <silent> <buffer> <CR> <C-R>=kite#completion#popup_exit('')<CR><CR>
-  else
-    imap <buffer> <expr> <CR> kite#completion#popup_exit("\<CR>")
-  endif
-
   if exists('g:kite_tab_complete')
     imap <buffer> <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
   endif
