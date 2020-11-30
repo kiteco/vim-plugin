@@ -26,7 +26,9 @@ function! kite#async#sync(cmd)
   let s:async_sync_outputs[async_sync_id] = job_handle
   let job_type = type(job_handle)  " Assume not a string
 
+  let vim = !has('nvim')
   while type(s:async_sync_outputs[async_sync_id]) == job_type
+    if vim | call job_status(job_handle) | endif
     sleep 5m
   endwhile
 
