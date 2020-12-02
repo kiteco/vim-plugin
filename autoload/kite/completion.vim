@@ -378,12 +378,12 @@ endfunction
 function! s:completeopt_suitable()
   let copts = split(&completeopt, ',')
 
-  if index(copts, 'menuone') == -1
-    call s:popup_warn("Kite: completeopt must contain 'menuone'")
-    return 0
-  endif
-
   if g:kite_auto_complete
+    if index(copts, 'menuone') == -1
+      call s:popup_warn("Kite: completeopt must contain 'menuone'")
+      return 0
+    endif
+
     if index(copts, 'noinsert') == -1 && index(copts, 'noselect') == -1
       call s:popup_warn("Kite: completeopt must contain 'noinsert' and/or 'noselect'")
       return 0
