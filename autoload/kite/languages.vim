@@ -21,6 +21,7 @@ function! kite#languages#supported_by_plugin()
         \ 'm',
         \ 'php',
         \ 'py',
+        \ 'pyw',
         \ 'rb',
         \ 'scala',
         \ 'sh',
