@@ -248,6 +248,10 @@ function! kite#utils#filepath(url_format)
   return path
 endfunction
 
+function! kite#utils#file_ext()
+  return resolve(expand('%:e'))
+endfunction
+
 
 " Returns a 2-element list of 0-based character indices into the buffer.
 "
