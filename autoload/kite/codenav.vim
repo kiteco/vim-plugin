@@ -24,22 +24,18 @@ endfunction
 
 
 function! kite#codenav#handler(response) abort
-  if a:response.status != 200
-    if a:response.status == 0
-      call kite#utils#warn("Kite could not be reached. Please check that Kite Engine is running.")
+  if a:response.status == 0 || a:response.status == 200
       return
-    endif
-
-    let err = trim(a:response.body)
-    if err == 'ErrProjectStillIndexing'
-      call kite#utils#warn("Kite is not done indexing your project yet.")
-    elseif err == 'ErrPathNotInSupportedProject'
-      call kite#utils#warn("Code Finder only works in Git projects.")
-    elseif err == 'ErrPathHasUnsupportedExtension'
-      let ext = kite#utils#file_ext()
-      call kite#utils#warn("Code Finder does not support the `." . ext . "` file extension yet.")
-    else
-      call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
-    endif
+  endif
+  let err = trim(a:response.body)
+  if err == 'ErrProjectStillIndexing'
+    call kite#utils#warn("Kite is not done indexing your project yet.")
+  elseif err == 'ErrPathNotInSupportedProject'
+    call kite#utils#warn("Code Finder only works in Git projects.")
+  elseif err == 'ErrPathHasUnsupportedExtension'
+    let ext = kite#utils#file_ext()
+    call kite#utils#warn("Code Finder does not support the `." . ext . "` file extension yet.")
+  else
+    call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
   endif
 endfunction
