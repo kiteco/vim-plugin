@@ -137,7 +137,7 @@ function! kite#client#request_related(json, handler)
   if has('channel')
     call s:async(function('s:timer_post', [path, timeout, a:json, a:handler]))
   else
-    call kite#async#execute(s:external_http_cmd(s:base_url.path, g:kite_long_timeout, 1),
+    call kite#async#execute(s:external_http_cmd(s:base_url.path, timeout, 1),
           \ function('s:parse_and_handle', [a:handler]), a:json)
   endif
 endfunction
