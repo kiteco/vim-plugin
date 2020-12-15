@@ -37,8 +37,8 @@ In order to enable Kite-LSP, add the following to your coc.nvim configuration
 Add to `"filetypes"` any languages for which you would like to enable Kite
 completions.
 
-You should also disable the Kite plugin's completions for those languages to
-avoid getting duplicate completions:
+You should also disable the Kite plugin's completions to avoid getting
+duplicate completions:
 ```viml
-let g:kite_supported_languages=[]
+let g:kite_completions=0
 ```

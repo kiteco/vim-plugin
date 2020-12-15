@@ -46,6 +46,10 @@ if !exists('g:kite_documentation_continual')
   let g:kite_documentation_continual = 0
 endif
 
+if !exists('g:kite_completions')
+  let g:kite_completions = 1
+endif
+
 if !exists('g:kite_log')
   let g:kite_log = 0
 endif
@@ -80,7 +84,7 @@ endif
 augroup Kite
   autocmd!
   autocmd BufEnter * call kite#bufenter()
-  autocmd VimEnter * call kite#configure_completeopt()
+  autocmd VimEnter * if g:kite_completions | call kite#configure_completeopt() | endif
   autocmd VimEnter * nested if kite#utils#kite_running() && &filetype !~# '^git' | call kite#onboarding#call(0) | endif
 augroup END
 

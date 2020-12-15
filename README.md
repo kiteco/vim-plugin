@@ -79,6 +79,12 @@ let g:kite_auto_complete=0
 
 You can manually invoke the completions in insert mode with `<C-X><C-U>`.  See `:h i_CTRL-X_CTRL-U` for details.
 
+You can disable Kite's completions altogether with this in your vimrc:
+
+```viml
+let g:kite_completions=0
+```
+
 Kite's completions include snippets by default.  To opt out of the snippets, add this to your vimrc:
 
 ```viml
