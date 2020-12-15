@@ -40,5 +40,5 @@ completions.
 You should also disable the Kite plugin's completions for those languages to
 avoid getting duplicate completions:
 ```viml
-let g:kite_support_language=[]
+let g:kite_supported_languages=[]
 ```
