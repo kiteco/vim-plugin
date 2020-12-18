@@ -26,16 +26,14 @@ function! kite#codenav#handler(response) abort
       return
     endif
 
-    let err = trim(a:response.body)
-    if err == 'ErrProjectStillIndexing'
-      call kite#utils#warn("Kite is not done indexing your project yet.")
-    elseif err == 'ErrPathNotInSupportedProject'
-      call kite#utils#warn("Code Finder only works in Git projects.")
-    elseif err == 'ErrPathHasUnsupportedExtension'
-      let ext = kite#utils#file_ext()
-      call kite#utils#warn("Code Finder does not support the `." . ext . "` file extension yet.")
-    else
+
+    let err = json_decode(a:response.body)
+
+    if empty(err) || type(err.message) != v:t_string
       call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
+      return
     endif
+
+    call kite#utils#warn(err.message)
   endif
 endfunction
