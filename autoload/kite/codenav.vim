@@ -5,10 +5,6 @@ endfunction
 
 
 function! kite#codenav#from_line()
-  if getline(".") ==# ''
-    call kite#utils#warn("Code finder only works on non-empty lines.")
-    return
-  endif
   let filepath = kite#utils#filepath(0)
   call kite#codenav#request_related(filepath, line("."))
 endfunction
