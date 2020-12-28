@@ -15,6 +15,19 @@ C:\Program Files\Kite\kite-lsp.exe --editor=vim
 If you installed Kite to a non-standard location, you may need to appropriately
 modify the executable path.
 
+### Neovim-LSP
+
+As today the [LSP integration in neovim](https://github.com/neovim/nvim-lspconfig) is just avalaible in the nightlies.  
+To enable the support in this case:
+
+```
+au User lsp_setup call lsp#register_server({
+     \ 'name': 'kite',
+     \ 'cmd': '~/.local/share/kite/current/kite-lsp --editor=vim',
+     \ 'whitelist': ["php", "javascript", "python", "bash"],
+     \ })
+```
+
 ### Coc.nvim
 
 We have tested Kite-LSP with the full-featured
