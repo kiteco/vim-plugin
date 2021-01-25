@@ -232,33 +232,41 @@ endfunction
 function! s:disable_completion_plugins()
   " coc.nvim
   if exists('g:did_coc_loaded')
-    let b:coc_suggest_disable = 1
-    " Alternatively:
-    " autocmd BufEnter *.python :CocDisable
-    " autocmd BufLeave *.python :CocEnable
-    call kite#utils#warn("disabling coc.nvim's completions in this buffer")
+    if !exists('b:coc_suggest_disable') || !b:coc_suggest_disable
+      let b:coc_suggest_disable = 1
+      " Alternatively:
+      " autocmd BufEnter *.python :CocDisable
+      " autocmd BufLeave *.python :CocEnable
+      call kite#utils#warn("disabling coc.nvim's completions in this buffer")
+    endif
   endif
 
   " Jedi
   if exists('*jedi#setup_completion')
-    " This may not be enough: https://github.com/davidhalter/jedi-vim/issues/614
-    let g:jedi#completions_enabled = 0
-    call kite#utils#warn("disabling jedi-vim's completions")
-    " Alternatively:
-    " call kite#utils#warn('please uninstall jedi-vim and restart vim/nvim')
-    " finish
+    if !exists('g:jedi#completions_enabled') || !g:jedi#completions_enabled
+      " This may not be enough: https://github.com/davidhalter/jedi-vim/issues/614
+      let g:jedi#completions_enabled = 0
+      call kite#utils#warn("disabling jedi-vim's completions")
+      " Alternatively:
+      " call kite#utils#warn('please uninstall jedi-vim and restart vim/nvim')
+      " finish
+    endif
   endif
 
   " YouCompleteMe
-  if exists('g:loaded_youcompleteme') && !exists('g:ycm_filetype_blacklist.python')
-    let g:ycm_filetype_blacklist.python = 1
-    call kite#utils#warn("disabling YouCompleteMe's completions for python files")
+  if exists('g:loaded_youcompleteme')
+    if !exists('g:ycm_filetype_blacklist.python') || !g:ycm_filetype_blacklist.python
+      let g:ycm_filetype_blacklist.python = 1
+      call kite#utils#warn("disabling YouCompleteMe's completions for python files")
+    endif
   endif
 
   " Deoplete
-  if exists('*deoplete#disable')
-    call deoplete#disable()
-    call kite#utils#warn("disabling deoplete's completions")
+  if exists('*deoplete#is_enabled')
+    if deoplete#is_enabled()
+      call deoplete#disable()
+      call kite#utils#warn("disabling deoplete's completions")
+    endif
   endif
 endfunction
 
