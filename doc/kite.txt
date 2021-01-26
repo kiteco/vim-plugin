@@ -1,35 +1,320 @@
-*kite.txt* Kite for VIM
+*kite.txt*  Kite for Vim and Neovim
+
+Author: Manhattan Engineering, Inc <https://kite.com>
 
 
-Kite for VIM
-============
+CONTENTS                                                                *kite*
 
-VIM is now integrated with Kite! To get a taste of what Kite can do, open a
-saved Python file and start coding away.
+Introduction..................................|kite-introduction|
+Requirements..................................|kite-requirements|
+Installation..................................|kite-installation|
+Line-of-code Completions......................|kite-completions|
+Intelligent Snippets..........................|kite-snippets|
+Signatures....................................|kite-signatures|
+Kite Copilot for Python Documentation.........|kite-copilot|
+Goto Definition...............................|:KiteGotoDefinition|
+Commands......................................|kite-commands|
+Statusline....................................|kite-statusline|
+Debugging.....................................|kite-debugging|
+About Kite....................................|kite-about|
 
-1. Autocompletions
 
-As you code, Kite will provide autocompletion suggestions ranked by popularity
-using all the open source code on GitHub.
+==============================================================================
+INTRODUCTION                                               *kite-introduction*
 
-2. Documentation
+Kite is an AI-powered programming assistant that helps you write Python code
+inside Vim.  Kite helps you write code faster by showing you the right
+information at the right time. Learn more about how Kite helps you while
+you're using Vim at <https://kite.com/integrations/vim/>.
 
-Press |K| when your cursor is over a identifier to open a split window with
-documentation about the identifier. In addition to documentation, Kite also
-provides information about where you've used the identifier in your codebase,
-as well as curated code examples showing you how to use the identifier.
+At a high level, Kite provides you with:
 
-3. Goto Definition
+* Line-of-Code Completions |kite-completions| powered by machine learning
+* models trained on the
+  entire open source code universe
+* Intelligent Snippets |kite-snippets| that automatically provide
+* context-relevant code
+  snippets for your function calls
+* Instant documentation |kite-copilot| for the symbol underneath your cursor
+* so you save
+  time searching for Python docs
 
-Press |C-]| to jump to a method's defintion.
+Learn more about why Kite is the best autocomplete for Vim:
+<https://kite.com/integrations/vim/>
 
-4. Copilot integration
 
-While you code in VIM, the Copilot will automatically show you information
-about the code that you're currently working with. To open the Copilot, click
-on the Kite menubar icon and select "Open Copilot".
+==============================================================================
+REQUIREMENTS                                               *kite-requirements*
 
-To learn more about Kite and how to use the VIM plugin, visit our [help
-page](http://help.kite.com).
+
+* macOS 10.10+ or Windows 7+ or Linux (Ubuntu, Debian, Fedora, Arch Linux,
+                                       Linux Mint, openSUSE, KDE, XFCE,
+                                       Gnome 2, Gnome 3)
+* Vim 8 or Neovim
+* Kite Engine <https://kite.com/>
+
+Use another editor?  Check out Kite's other editor integrations
+<https://kite.com/integrations/>.
+
+
+==============================================================================
+INSTALLATION                                               *kite-installation*
+
+                                                                 *kite-engine*
+Installing the Kite Engine~
+
+The Kite Engine <https://kite.com/> needs to be installed and running on your
+computer in order for the package to work properly.  The package itself
+provides the frontend that interfaces with the Kite Engine, which performs all
+the code analysis and machine learning 100% locally on your computer (no code
+is sent to a cloud server).
+
+macOS Instructions~
+
+1. Download the installer <https://kite.com/download/> and open the downloaded
+   `.dmg` file.
+2. Drag the Kite icon into the `Applications` folder.
+3. Run `Kite.app` to start the Kite Engine.
+
+Windows Instructions~
+
+1. Download the installer <https://kite.com/download/> and run the downloaded
+   `.exe` file.
+2. The installer should run the Kite Engine automatically after installation
+   is complete.
+
+Linux Instructions~
+
+1. Visit https://kite.com/linux/ to learn how to install Kite.
+2. The installer should run the Kite Engine automatically after installation
+   is complete.
+
+                                                                 *kite-plugin*
+Installing the Kite plugin for Vim/Neovim~
+
+When running the Kite Engine for the first time, you'll be guided through a
+setup process which will allow you to install the Vim/Neovim plugin.  You can
+also install or uninstall the Vim plugin at any time using the Kite Engine's
+plugin manager <https://help.kite.com/article/62-managing-editor-plugins>.
+
+Alternatively, you can follow the instructions in the
+DEVELOPMENT.md <https://github.com/kiteco/vim-plugin/blob/master/DEVELOPMENT.md>
+file to learn how to manually install the Vim/Neovim plugin.
+
+Once installed, the plugin will be automatically updated by Kite when
+necessary.
+
+
+                  *kite-supported-languages* *kite-g:kite_supported_languages*
+Configuring supported languages~
+
+Kite supports 12 languages and counting.  By default only Python is enabled.
+You can configure the languages for which Kite is enabled:
+
+Python, JavaScript, Go:
+>
+  let g:kite_supported_languages = ['python', 'javascript', 'go']
+<
+All the languages Kite supports:
+>
+  let g:kite_supported_languages = ['*']
+<
+Turn off Kite:
+>
+  let g:kite_supported_languages = []
+<
+
+==============================================================================
+LINE-OF-CODE COMPLETIONS                                    *kite-completions*
+
+Kite's ranked completions are integrated with Vim's insert-mode completion,
+specifically the user-defined completion.  Kite shows normal completions or
+signature-completions as appropriate for the cursor position.
+
+                                                   *kite-g:kite_auto_complete*
+By default Kite's completions will show up automatically as you type.  You can
+opt out via:
+>
+  let g:kite_auto_complete=0
+<
+You can manually invoke the completions in insert mode with <C-X><C-U>.  See
+|i_CTRL-X_CTRL-U| for details.
+
+                                                     *kite-g:kite_completions*
+You can disable Kite's completions altogether with this in your vimrc:
+>
+  let g:kite_completions=0
+<
+                                                    *kite-g:kite_tab_complete*
+Normally you insert the currently selected completion option with <C-Y>.  If
+you'd like to use <Tab> instead / as well, add this to your vimrc:
+>
+  let g:kite_tab_complete=1
+<
+                                                            *kite-completeopt*
+For any kind of completion you must set 'completopt' as follows:
+>
+  set completeopt+=menuone
+<
+For automatic completion, you also need either:
+>
+  set completeopt+=noselect
+<
+or:
+>
+  set completeopt+=noinsert
+<
+                                                     *kite-completion-preview*
+To see documentation in the preview window for each completion option, copy
+all the lines above into your vimrc and change the preview line to:
+>
+  set completeopt+=preview
+<
+To have the preview window automatically closed once a completion has been
+inserted:
+>
+  autocmd CompleteDone * if !pumvisible() | pclose | endif
+<
+We also recommend:
+>
+  set belloff+=ctrlg  " if vim beeps during completion
+<
+
+                                            *kite-g:kite_completion_max_width*
+You can set the maximum width of the completions window (default 75).
+>
+  let g:kite_completion_max_width = 50
+<
+
+
+==============================================================================
+INTELLIGENT SNIPPETS                                           *kite-snippets*
+
+Some completions are actually autogenerated code snippets which can be filled
+in.  These will be highlighted with the Underline highlight group.
+
+                                                        *kite-g:kite_snippets*
+Kite's completions include snippets by default.  To opt out of the snippets,
+add this to your vimrc:
+>
+  let g:kite_snippets=0
+<
+                                                   *kite-CTRL-J* *kite-CTRL-K*
+You can navigate between placeholders with <CTRL-J> (forward) and <CTRL-K>
+(backward), even after you have typed over the original placeholder text.
+
+             *kite-g:kite_previous_placeholder* *kite-g:kite_next_placeholder*
+To change these keys:
+>
+  let g:kite_previous_placeholder = '<C-H>'
+  let g:kite_next_placeholder = '<C-L>`
+<
+
+==============================================================================
+SIGNATURES                                                   *kite-signatures*
+
+Kite can show how other people used the signature you are using.  By default
+this is off to save space.
+
+To turn it on: |:KiteShowPopularPatterns|.
+
+To turn it off: |:KiteHidePopularPatterns|.
+
+
+==============================================================================
+KITE COPILOT FOR PYTHON DOCUMENTATION      *kite-copilot* *kite-documentation*
+
+As you edit your code, the Kite Copilot <https://kite.com/copilot/> will
+automatically show examples and docs for the code under your cursor.
+
+                                                                      *kite-K*
+
+Alternatively, you can press |K| when the cursor is on a symbol to view its
+documentation in Kite Copilot.
+
+                                                            *kite-(kite-docs)*
+
+If you have mapped |K| already, the plugin won't overwrite your mapping. You
+can set an alternative mapping, e.g. to `gK`, like this:
+>
+  nmap <silent> <buffer> gK <Plug>(kite-docs)
+<
+                                         *kite-g:kite_documentation_continual*
+By default you need to type |K| (or whatever you have mapped to
+|<Plug>(kite-docs)|) each time you want to see documentation for the keyword
+under the cursor.  To have the documentation continually update itself as you
+move from keyword to keyword:
+>
+  let g:kite_documentation_continual=1
+<
+
+==============================================================================
+GOTO DEFINITION                             *:KiteGotoDefinition* *kite-<C-]>*
+
+Use <C-]> or `:KiteGotoDefinition` to jump to a method's definition.
+
+
+==============================================================================
+COMMANDS                                                       *kite-commands*
+
+                                               *:KiteDocsAtCursor*
+:KiteDocsAtCursor       Show documentation for the keyword under the cursor.
+
+                                               *:KiteOpenCopilot*
+:KiteOpenCopilot        Open the Kite Copilot and focus on it.
+
+                                               *:KiteGeneralSettings*
+:KiteGeneralSettings    Open Kite's settings in the Copilot.
+
+                                               *:KitePermissions*
+:KitePermissions        Open Kite's permission settings in the Copilot.
+
+                                               *:KiteTutorial*
+:KiteTutorial           Show a tutorial for how to use Kite with Vim.
+
+                                               *:KiteEnableAutoStart*
+:KiteEnableAutoStart    Start Kite automatically when Vim starts.
+
+                                               *:KiteDisableAutoStart*
+:KiteDisableAutoStart   Do not start Kite automatically when Vim starts.
+
+
+==============================================================================
+STATUSLINE                               *kite-statusline* *kite#statusline()*
+
+Add %{kite#statusline()} to your statusline to get an indicator of what Kite
+is doing.  If you don't have a status line, this one matches the default when
+'ruler' is set:
+>
+  set statusline=%<%f\ %h%m%r%{kite#statusline()}%=%-14.(%l,%c%V%)\ %P
+  set laststatus=2  " always display the status line
+<
+
+==============================================================================
+DEBUGGING                                   *kite-debugging* *kite-g:kite_log*
+
+Use `let g:kite_log=1` to switch on logging.
+
+Logs are written to `kite-vim.log` in Vim's current working directory.
+
+
+==============================================================================
+ABOUT KITE                                                        *kite-about*
+
+Kite is built by a team in San Francisco devoted to making programming easier
+and more enjoyable for all.
+
+Follow Kite on Twitter [1] and get the latest news and programming tips on the
+Kite Blog [2].
+
+Kite has been featured in Wired [3], VentureBeat [4], The Next Web [5], and
+TechCrunch [6].
+
+[1]: <https://twitter.com/kitehq>
+[2]: <https://kite.com/blog/>
+[3]: <https://www.wired.com/2016/04/kites-coding-asssitant-spots-errors-finds-better-open-source/>
+[4]: <https://venturebeat.com/2019/01/28/kite-raises-17-million-for-its-ai-powered-developer-environment/>
+[5]: <https://thenextweb.com/dd/2016/04/14/kite-plugin/>
+[6]: <https://techcrunch.com/2019/01/28/kite-raises-17m-for-its-ai-driven-code-completion-tool/>
 
   vim:tw=78:et:ft=help:norl
