@@ -183,6 +183,8 @@ Use `<C-]>` or `:KiteGotoDefinition` to jump to a method's definition.
 
 ### Commands
 
+- `KiteFindRelatedCodeFromFile` - search for code related to the current file.
+- `KiteFindRelatedCodeFromLine` - search for code related to the current line.
 - `KiteDocsAtCursor` - show documentation for the keyword under the cursor.
 - `KiteOpenCopilot` - open the Kite Copilot and focus on it.
 - `KiteGeneralSettings` - open Kite's settings in the Copilot.
