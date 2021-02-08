@@ -12,7 +12,7 @@ Line-of-code Completions......................|kite-completions|
 Intelligent Snippets..........................|kite-snippets|
 Signatures....................................|kite-signatures|
 Kite Copilot for Python Documentation.........|kite-copilot|
-Goto Definition...............................|:KiteGotoDefinition|
+Goto Definition...............................|kite-goto-definition|
 Commands......................................|kite-commands|
 Statusline....................................|kite-statusline|
 Debugging.....................................|kite-debugging|
@@ -249,7 +249,7 @@ move from keyword to keyword:
 <
 
 ==============================================================================
-GOTO DEFINITION                             *:KiteGotoDefinition* *kite-<C-]>*
+GOTO DEFINITION      *kite-todo-definition* *:KiteGotoDefinition* *kite-<C-]>*
 
 Use <C-]> or `:KiteGotoDefinition` to jump to a method's definition.
 
