@@ -183,11 +183,13 @@ Use `<C-]>` or `:KiteGotoDefinition` to jump to a method's definition.
 
 ### Commands
 
-- `KiteDocsAtCursor` - show documentation for the keyword under the cursor.
+- `KiteFindRelatedCodeFromFile` - search for code related to the current file in the Copilot.
+- `KiteFindRelatedCodeFromLine` - search for code related to the current line in the Copilot.
+- `KiteDocsAtCursor` - show documentation for the keyword under the cursor in the Copilot.
 - `KiteOpenCopilot` - open the Kite Copilot and focus on it.
 - `KiteGeneralSettings` - open Kite's settings in the Copilot.
 - `KitePermissions` - open Kite's permission settings in the Copilot.
-- `KiteTutorial` - show a tutorial for how to use Kite with Vim.
+- `KiteTutorial` - show a tutorial for using Kite with Vim.
 - `KiteEnableAutoStart` - start Kite automatically when Vim starts.
 - `KiteDisableAutoStart` - do not start Kite automatically when Vim starts.
 - `KiteGotoDefinition` - jump to a method's definition.
