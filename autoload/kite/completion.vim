@@ -400,7 +400,7 @@ endfunction
 " combo being applied in normal mode).  To avoid this we use the 'i' flag
 " which ensures the keys are processed immediately.
 function s:feedkeys(keys)
-  call feedkeys(a:keys, 'i')
+  call feedkeys(a:keys, 'in')
 endfunction
 
 
