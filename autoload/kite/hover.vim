@@ -45,6 +45,11 @@ endfunction
 
 
 function! kite#hover#goto_definition_handler(response)
+  if a:response.status == 503
+    call kite#utils#warn('Locked until tomorrow (upgrade to Pro to unlock).')
+    return
+  endif
+
   if a:response.status != 200
     call kite#utils#warn('unable to find a definition.')
     return
