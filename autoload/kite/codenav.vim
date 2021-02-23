@@ -27,7 +27,6 @@ function! kite#codenav#handler(response) abort
     return
   endif
 
-
   let err = json_decode(a:response.body)
 
   if empty(err) || type(err.message) != v:t_string
