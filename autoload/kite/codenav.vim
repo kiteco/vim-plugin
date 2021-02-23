@@ -20,20 +20,19 @@ endfunction
 
 
 function! kite#codenav#handler(response) abort
-  if a:response.status != 200
-    if a:response.status == 0
-      call kite#utils#warn("Kite could not be reached. Please check that Kite Engine is running.")
-      return
-    endif
+  if a:response.status == 200 | return | endif
 
-
-    let err = json_decode(a:response.body)
-
-    if empty(err) || type(err.message) != v:t_string
-      call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
-      return
-    endif
-
-    call kite#utils#warn(err.message)
+  if a:response.status == 0
+    call kite#utils#warn("Kite could not be reached. Please check that Kite Engine is running.")
+    return
   endif
+
+  let err = json_decode(a:response.body)
+
+  if empty(err) || type(err.message) != v:t_string
+    call kite#utils#warn("Oops! Something went wrong with Code Finder. Please try again later.")
+    return
+  endif
+
+  call kite#utils#warn(err.message)
 endfunction
