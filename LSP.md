@@ -40,12 +40,13 @@ In order to enable Kite-LSP, add the following to your coc.nvim configuration
 {
   "languageserver": {
     "kite": {
-      "command": "/Applications/Kite.app/Contents/MacOS/kite-lsp --editor=vim",
+      "command": "/Applications/Kite.app/Contents/MacOS/kite-lsp",
       "filetypes": ["python", "go", "javascript"]
     }
   }
 }
 ```
+Be sure to use the [right command for your OS](https://github.com/kiteco/vim-plugin/blob/master/LSP.md#the-kite-lsp-adapter-may-be-run-as-follows-depending-on-your-operating-system).
 
 Add to `"filetypes"` any languages for which you would like to enable Kite
 completions.
