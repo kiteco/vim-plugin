@@ -8,7 +8,7 @@ should still install the Kite plugin for Vim.
 The Kite-LSP adapter may be run as follows, depending on your operating system:
 ```bash
 /Applications/Kite.app/Contents/MacOS/kite-lsp --editor=vim
-~/.local/share/kite/current/kite-lsp --editor=vim
+~/.local/share/kite/current/kite-lsp
 C:\Program Files\Kite\kite-lsp.exe --editor=vim
 ```
 
