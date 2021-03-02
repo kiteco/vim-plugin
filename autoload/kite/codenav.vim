@@ -27,11 +27,6 @@ function! kite#codenav#handler(response) abort
     return
   endif
 
-  if a:response.status == 503
-    call kite#utils#warn("Locked until tomorrow (upgrade to Pro to unlock).")
-    return
-  endif
-
   let err = json_decode(a:response.body)
 
   if empty(err) || type(err.message) != v:t_string
