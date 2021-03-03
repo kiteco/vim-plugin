@@ -45,17 +45,17 @@ endfunction
 
 
 function! kite#hover#goto_definition_handler(response)
-  if a:response.status == 503
-    call kite#utils#warn('Locked until tomorrow (upgrade to Pro to unlock).')
-    return
-  endif
+  let json = json_decode(a:response.body)
 
   if a:response.status != 200
-    call kite#utils#warn('unable to find a definition.')
+    if empty(json) || empty(json.message)
+      call kite#utils#warn('unable to find a definition.')
+    else
+      call kite#utils#warn(json.message)
+    endif
     return
   endif
 
-  let json = json_decode(a:response.body)
   let definition = json.report.definition
 
   if type(definition) != type({})
