@@ -17,7 +17,7 @@ modify the executable path.
 
 ### Neovim-LSP
 
-As today the [LSP integration in neovim](https://github.com/neovim/nvim-lspconfig) is just avalaible in the nightlies.  
+As today the [LSP integration in neovim](https://github.com/neovim/nvim-lspconfig) is just available in the nightlies.  
 To enable the support in this case:
 
 ```
