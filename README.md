@@ -1,5 +1,7 @@
 # Kite Python Plugin for Vim/Neovim
 
+[![Report an issue](https://img.shields.io/badge/-Report%20an%20issue-critical)](https://github.com/kiteco/issue-tracker/issues)
+
 Kite is an AI-powered programming assistant that helps you write Python code inside Vim. Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite helps you while you're using Vim at https://kite.com/integrations/vim/.
 
 At a high level, Kite provides you with:
