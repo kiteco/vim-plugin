@@ -20,7 +20,9 @@ endfunction
 
 
 function! kite#codenav#handler(response) abort
-  if a:response.status == 200 | return | endif
+  if a:response.status == 200
+    return
+  endif
 
   if a:response.status == 0
     call kite#utils#warn("Kite could not be reached. Please check that Kite Engine is running.")

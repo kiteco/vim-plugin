@@ -2,7 +2,9 @@
 "
 " Optional argument is a timer id (when called by a timer).
 function! kite#status#status(...)
-  if !s:status_in_status_line() | return | endif
+  if !s:status_in_status_line()
+    return
+  endif
 
   let buf = bufnr('')
   let msg = 'NOT SET'
@@ -38,7 +40,9 @@ endfunction
 
 function! kite#status#handler(buffer, response)
   call kite#utils#log('kite status status: '.a:response.status.', body: '.a:response.body)
-  if a:response.status != 200 | return | endif
+  if a:response.status != 200
+    return
+  endif
 
   let json = json_decode(a:response.body)
 

@@ -1,5 +1,7 @@
 function! s:setup_stack()
-  if exists('b:kite_stack') | return | endif
+  if exists('b:kite_stack')
+    return
+  endif
 
   " stack:
   "  [
@@ -34,7 +36,9 @@ endfunction
 
 
 function! kite#snippet#complete_done()
-  if empty(v:completed_item) | return | endif
+  if empty(v:completed_item)
+    return
+  endif
   call s:setup_stack()
 
   if has_key(v:completed_item, 'user_data') && !empty(v:completed_item.user_data)
@@ -196,7 +200,9 @@ endfunction
 " Adjust current and subsequent placeholders for the amount of text entered
 " at the placeholder we are leaving.
 function! s:update_placeholder_locations()
-  if !exists('b:kite_line_length') | return | endif
+  if !exists('b:kite_line_length')
+    return
+  endif
 
   let line_length_delta = col('$') - b:kite_line_length
 
@@ -226,7 +232,9 @@ endfunction
 
 function! s:highlight_current_level_placeholders()
   let group = s:highlight_group_for_placeholders()
-  if empty(group) | return | endif
+  if empty(group)
+    return
+  endif
 
   let linenr = line('.')
   for ph in b:kite_stack.peek().placeholders
@@ -282,7 +290,9 @@ function! s:remove_smaps_for_printable_characters()
     let mappings = split(maps, "\n")
 
     " 'No mapping found' or localised equivalent (starts with capital letter).
-    if len(mappings) == 1 && mappings[0][0] =~ '\u' | continue | endif
+    if len(mappings) == 1 && mappings[0][0] =~ '\u'
+      continue
+    endif
 
     " Assume select-mode maps are deliberate and ignore them.
     call filter(mappings, 'v:val[0:2] !~# "s"')
@@ -293,7 +303,9 @@ function! s:remove_smaps_for_printable_characters()
       "                               mode lhs
 
       " Ignore keycodes for non-printable characters, e.g. <Left>
-      if lhs[0] == '<' && index(printable_keycodes, lhs) == -1 | continue | endif
+      if lhs[0] == '<' && index(printable_keycodes, lhs) == -1
+        continue
+      endif
 
       " Remember the mapping so we can restore it later.
       call add(b:kite_maps, maparg(lhs, 's', 0, 1))
@@ -379,8 +391,12 @@ endfunction
 
 
 function! s:cursormoved()
-  if !exists('b:kite_linenr') | return | endif
-  if b:kite_linenr == line('.') | return | endif
+  if !exists('b:kite_linenr')
+    return
+  endif
+  if b:kite_linenr == line('.')
+    return
+  endif
 
   " TODO check whether the cursor is outside the bounds of the completion?
 

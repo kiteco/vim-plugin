@@ -5,8 +5,12 @@ let s:end = 0
 
 
 function! kite#completion#replace_range()
-  if empty(v:completed_item) | return | endif
-  if !exists('s:startcol') | return | endif
+  if empty(v:completed_item)
+    return
+  endif
+  if !exists('s:startcol')
+    return
+  endif
   let startcol = s:startcol
   unlet s:startcol
 
@@ -21,7 +25,9 @@ function! kite#completion#replace_range()
   endif
 
   " The range seems to be wrong when placeholders are involved so stop here.
-  if !empty(placeholders) | return | endif
+  if !empty(placeholders)
+    return
+  endif
 
   let col = col('.')
   let _col = col
@@ -51,8 +57,12 @@ endfunction
 
 
 function! kite#completion#expand_newlines()
-  if empty(v:completed_item) | return | endif
-  if match(v:completed_item.word, '\n') == -1 | return | endif
+  if empty(v:completed_item)
+    return
+  endif
+  if match(v:completed_item.word, '\n') == -1
+    return
+  endif
 
   let parts = split(getline('.'), '\n', 1)
   delete _
@@ -77,9 +87,15 @@ endfunction
 
 
 function! kite#completion#autocomplete()
-  if !g:kite_auto_complete | return | endif
-  if exists('b:kite_skip') && b:kite_skip | return | endif
-  if wordcount().bytes > kite#max_file_size() | return | endif
+  if !g:kite_auto_complete
+    return
+  endif
+  if exists('b:kite_skip') && b:kite_skip
+    return
+  endif
+  if wordcount().bytes > kite#max_file_size()
+    return
+  endif
 
   if s:should_trigger_completion
     let s:should_trigger_completion = 0

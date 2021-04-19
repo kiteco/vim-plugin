@@ -4,7 +4,9 @@ function! kite#docs#docs()
     return
   endif
 
-  if empty(expand('<cword>')) | return | endif
+  if empty(expand('<cword>'))
+    return
+  endif
 
   let b:kite_id = ''
 
