@@ -59,7 +59,9 @@ endfunction
 
 
 function! kite#languages#handler(response)
-  if a:response.status != 200 | return [] | endif
+  if a:response.status != 200
+    return []
+  endif
 
   return json_decode(a:response.body)
 endfunction

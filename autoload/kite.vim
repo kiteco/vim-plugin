@@ -48,7 +48,9 @@ function! kite#configure_completeopt()
   redir => output
     silent verbose set completeopt
   redir END
-  if len(split(output, '\n')) > 1 | return | endif
+  if len(split(output, '\n')) > 1
+    return
+  endif
 
   set completeopt=menuone,noinsert
 endfunction
@@ -77,7 +79,9 @@ endfunction
 
 
 function! s:restore_options()
-  if !exists('s:pumheight') | return | endif
+  if !exists('s:pumheight')
+    return
+  endif
 
   let &pumheight   = s:pumheight
   unlet s:pumheight

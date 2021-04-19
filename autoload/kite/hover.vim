@@ -1,6 +1,10 @@
 function! kite#hover#hover()
-  if exists('b:kite_skip') && b:kite_skip | return | endif
-  if wordcount().bytes > kite#max_file_size() | return | endif
+  if exists('b:kite_skip') && b:kite_skip
+    return
+  endif
+  if wordcount().bytes > kite#max_file_size()
+    return
+  endif
 
   let filename = kite#utils#filepath(1)
   let hash = kite#utils#buffer_md5()
@@ -16,8 +20,12 @@ function! kite#hover#goto_definition()
     return
   endif
 
-  if exists('b:kite_skip') && b:kite_skip | return | endif
-  if wordcount().bytes > kite#max_file_size() | return | endif
+  if exists('b:kite_skip') && b:kite_skip
+    return
+  endif
+  if wordcount().bytes > kite#max_file_size()
+    return
+  endif
 
   let filename = kite#utils#filepath(1)
   let hash = kite#utils#buffer_md5()
