@@ -42,8 +42,6 @@ __Linux Instructions__
 
 When running the Kite Engine for the first time, you'll be guided through a setup process which will allow you to install the Vim/Neovim plugin. You can also install or uninstall the Vim plugin at any time using the Kite Engine's [plugin manager](https://help.kite.com/article/62-managing-editor-plugins).
 
-Alternatively, you can follow the instructions in the [DEVELOPMENT.md](https://github.com/kiteco/vim-plugin/blob/master/DEVELOPMENT.md) file to learn how to manually install the Vim/Neovim plugin.
-
 Once installed, the plugin will be automatically updated by Kite when necessary.
 
 ### Configuring supported languages
