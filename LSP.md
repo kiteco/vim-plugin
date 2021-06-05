@@ -15,9 +15,9 @@ C:\Program Files\Kite\kite-lsp.exe
 If you installed Kite to a non-standard location, you may need to appropriately
 modify the executable path.
 
-### Neovim-LSP
+### Vim-LSP
 
-As today the [LSP integration in neovim](https://github.com/neovim/nvim-lspconfig) is just available in the nightlies.  
+As today the [LSP integration in vim](https://github.com/prabirshrestha/vim-lsp) is just available in the nightlies.  
 To enable the support in this case:
 
 ```
